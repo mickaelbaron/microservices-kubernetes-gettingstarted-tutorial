@@ -8,7 +8,7 @@ Comme précisé en introduction, l'ensemble des expérimentations ont été test
 
 * Créer des machines virtuelles
 * Créer un cluster Kubernetes avec la distribution [K3s](https://k3s.io/)
-* Installer les outils de gestion kubectl et [K9s](https://k9scli.io/)
+* Installer les outils de gestion **kubectl** et [K9s](https://k9scli.io/)
 
 ## Étapes à suivre
 
@@ -130,7 +130,7 @@ $ multipass --verbose exec ${master_name}-- sh -c "
 "
 ```
 
-Le nœud maître étant installé, nous allons pouvoir récupérer un TOKEN d'identification et l'adresse IP du cluster K8s. Ces informations nous serviront pour ajouter des nœuds de travail au cluster (actuellement composé d'un seul nœud).
+Le nœud maître étant installé, nous allons pouvoir récupérer un TOKEN d'identification et l'adresse IP du cluster Kubernetes. Ces informations nous serviront pour ajouter des nœuds de travail au cluster (actuellement composé d'un seul nœud).
 
 * Pour obtenir le TOKEN d'identification du cluster et son IP :
 
@@ -151,8 +151,8 @@ $ multipass --verbose exec ${workernode1_name} -- sh -c "
 
 ```
 $ multipass --verbose exec ${workernode2_name} -- sh -c "
-  curl -sfL https://get.k3s.io | K3S_URL='https://$IP:6443' K3S_TOKEN='$TOKEN' sh -
-"
+    curl -sfL https://get.k3s.io | K3S_URL='https://$IP:6443' K3S_TOKEN='$TOKEN' sh -
+  "
 ```
 
 Vous remarquerez que l'ajout d'un nouveau nœud de travail se fait assez facilement.
@@ -179,14 +179,14 @@ Afin que nous puissions accéder au Cluster, nous devons récupérer un fichier 
 
 ```
 $ multipass exec ${master_name} sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
-sed -i '' "s/127.0.0.1/$IP/" k3s.yaml
+$ sed -i '' "s/127.0.0.1/$IP/" k3s.yaml
 ```
 
 Toutes les instructions précédentes ont été regroupées dans un fichier script `createk3scluster.sh`. Il permet de paramétrer le nombre de nœuds de travail, la seule limite étant les ressources de votre ordinateur.
 
 TODO
 
-Nous avons désormais un cluster K8s, mais nous ne disposns pas encore des outils pour interagir avec celui-ci. Nous détaillons ci-après comment installer les outils de gestion **kubectl** et **k9s** sur votre poste de développeur. Leurs utilisations seront détaillées dans l'exercice suivant.
+Nous avons désormais un cluster Kubernetes, mais nous ne disposns pas encore des outils pour interagir avec celui-ci. Nous détaillons ci-après comment installer les outils de gestion **kubectl** et [K9s](https://k9scli.io/) sur votre poste de développeur. Leurs utilisations seront détaillées dans l'exercice suivant.
 
 ### Installation kubectl 
 
@@ -210,34 +210,34 @@ $ kubectl version --client
 * Pour tester si **kubectl** est correctement installé :
 
 ```
-$ export KUBECONFIG=./k3s.yaml
-$ kubectl top nod
+$ export KUBECONFIG=$PWD/k3s.yaml
+$ kubectl top nodes
 NAME               CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
 k8s-master         77m          7%     927Mi           46%
 k8s-workernode-1   20m          2%     469Mi           47%
 k8s-workernode-2   20m          2%     472Mi           48%
 ```
 
-La première ligne de commande permet d'indiquer à **kubectl** où se trouve le fichier d'accès au Cluster Kubernetes.
+La première ligne de commande permet d'indiquer à **kubectl** où se trouve le fichier d'accès au Cluster Kubernetes. Cette commande n'est à réaliser qu'une seule fois à l'ouvertue de votre terminal. Le seconde ligne de commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
 
-### Installation k9s
+### Installation K9s
 
-**K9s** est un gestionnaire de cluster Kubernetes qui a la particularité de fonctionner dans la console. L'interface utilisateur est très simpliste, mais permet de retourner en continu l'état du cluster.
+[K9s](https://k9scli.io/) est un gestionnaire de cluster Kubernetes qui a la particularité de fonctionner dans la console. L'interface utilisateur est très simpliste, mais permet de retourner en continu l'état du cluster.
 
-* **macOS** : pour installer **k9s** via [Homebrew](https://brew.sh/) :
+* **macOS** : pour installer **K9s** via [Homebrew](https://brew.sh/) :
 
 ```
 $ brew install k9s
 ```
 
-* **Linux** : pour installer **k9s** :
+* **Linux** : pour installer **K9s** :
 
 ```
 $ wget https://github.com/derailed/k9s/releases/download/v0.25.15/k9s_Linux_x86_64.tar.gz
 $ tar xzf k9s_Linux_x86_64.tar.gz
 ```
 
-* Pour tester si **k9s** est correctement installé, depuis un autre terminal :
+* Pour tester si **K9s** est correctement installé, depuis un autre terminal :
 
 ```
 $ export KUBECONFIG=./k3s.yaml
@@ -247,3 +247,10 @@ $ k9s
 Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 
 ![Outil K9s affichant les Pods déployés sur le cluster K8s](../images/k9s.png "K9s pour gérer votre cluster K8s")
+
+## Bilan de l'exercice
+
+À cette étape, vous disposez :
+
+* d'un cluster Kubernetes avec trois nœuds dont un pour le maître (`k8s-master`) et deux autres pour les nœuds de travail ;
+* de deux outils pour contrôler notre cluster Kubernetes.
