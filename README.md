@@ -17,9 +17,9 @@ Ci-dessous sont détaillés les exercices de ce tutoriel :
 
 Avant de démarrer cette série d'exercices, veuillez préparer votre poste de développeur en installant les outils suivants :
 
-* Un PC avec au minimum 8 Go de mémoire et les options de virtualisation d'activées ;
+* Un PC ou un Mac avec au minimum 8 Go de mémoire et les options de virtualisation d'activées ;
 * [Docker](https://www.docker.com/ "Docker") ;
-* [Editeur de texte : vim, emacs ou VSCode](https://code.visualstudio.com/) ;
+* Editeur de texte : vim, emacs ou [VSCode](https://code.visualstudio.com/) ;
 * [cURL](https://curl.haxx.se "cURL").
 
 ## Ressources
