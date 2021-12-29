@@ -1,6 +1,6 @@
 # Tutoriel Microservices avec Kubernetes - Les bases de K8s
 
-L'objectif de cette série d'exercices est d'apprendre à démystifier Kubernetes (K8s) en s'intéressant aux concepts fondamentaux de cet orchestrateur. Nous commencerons par expliquer comment créer un cluster K8s sur son poste de développeur afin de pouvoir manipuler les concepts tels que les **Pods**, les **Deployment**, les **Services** et les **Volumes**. 
+L'objectif de cette série d'exercices est d'apprendre à démystifier Kubernetes (K8s) en s'intéressant aux concepts fondamentaux de cet orchestrateur. Nous commencerons par expliquer comment créer un cluster K8s sur son poste de développeur afin de pouvoir manipuler les concepts tels que les `Pods`, les `Deployments`, les `Services` et les `Volumes`. 
 
 Ci-dessous sont détaillés les exercices de ce tutoriel :
 
