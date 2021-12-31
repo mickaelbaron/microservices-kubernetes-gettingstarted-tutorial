@@ -9,8 +9,9 @@ Ce premier exercice sera aussi l'occasion de manipuler les outils **kubectl** et
 ## But
 
 * Manipuler un `Pod` (créer, se connecter via son conteneur associé, supprimer)
-* Écrire un fichier de configuration pour décrire un objet Pod
-* Accéder à un Pod
+* Écrire un fichier de configuration pour décrire un objet `Pod`
+* Accéder à un `Pod` via le réseau
+* Organiser les `Pods` via les `namespaces`
 
 ## Étapes à suivre
 
@@ -29,7 +30,7 @@ L'outil [K9s](https://k9scli.io/) affiche tous les objets créés au sein du clu
 
 L'utilisation [K9s](https://k9scli.io/) est très proche à l'éditeur de texte **Vim**. Deux modes sont disponibles : *commande* et *recherche*. Pour saisir une commande, la touche `:` doit être utilisée. Ce mode est identifiable par la forme du prompt `🐶>` qui représente un chien de race Bigle (enfin je crois). L'ensemble des commandes est disponible via le raccourci `ctrl + a` ou via la commande `:aliases`. Pour effectuer une recherche, la touche `/` doit être utilisée. Ce mode est identifiable par la forme du prompt `🐩>` qui est un chien de race Caniche (il n'y a pas à se tromper là).
 
-* Depuis l'outil [K9s](https://k9scli.io/), afficher la liste des `namespaces` via la commande `:namespace`.
+* Depuis l'outil [K9s](https://k9scli.io/), afficher la liste des `namespaces` via la commande `:namespaces`.
 
 ![Liste des namespaces via la commande :namespace](../images/k9s-namespace.png "K9s pour gérer votre cluster K8s")
 
@@ -71,7 +72,7 @@ kube-node-lease   Active   6d15h
 
 Il est maintenant temps de créer notre premier `Pod` qui pour rappel est une représentation logique de un ou plusieurs conteneurs. 
 
-* Dans l'exemple qui va suivre, nous allons créer un `Pod` avec un conteneur basé sur l'image du serveur web Nginx. Depuis l'invite de commande *kubectl* :
+* Dans l'exemple qui va suivre, nous allons créer un `Pod` avec un conteneur basé sur l'image du serveur web [Nginx](https://www.nginx.com/). Depuis l'invite de commande *kubectl* :
 
 ```
 $ kubectl run myfirstpod --image=nginx:latest
@@ -86,18 +87,199 @@ NAME         READY   STATUS    RESTARTS   AGE
 myfirstpod   1/1     Running   0          43s
 ```
 
-Depuis l'outil [K9s](https://k9scli.io/), vous devriez obtenir le résultat suivant (commande `:pods`).
+Depuis l'outil [K9s](https://k9scli.io/), vous devriez obtenir le résultat suivant (commande `:pods` si vous n'affichez pas la liste des `Pods`).
 
-![Liste des Pods qui montre le `Pod` que nous venons de créer](../images/k9s-myfirstpod.png "K9s pour gérer votre cluster K8s")
+![Liste des Pods actuellement dans le cluster Kubernetes dont le Pod que nous venons de créer](../images/k9s-myfirstpod.png "Le Pod précédement créé est disponible dans la liste des Pods")
 
-* kubectl exec puor modifier le fichier image
-* suppression du pod
-* Créer un Pod en écrivant un fichier de configuration
-* suppression du pod
-* Créer un Pod dans un namespace
-* suppression du namespace
-* Créer un Pod avec deux conteneurs dans un namespace et expliquer comment il communique
-* proxy pour accéder au Pod
+Puisque notre premier `Pod` a été créé et déployé sans problème, nous allons vérifier si la page web par défaut de [Nginx](https://www.nginx.com/) est retournée après une requête HTTP. L'accès depuis l'extérieur d'un cluster K8s à un `Pod` se fait généralement par les services. Toutefois, nous découvrirons les services plus tard dans les prochains exercices. En attendant, nous allons utiliser une technique d'exposition des `Pods` via une redirection des ports. Cette technique ne peut être mise en place que par l'intermédiaire des outils **kubectl** et [K9s](https://k9scli.io/). Cette redirection des ports n'est à utiliser que pour les phases de test, **ne jamais utiliser cette technique pour la mise en production de votre application**.
+
+* Depuis l'invite de commande *kubectl* :
+
+```
+$ kubectl port-forward myfirstpod 8080:80
+Forwarding from 127.0.0.1:8080 -> 80
+Forwarding from [::1]:8080 -> 80
+Handling connection for 8080
+```
+
+L'option `port-forward` permet de créer un pont entre la machine locale (depuis le port 8080) et notre `Pod` (vers le port 80). À l'éxécution de cette commande, le processus **kubectl** devient bloquant.
+
+* Ouvrir la page par défaut de [Nginx](https://www.nginx.com/) depuis un navigateur : http://localhost:8080.
+
+![Page par défaut Nginx disponible par le Pod déployé](../images/port-forward-nginx.png "Accès au Pod")
+
+* Arrêter le processus bloquant **kubectl** depuis l'invite de commande *kubectl* via `CTRL+C`.
+
+Puisqu'un `Pod` est une représentation logique de un ou plusieurs conteneurs, nous pouvons exécuter une commande directement sur les conteneurs d'un `Pod`. 
+
+* Depuis l'invite de commande *kubectl* :
+
+```
+$ kubectl exec -it myfirstpod -- /bin/bash
+root@myfirstpod:/#
+```
+
+L'option `exec` permet d'exécuter une commande sur un conteneur d'un `Pod`. Comme un `Pod` peut représenter plusieurs conteneurs, il est possible d'indiquer le conteneur sur lequel la commande doit être exécutée. S'il n'y a pas de conteneur d'indiquer en paramètre, le conteneur par défaut choisi sera le premier. Dans notre cas, comme il n'y a qu'un conteneur dans notre `Pod`, c'est le conteneur associé à l'image [Nginx](https://www.nginx.com/) qui sera utilisé. Les options `i` et `t` indiquent que la commande à exécuter sera interactive et le résultat sera affiché sur le teminal courant. Ces options sont identiques à [Docker](https://www.docker.com/ "Docker"). L'option `--` précise que les paramètres qui suivront concerneront la commande à exécuter par le conteneur. Dans cet exemple, nous ouvrons un prompt depuis le conteneur. 
+
+Nous allons changer la page HTML par défaut, en modifiant le contenu du fichier */usr/share/nginx/html/index.html*.
+
+* Toujours depuis l'invite de commande *kubectl*, vous devriez toujours être dans le prompt du conteneur [Nginx](https://www.nginx.com/) :
+
+```
+root@myfirstpod:/# echo "Modification de la page web par defaut" > /usr/share/nginx/html/index.html
+root@myfirstpod:/# exit
+$ kubectl port-forward myfirstpod 8080:80
+```
+
+![Le contenu du conteneur a été modifié](../images/new-webpage.png "Nouvelle page web")
+
+* Supprimer le `Pod` depuis l'invite de commande *kubectl* :
+
+```
+$ kubectl delete pods myfirstpod
+pod "myfirstpod" deleted
+```
+
+Pour l'instant, nous avons créé un `Pod` via l'option `run` de l'outil **kubectl**. Nous allons utiliser un fichier de configuration basée sur une syntaxte YAML. 
+
+* Créer dans le répertoire _k8s-gettingstarted-exercice1-pod-tools/_ un fichier appelé `mypod.yaml` en ajoutant le contenu suivant :
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mycontainer-1
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+  - name: mycontainer-2
+    image: alpine:latest
+    command: ["watch", "wget", "-qO-", "localhost"]
+```
+
+Ce fichier de configuration décrit deux conteneurs. Le premier est un conteneur basé sur l'image du serveur web [Nginx](https://www.nginx.com/) (identique aux instructions précédentes) et le second est un conteneur basé sur l'image d'une distribution minimaliste Linux [Alpine](https://www.alpinelinux.org/). Pour ce second conteneur, une commande récupère la page HTML du premier conteneur toutes les deux secondes (`watch`). La communication entre des conteneurs d'un même `Pod` se fait via `localhost`.
+
+* Pour créer ce `Pod` dans notre cluster :
+
+```
+$ kubectl apply -f mypod.yaml
+pod/mypod created
+```
+
+L'option `apply` permet d'appliquer un fichier de configuration au cluster K8s. 
+
+* Vérifions que le `Pod` a été créé dans le cluster K8s :
+
+```
+$ kubectl get pods mypod -o wide
+NAME    READY   STATUS    RESTARTS   AGE   IP          NODE               NOMINATED NODE   READINESS GATES
+mypod   2/2     Running   0          19m   10.42.1.7   k8s-workernode-1   <none>           <none>
+```
+
+Nous introduisons le paramètre `-o` dans l'option `get` qui permet d'obtenir des informations plus détaillées. Nous remarquons également que les deux conteneurs sont en cours d'exécution (`2/2`). Enfin, le `Pod` est déployé dans le nœud de travail `k8s-workernode-1`.
+
+* Une autre option intéressante proposée par **kubectl** est `describe` qui permet d'obtenir un détail complet des informations d'un `Pod` :
+
+```
+$ kubectl describe pods mypod
+Name:         mypod
+Namespace:    default
+Priority:     0
+Node:         k8s-workernode-2/192.168.64.11
+Start Time:   Fri, 31 Dec 2021 07:21:46 +0100
+Labels:       <none>
+Annotations:  <none>
+Status:       Running
+IP:           10.42.2.8
+IPs:
+  IP:  10.42.2.8
+Containers:
+  mycontainer-1:
+    Container ID:   containerd://676178fe6a86a23bca08e7c1d6793689da08d871f539289efc547f75338b7138
+    Image:          nginx:latest
+    Image ID:       docker.io/library/nginx@sha256:0d17b565c37bcbd895e9d92315a05c1c3c9a29f762b011a10c54a66cd53c9b31
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 31 Dec 2021 07:21:53 +0100
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pzcnb (ro)
+  mycontainer-2:
+    Container ID:  containerd://0bfaad4634ec5c958f84a97cd9d4c0e72be8c4e34b2a8fde3b520b4255b79e73
+    Image:         alpine:latest
+    Image ID:      docker.io/library/alpine@sha256:21a3deaa0d32a8057914f36584b5288d2e5ecc984380bc0118285c70fa8c9300
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      watch
+      wget
+      -qO-
+      localhost
+    State:          Running
+      Started:      Fri, 31 Dec 2021 07:21:57 +0100
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pzcnb (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  kube-api-access-pzcnb:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  31m   default-scheduler  Successfully assigned default/mypod to k8s-workernode-2
+  Normal  Pulling    31m   kubelet            Pulling image "nginx:latest"
+  Normal  Pulled     31m   kubelet            Successfully pulled image "nginx:latest" in 6.001292094s
+  Normal  Created    31m   kubelet            Created container mycontainer-1
+  Normal  Started    31m   kubelet            Started container mycontainer-1
+  Normal  Pulling    31m   kubelet            Pulling image "alpine:latest"
+  Normal  Pulled     31m   kubelet            Successfully pulled image "alpine:latest" in 3.160324343s
+  Normal  Created    31m   kubelet            Created container mycontainer-2
+  Normal  Started    31m   kubelet            Started container mycontainer-2
+``` 
+
+* Comme le `Pod` _mypod_ dispose de deux conteneurs (_mycontainer-1_ et mycontainer-2_), nous allons montrer comment exécuter une commande en choisissant un contneur. Depuis l'invite de commande *kubectl* :
+
+```
+$ kubectl exec -it mypod -c mycontainer-1 -- /bin/sh -c "echo 'Helloworld from K3s' > /usr/share/nginx/html/index.html"
+```
+
+Le choix du conteneur se fait via l'option `-c` et dont le nom a été défini dans le fichier _mypod.yaml_. Contrairement à l'exécution précédente d'une commande dans un conteneur, nous modifierons directement le fichier _/usr/share/nginx/html/index.html_ sans passer par un prompt interactif.
+
+* Pour vérifier que la page web par défaut a été modifiée, nous utiliserons l'option `logs` de **kubectl** qui comme son nom l'indique permet d'afficher le contenu de la sortie console :
+
+```
+$ kubectl logs mypod --tail=10 -f -c mycontainer-2
+Every 2.0s: wget -qO- localhost                             2021-12-31 06:45:45
+
+Helloworld from K3s
+```
+
+L'option `-f` permet d'afficher en continu l'arrivée de nouveaux messages sur la sortie console. L'option `-c`, déjà utilisée, permet de désigner le conteneur dans lequel nous souhaitons l'affichage des messages de la sortie console. Enfin `--tail=10` n'affichera que les dix dernières lignes.
+
+TODO
+* création d'un namespace
 
 ### Bilan de l'exercice
 

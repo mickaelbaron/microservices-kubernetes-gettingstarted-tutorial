@@ -173,7 +173,7 @@ k8s-workernode-2        Running           192.168.64.11    Ubuntu 20.04 LTS
                                           10.42.2.1
 ```
 
-Afin que nous puissions accéder au Cluster, nous devons récupérer un fichier d'accès qui contiendra des informations comme les autorisations pour les outils clients.
+Afin que nous puissions accéder au Cluster, nous devons récupérer un fichier d'accès qui contiendra des informations comme les autorisations pour les outils clients. Ce fichier d'accès permet de communiquer avec le composant *API Server* d'un cluster.
 
 * Se placer à la racine du dossier du dépôt de ce tutoriel et exécuter les deux lignes de commande suivantes pour récupérer ce fichier d'accès :
 
@@ -187,6 +187,8 @@ Toutes les instructions précédentes ont été regroupées dans un fichier scri
 TODO
 
 Nous avons désormais un cluster Kubernetes, mais nous ne disposns pas encore des outils pour interagir avec celui-ci. Nous détaillons ci-après comment installer les outils de gestion **kubectl** et [K9s](https://k9scli.io/) sur votre poste de développeur. Leurs utilisations seront détaillées dans l'exercice suivant.
+
+**kubectl** et [K9s](https://k9scli.io/) sont des outils qui communiquent avec le composant *API Server* et nécessite d'accéder au fichier *k3s.yaml* obtenu précédemment.
 
 ### Installation kubectl 
 
