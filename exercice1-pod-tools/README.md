@@ -370,7 +370,7 @@ kube-system   svclb-traefik-vvclx                      2/2     Running     8 (17
 
 ### Bilan de l'exercice
 
-À cette, nous savez
+À cette, vous savez :
 
 * manipuler les outils **kubectl** et [K9s](https://k9scli.io/) ;
 * créer un `Pod` avec et sans un fichier de configuration ;
