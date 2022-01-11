@@ -6,9 +6,9 @@ Ci-dessous sont détaillés les exercices de ce tutoriel :
 
 * préparer son environnement d'orchestration K8s : différentes configurations sont détaillées (avec [K3d](https://k3d.io/) pour créer un cluster K8s avec [Docker](https://www.docker.com/ "Docker"), avec [K3s](https://k3s.io/) pour créer un cluster K8s depuis des machines virtuelles, avec la distribution de référence depuis des machines virtuelles) ;
 * créer un premier `Pod` et manipuler son environnement d'orchestration K8s : créer et déployer une représentation logique de conteneurs en écrivant un fichier de configuration basé sur un objet `Pod` puis utiliser les outils **kubectl** et [K9s](https://k9scli.io/) ;
-* créer un Deployment : créer et déployer une représentation logique de `Pods` et gérer la montée en charge de ces `Pods` (ReplicaSets) ;
-* communiquer entre `Pods` : créer et déployer un service de type `ClusterIP` ;
-* communiquer depuis l'extérieur d'un cluster K8s : créer et déployer un service de type `NodePort` et `Ingress` ;
+* créer et déployer une représentation logique de `Pods` : créer un `Deployment` et gérer la montée en charge des `Pods` (ReplicaSets) ;
+* communiquer depuis l'extérieur d'un cluster K8s : créer et déployer des services de type `ClusterIP` et `NodePort` ;
+* communiquer depuis l'extérieur d'un cluster K8s avec des règles de routage : créer et déployer un objet de type `Ingress` ;
 * conserver les données : créer des volumes et des volumes persistants (PersistentVolume et PersistentVolumeClaim). 
 
 **Buts pédagogiques** : mettre en place un cluster K8s, créer un `Pod`, communiquer avec un `Pod`, utiliser des outils d'administration (**kubectl** et [K9s](https://k9scli.io/)).
