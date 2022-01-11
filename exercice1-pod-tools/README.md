@@ -91,7 +91,7 @@ Depuis l'outil [K9s](https://k9scli.io/), vous devriez obtenir le résultat suiv
 
 ![Liste des Pods actuellement dans le cluster Kubernetes dont le Pod que nous venons de créer](../images/k9s-myfirstpod.png "Le Pod précédement créé est disponible dans la liste des Pods")
 
-Puisque notre premier `Pod` a été créé et déployé sans problème, nous allons vérifier si la page web par défaut de [Nginx](https://www.nginx.com/) est retournée après une requête HTTP. L'accès depuis l'extérieur d'un cluster K8s à un `Pod` se fait généralement par les services. Toutefois, nous découvrirons les services plus tard dans les prochains exercices. En attendant, nous allons utiliser une technique d'exposition des `Pods` via une redirection des ports. Cette technique ne peut être mise en place que par l'intermédiaire des outils **kubectl** et [K9s](https://k9scli.io/). Cette redirection des ports n'est à utiliser que pour les phases de test, **ne jamais utiliser cette technique pour la mise en production de votre application**.
+Puisque notre premier `Pod` a été créé et déployé sans problème, nous allons vérifier si la page web par défaut de [Nginx](https://www.nginx.com/) est retournée après une requête HTTP. L'accès depuis l'extérieur d'un cluster K8s à un `Pod` se fait généralement par les services. Toutefois, nous découvrirons les services plus tard dans les prochains exercices. En attendant, nous allons utiliser une technique d'exposition des `Pods` via une redirection des ports. Cette technique ne peut être mise en place que par l'intermédiaire des outils **kubectl** et [K9s](https://k9scli.io/). Cette redirection des ports n'est à utiliser que pour les phases de test, **ne jamais utiliser cette technique pour la mise en production de vos microservices**.
 
 * Depuis l'invite de commande *kubectl* :
 
@@ -147,7 +147,7 @@ pod "myfirstpod" deleted
 
 Pour l'instant, nous avons créé un `Pod` via l'option `run` de l'outil **kubectl**. Nous allons utiliser un fichier de configuration basée sur une syntaxte YAML. 
 
-* Créer dans le répertoire _k8s-gettingstarted-exercice1-pod-tools/_ un fichier appelé `mypod.yaml` en ajoutant le contenu suivant :
+* Créer dans le répertoire _exercice1-pod-tools/_ un fichier appelé `mypod.yaml` en ajoutant le contenu suivant :
 
 ```yaml
 apiVersion: v1
@@ -180,8 +180,8 @@ L'option `apply` permet d'appliquer un fichier de configuration au cluster K8s.
 
 ```
 $ kubectl get pods mypod -o wide
-NAME    READY   STATUS    RESTARTS   AGE   IP          NODE               NOMINATED NODE   READINESS GATES
-mypod   2/2     Running   0          19m   10.42.1.7   k8s-workernode-1   <none>           <none>
+NAME    READY   STATUS    RESTARTS   AGE   IP          NODE            
+mypod   2/2     Running   0          19m   10.42.1.7   k8s-workernode-1
 ```
 
 Nous introduisons le paramètre `-o` dans l'option `get` qui permet d'obtenir des informations plus détaillées. Nous remarquons également que les deux conteneurs sont en cours d'exécution (`2/2`). Enfin, le `Pod` est déployé dans le nœud de travail `k8s-workernode-1`.
@@ -294,26 +294,26 @@ $ kubectl delete pods mypod
 pod "mypod" deleted
 ```
 
-* Créer dans le répertoire _k8s-gettingstarted-exercice1-pod-tools/_ un fichier appelé `mynamespace.yaml` en ajoutant le contenu suivant :
+* Créer dans le répertoire _exercice1-pod-tools/_ un fichier appelé _mynamespaceexercice1.yaml_ en ajoutant le contenu suivant :
 
 ```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: mynamespace
+  name: mynamespaceexercice1
 ```
 
 * Pour créer ce `Namespace` dans notre cluster :
 
 ```
-$ kubectl apply -f k8s-gettingstarted-exercice1-pod-tools/mynamespace.yaml
-namespace/mynamespace created
+$ kubectl apply -f exercice1-pod-tools/mynamespaceexercice1.yaml
+namespace/mynamespaceexercice1 created
 ```
 
 * Nous pouvons maintenant recréer notre `Pod` dans ce `Namespace` :
 
 ```
-$ kubectl apply -f k8s-gettingstarted-exercice1-pod-tools/mypod.yaml -n mynamespace
+$ kubectl apply -f exercice1-pod-tools/mypod.yaml -n mynamespaceexercice1
 pod/mypod created
 ```
 
@@ -325,31 +325,31 @@ C'est l'option `n` qui sert à préciser le `Namespace` qui contiendra notre `Po
 $ kubectl get pods
 No resources found in default namespace.
 
-$ kubectl get pods -n mynamespace
+$ kubectl get pods -n mynamespaceexercice1
 NAME    READY   STATUS    RESTARTS   AGE
 mypod   2/2     Running   0          3h12m
 
 $ kubectl get pods --all-namespaces
-NAMESPACE     NAME                                     READY   STATUS      RESTARTS      AGE
-kube-system   helm-install-traefik-crd--1-z4nl5        0/1     Completed   0             9d
-kube-system   helm-install-traefik--1-pwdm6            0/1     Completed   1             9d
-kube-system   svclb-traefik-r8npj                      2/2     Running     8 (21h ago)   9d
-kube-system   coredns-85cb69466-mz48l                  1/1     Running     4 (21h ago)   9d
-kube-system   metrics-server-9cf544f65-d96nt           1/1     Running     8 (21h ago)   9d
-kube-system   local-path-provisioner-64ffb68fd-jwxxg   1/1     Running     8 (21h ago)   9d
-kube-system   svclb-traefik-v7wxj                      2/2     Running     8 (21h ago)   9d
-kube-system   svclb-traefik-vvclx                      2/2     Running     8 (21h ago)   9d
-mynamespace   mypod                                    2/2     Running     0             3h15m
-kube-system   traefik-786ff64748-2vvzh                 1/1     Running     4 (21h ago)   9d
+NAMESPACE              NAME                                     READY   STATUS              RESTARTS       AGE
+kube-system            helm-install-traefik-crd--1-z4nl5        0/1     Completed   0             9d
+kube-system            helm-install-traefik--1-pwdm6            0/1     Completed   1             9d
+kube-system            svclb-traefik-r8npj                      2/2     Running     8 (21h ago)   9d
+kube-system            coredns-85cb69466-mz48l                  1/1     Running     4 (21h ago)   9d
+kube-system            metrics-server-9cf544f65-d96nt           1/1     Running     8 (21h ago)   9d
+kube-system            local-path-provisioner-64ffb68fd-jwxxg   1/1     Running     8 (21h ago)   9d
+kube-system            svclb-traefik-v7wxj                      2/2     Running     8 (21h ago)   9d
+kube-system            svclb-traefik-vvclx                      2/2     Running     8 (21h ago)   9d
+mynamespaceexercice1   mypod                                    2/2     Running     0             3h15m
+kube-system            traefik-786ff64748-2vvzh                 1/1     Running     4 (21h ago)   9d
 ```
 
-Vous remarquerez dans la première commande que seul les `Pods` dans le `Namespace` par défaut sont listés, sauf qu'il n'y en a pas. La deuxième commmande liste les `Pods` pour le `Namespace` `mynamespace`. Enfin la troisième commande liste tous les `Pods` quelque soit son `Namespace`.
+Vous remarquerez dans la première commande que seul les `Pods` dans le `Namespace` par défaut sont listés, sauf qu'il n'y en a pas. La deuxième commmande liste les `Pods` pour le `Namespace` `mynamespaceexercice1`. Enfin la troisième commande liste tous les `Pods` quelque soit son `Namespace`.
 
 * Si vous supprimez un `Namespace`, tous les objets qu'il contient seront supprimés.
 
 ```
-$ kubectl delete namespace mynamespace
-namespace "mynamespace" deleted
+$ kubectl delete namespace mynamespaceexercice1
+namespace "mynamespaceexercice1" deleted
 ```
 
 * Vérifier si le `Pod` a été supprimé :
