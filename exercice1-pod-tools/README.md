@@ -382,7 +382,7 @@ kube-system   svclb-traefik-vvclx                      2/2     Running     8 (17
 
 Pour continuer sur les concepts présentés dans cet exercice, nous proposons de continuer avec les manipulations suivantes :
 
-* créer un `Pod` basé sur une image Apache HTTP et modifier le contenu du répertoire ;
+* créer un `Pod` basé sur une image [Apache HTTP](https://httpd.apache.org/) et modifier le contenu du répertoire ;
 * créer plusieurs `Pods` dans un `Namespace` et le supprimer.
 
 À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur Twitter (@mickaelbaron)

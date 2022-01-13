@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: myclusteripservice
+spec:
+  selector:
+    app: mypod
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      targetPort: 80
+      port: 8080

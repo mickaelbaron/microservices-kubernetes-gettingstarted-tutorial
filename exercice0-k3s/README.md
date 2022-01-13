@@ -256,3 +256,8 @@ Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 
 * d'un cluster Kubernetes avec trois nœuds dont un pour le maître (`k8s-master`) et deux autres pour les nœuds de travail ;
 * de deux outils pour contrôler notre cluster Kubernetes.
+
+## Ressources
+
+* https://betterprogramming.pub/local-k3s-cluster-made-easy-with-multipass-108bf6ce577c
+* https://k33g.gitlab.io/articles/2020-02-21-K3S-01-CLUSTER.html

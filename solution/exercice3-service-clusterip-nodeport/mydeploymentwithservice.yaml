@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydeploymentforservice
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mypod
+  template:
+    metadata:
+      labels:
+        app: mypod
+    spec:
+      containers:
+      - name: mycontainer
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "echo $HOSTNAME > /usr/share/nginx/html/index.html"]
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mynodeportservice
+spec:
+  selector:
+    app: mypod
+  type: NodePort
+  ports:
+    - protocol: TCP
+      targetPort: 80
+      port: 8080
+      nodePort: 30001
