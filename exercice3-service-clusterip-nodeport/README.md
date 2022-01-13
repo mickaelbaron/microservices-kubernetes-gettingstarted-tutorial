@@ -90,7 +90,7 @@ mydeploymentforservice-6bb797546-fh28g
 
 La première commande affiche la liste des `Pods` depuis notre `Namespace`. En considérant le premier `Pod` de la liste, nous exécutons une commande sur le conteneur pour afficher le contenu du fichier _/usr/share/nginx/html/index.html_. Si le résultat est similaire à `mydeploymentforservice-XXXXXXXXX-YYYYY`, c'est que la commande au démarrage du conteneur a été correctement exécutée.
 
-Nous allons créer notre premier `Service` de type `ClusterIP` qui est le `Service` de base dans K8s. `ClusterIP` est un service accessible uniquement à l'intérieur d'un cluster. Il expose un service sur une IP et un CNAME (Canonical Name) et distribue les requêtes vers l'adresse IP d'un `Pod`. S'il existe plusieurs `Pods`, le service `ClusterIP` distribue aléatoirement les requêtes vers les `Pods`. L'utilisation du nom du `Service` impose que les `Pods` soient dans le même `Namespace`.
+Nous allons créer notre premier `Service` de type `ClusterIP` qui est le `Service` de base dans K8s. `ClusterIP` est un `Service` accessible uniquement à l'intérieur d'un cluster. Il expose un `Service` sur une IP et un CNAME (Canonical Name) et distribue les requêtes vers l'adresse IP d'un `Pod`. S'il existe plusieurs `Pods`, le `Service` `ClusterIP` distribue aléatoirement les requêtes vers les `Pods`. L'utilisation du nom du `Service` impose que les `Pods` soient dans le même `Namespace`.
 
 * Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé _myclusteripservice.yaml_ qui décrit un `Service` de type `ClusterIP` :
 
@@ -109,7 +109,7 @@ spec:
       port: 8080
 ```
 
-Le `Service` va rediriger les requêtes reçues vers les `Pods` identifiés par le paramètre `selector`. Ce `Service` sera créé dans le même `Namespace` que les `Pods` du `Deployment` `mydeploymentforservice`. Si ce n'était pas le cas, aucun `Pod` ne serait identifié. Le paramètre `targetPort` `80` correspond au port utilisé par les `Pods`. Le paramètre `port` `8080` précise le port pour communiquer avec le service. Si vous êtes familiarisé avec [Docker](https://www.docker.com/ "Docker"), c'est sensiblement équivalent à la redirection de port par le paramètre `-p port:targetPort`.
+Le `Service` va rediriger les requêtes reçues vers les `Pods` identifiés par le paramètre `selector`. Ce `Service` sera créé dans le même `Namespace` que les `Pods` du `Deployment` `mydeploymentforservice`. Si ce n'était pas le cas, aucun `Pod` ne serait identifié. Le paramètre `targetPort` `80` correspond au port utilisé par les `Pods`. Le paramètre `port` `8080` précise le port pour communiquer avec le `Service`. Si vous êtes familiarisé avec [Docker](https://www.docker.com/ "Docker"), c'est sensiblement équivalent à la redirection de port par le paramètre `-p port:targetPort`.
 
 * Appliquer cette configuration de `Service` dans le cluster Kubernetes :
 
@@ -223,7 +223,7 @@ $ curl http://localhost:8080/api/v1/namespaces/mynamespaceexercice3/services/myc
 mydeploymentforservice-6bb797546-nld6h
 ```
 
-Avec cette commande, nous envoyons une requête au `Service` qui distribuera aléatoirement à tous les `Pods` de notre `Deployment`. À noter que l'identifiant du service ne peut pas être son IP, il faut obligatoirement que le nom du `Service` soit utilisé (`myclusteripservice`). Cette solution est pratique si vous souhaitez interagir avec vos `Pods` sans vouloir les exposer.
+Avec cette commande, nous envoyons une requête au `Service` qui distribuera aléatoirement à tous les `Pods` de notre `Deployment`. À noter que l'identifiant du `Service` ne peut pas être son IP, il faut obligatoirement que le nom du `Service` soit utilisé (`myclusteripservice`). Cette solution est pratique si vous souhaitez interagir avec vos `Pods` sans vouloir les exposer.
 
 * Avant de continuer, stopper le proxy (CTRL+C), supprimer le `Pod` `podtest` et supprimer le `Service` `myclusteripservice`.
 
@@ -254,7 +254,7 @@ spec:
       nodePort: 30001
 ```
 
-Le `Service` va rediriger les requêtes reçues vers les `Pods` identifiés par le paramètre `selector`. Ce `Service` sera créé dans le même `Namespace` que les `Pods` du `Deployment` `mydeploymentforservice`. Si ce n'était pas le cas, aucun `Pod` ne serait identifié. Les paramètres `targetPort` et `port` sont identiques à ceux utilisés pour le service de type `ClusterIP`. Le paramètre `nodePort` est celui sera exposé au niveau de chaque nœud du cluster Kubernetes.
+Le `Service` va rediriger les requêtes reçues vers les `Pods` identifiés par le paramètre `selector`. Ce `Service` sera créé dans le même `Namespace` que les `Pods` du `Deployment` `mydeploymentforservice`. Si ce n'était pas le cas, aucun `Pod` ne serait identifié. Les paramètres `targetPort` et `port` sont identiques à ceux utilisés pour le `Service` de type `ClusterIP`. Le paramètre `nodePort` est celui sera exposé au niveau de chaque nœud du cluster Kubernetes.
 
 * Appliquer cette configuration de `Service` dans le cluster Kubernetes :
 
@@ -365,8 +365,9 @@ service/mynodeportservice unchanged
 
 Pour continuer sur les concepts présentés dans cet exercice, nous proposons de continuer avec les manipulations suivantes :
 
-* créer un service de type `ClusterIP` ...
-* créer un service de type `NodePort` ...
+* créer un `Deployment` basé sur une image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
+* créer un `Service` de type `ClusterIP` pour ce `Deployment`;
+* créer un `Service` de type `NodePort` pour ce `Deployment`.
 
 ## Ressources
 
