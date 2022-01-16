@@ -1,4 +1,4 @@
-# Exercice 3 : communiquer depuis l'extérieur d'un cluster K8s avec les objets Service ClusterIP et NodePort
+# Exercice 3 : communiquer avec les Pods via les Services ClusterIP et NodePort
 
 À cette étape, la seule solution que nous ayons étudié pour communiquer avec un `Pod` depuis l'extérieur de notre cluser K8s est d'utiliser la redirection de port avec l'outil **kubectl** et l'option `port-forward` (vue dans l'[exercice 1](../exercice1-pod-tools/README.md)). Toutefois, cette solution n'est pas envisageable pour une mise en production puisqu'elle nécessite l'accès au composant *API Server* (réservé à l'administrateur et au développeur) et surtout elle ne permet d'accéder qu'à un seul `Pod` à la fois. Ce dernier point est gênant puisque depuis l'exercice [exercice 2](/exercice2-deployment/README.md) nous avons appris à créer plusieurs `Pods` basés sur un même template.
 

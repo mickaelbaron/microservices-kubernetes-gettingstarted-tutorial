@@ -24,7 +24,7 @@ Avant de démarrer cette série d'exercices, veuillez préparer votre poste de d
 
 ## Ressources
 
-Retrouver les précédents tutoriels sur le même sujet :
+Retrouver les précédents tutoriels sur le sujet des conteneurs :
 
 * [Tutoriel sur le développement de Microservices avec Docker et le langage Java](https://github.com/mickaelbaron/microservices-docker-java-tutorial)
 
@@ -33,3 +33,10 @@ Pour aller plus loin, vous pouvez consulter les ressources suivantes :
 * [Support de cours sur une introduction aux architectures microservices](https://mickael-baron.fr/soa/introduction-microservices "Support de cours sur une introduction aux architectures microservices") ;
 * [Support de cours sur les outils et bibliothèques pour la mise en œuvre d'architectures microservices](https://mickael-baron.fr/soa/microservices-mise-en-oeuvre "Support de cours sur les outils et bibliothèques pour la mise en œuvre d'architectures microservices") ;
 * [Support de cours sur Kubernetes (K8s)](https://mickael-baron.fr/soa/microservices-k8s "Support de cours sur Kubernetes (K8s)").
+
+## Remerciements
+
+L'apprentissage de Kubernetes m'a pris un certain temps et j'ai pu compter sur de nombreuses ressources sur Internet. J'ai pu également compter sur de nombreuses personnes pour m'aiguiller à qui j'ai posé de nombreuses questions. Je voulais en profiter pour les remercier :
+
+* Guilhem Lettron (@guilhemlettron)
+* Idriss Neumann (@idriss_neumann)
