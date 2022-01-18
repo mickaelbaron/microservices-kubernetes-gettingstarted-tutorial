@@ -9,6 +9,7 @@ Nous présentons dans cet exercice les `Ingress`, une solution qui s'appuie sur 
 ## But
 
 * Écrire une configuration `Ingress` ;
+* Créer des règles de type `fanout` ou hôtes virtuels ; 
 * Gérer des hôtes virtuels.
 
 ## Étapes à suivre
@@ -66,9 +67,10 @@ spec:
               command: 
                 - /bin/sh
                 - -c
-                - >
+                - >                  
                   mkdir /usr/share/nginx/html/app1;
-                  echo App 1 from $HOSTNAME > /usr/share/nginx/html/app1/index.html
+                  echo App 1 fanout from $HOSTNAME > /usr/share/nginx/html/app1/index.html
+                  echo App 1 vhosts from $HOSTNAME > /usr/share/nginx/html/index.html
 
 ---
 
@@ -118,7 +120,8 @@ spec:
                 - -c
                 - >
                   mkdir /usr/share/nginx/html/app2;
-                  echo App 2 from $HOSTNAME > /usr/share/nginx/html/app2/index.html
+                  echo App 2 fanout from $HOSTNAME > /usr/share/nginx/html/app2/index.html
+                  echo App 2 vhosts from $HOSTNAME > /usr/share/nginx/html/index.html
 
 ---
 
@@ -147,13 +150,13 @@ deployment.apps/app2deployment created
 service/app2service created
 ```
 
-* Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _myingress.yaml_ qui décrit un `Ingress` :
+* Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _myingressfanout.yaml_ qui décrit un `Ingress` :
 
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: myingress
+  name: myingressfanout
 spec:
   rules:
     - http:
@@ -180,15 +183,15 @@ Deux règles sont définies. La première traite du chemin (`path`) `/app1` et s
 * Appliquer cette configuration pour créer cet `Ingress` dans le cluster Kubernetes :
 
 ```
-$ kubectl apply -f exercice4-ingress/myingress.yaml -n mynamespaceexercice4
-ingress.networking.k8s.io/myingress created
+$ kubectl apply -f exercice4-ingress/myingressfanout.yaml -n mynamespaceexercice4
+ingress.networking.k8s.io/myingressfanout created
 ```
 
 * Afficher le détail complet de cet `Ingress` via l'option `describe` pour s'assurer que tout est configuré correctement :
 
 ```
-$ kubectl describe ingress -n mynamespaceexercice4 myingress
-Name:             myingress
+$ kubectl describe ingress -n mynamespaceexercice4 myingressfanout
+Name:             myingressfanout
 Namespace:        mynamespaceexercice4
 Address:          192.168.64.10,192.168.64.11,192.168.64.9
 Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
@@ -202,32 +205,102 @@ Annotations:  <none>
 Events:       <none>
 ```
 
-* Il ne reste plus qu'à tester les deux règles, en utilisant l'outil **cURL** :
+Il ne reste plus qu'à tester les deux règles en effectuant des requêtes vers le nœud maître (ou nœud de travail) via l'outil **cURL**.
+
+---
+
+**Via K3s**
+
+* Exécuter les requêtes suivantes :
 
 ```
-$ multipass list
-Name                    State             IPv4             Image
-k8s-master              Running           192.168.64.9     Ubuntu 20.04 LTS
-                                          10.42.0.0
-                                          10.42.0.1
-k8s-workernode-1        Running           192.168.64.10    Ubuntu 20.04 LTS
-                                          10.42.1.0
-                                          10.42.1.1
-k8s-workernode-2        Running           192.168.64.11    Ubuntu 20.04 LTS
-                                          10.42.2.0
-                                          10.42.2.1
-$ curl 192.168.64.9/app1/
+
+$ curl $master_ip/app1/
 App 1 from app1deployment-95f49fb56-d5pj5
-$ curl 192.168.64.10/app2/
+$ curl $workernode1_ip/app2/
 App 2 from app2deployment-567484c687-tbvxv
 ```
 
-Les `Ingress` permettent également de gérer les hôtes virtuels pour éviter d'utiliser les sous-chemins (`fanout`). Ainsi, au lieu d'utiliser cette forme d'URL http://<IP_NODE>/app1 nous allons plutôt utiliser celle-ci http://app1.mydomain.test. Toutefois, puisque nous ne disposns pas du domaine http://mydomain.test nous allons devoir configurer le poste du développeur pour configurer.
+**Via K3d**
 
-** macOS
+TODO
 
-** Linux
+---
 
+Les `Ingress` permettent également de gérer les hôtes virtuels pour éviter d'utiliser les sous-chemins (`fanout`). Ainsi, au lieu d'utiliser cette forme d'URL http://<IP_NODE>/app1 nous allons plutôt utiliser celle-ci http://app1.mydomain.test. Toutefois, puisque nous ne disposons pas du domaine http://mydomain.test nous allons devoir configurer le poste du développeur pour que les requêtes envoyées au cluster soient satisfaites.
+
+---
+
+**Via K3s**
+
+* Récupéer l'adresse IP du nœud maître (`k8s-master`) :
+
+```
+$ multipass list | grep k8s-master
+k8s-master              Running           192.168.64.9     Ubuntu 20.04 LTS
+```
+
+* Éditer le fichier _/etc/hosts_ en ajoutant les deux lignes suivantes tout en remplaçant <IP_NODE> par l'adresse IP du nœud maître (dans le cas présenté `192.168.64.9`) :
+
+```
+...
+192.168.64.9 app1.mydomain.test
+192.168.64.9 app2.mydomain.test
+```
+
+**Via K3d**
+
+TODO
+
+---
+
+* Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _myingressvhosts.yaml_ qui décrit un `Ingress` en utilisant de hôtes virtuels :
+
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myingressvhosts
+spec:
+  rules:
+    - host: "app1.mydomain.test"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app1service
+                port: 
+                  number: 8080
+    - host: "app2.mydomain.test"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app2service
+                port: 
+                  number: 8080
+```
+
+* Appliquer cette configuration pour créer cet `Ingress` dans le cluster Kubernetes :
+
+```
+$ kubectl apply -f exercice4-ingress/myingressvhosts.yaml -n mynamespaceexercice4
+ingress.networking.k8s.io/myingressvhosts created
+```
+
+* Tester les deux règles associées à des hôtes virtuels en effectuant des requêtes via l'outil **cURL** :
+
+```
+$ curl app1.mydomain.test
+App 1 vhosts from app1deployment-6887b85fc9-c2wg8
+$ curl app2.mydomain.test
+App 2 vhosts from app2deployment-6c8d974467-njw55
+```
 
 ## Bilan de l'exercice
 
@@ -235,14 +308,17 @@ Les `Ingress` permettent également de gérer les hôtes virtuels pour éviter d
 
 * créer des `Ingress` ;
 * créer des règles de type `fanout` ou hôtes virtuels ; 
-* configuration son poste de développeur pour répondre à des hôtes virtuels.
+* Configurer son poste de développeur pour répondre à des requêtes de hôtes virtuels.
 
 ## Avez-vous bien compris ?
 
 Pour continuer sur les concepts présentés dans cet exercice, nous proposons de continuer avec les manipulations suivantes :
 
-* TODO
-* TODO
+* créer un `Deployment` basé sur une image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
+* créer un `Service` de type `ClusterIP` pour ce `Deployment`;
+* créer un `Ingress` pour s'appliquer à ce `Service` `ClusterIP` et pour gérer l'hôte virtuel http://apache.mydomain.test.
 
 ## Ressources
 
+* https://kubernetes.io/docs/concepts/services-networking/ingress/
+* https://gist.github.com/ogrrd/5831371

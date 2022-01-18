@@ -183,14 +183,18 @@ Vous aurez deviné qu'il est plus pratique d'utiliser le nom (CNAME) que l'IP po
 
 Un `Service` de type `ClusterIP` est accessible uniquement à l'intérieur d'un cluster. Par conséquent, on peut accéder à ce `Service` depuis les nœuds (machine virtuelle) de notre cluster uniquement via une identification par l'IP :
 
-*** Via K3s
+**Via K3s**
+
+---
 
 ```
-$ multipass exec k8s-master -- wget -qO- 10.43.245.174:8080
+$ multipass exec $master_name -- wget -qO- 10.43.245.174:8080
 mydeploymentforservice-6bb797546-lx28c
 ```
 
-*** Via K3d
+**Via K3d**
+
+---
 
 TODO
 
@@ -275,28 +279,26 @@ Nous constatons que ce `Service` `NodePort` est bien basé sur un `Service` `Clu
 
 * Depuis l'invite de commande *kubectl* :
 
-```
-$ multipass list
-Name                    State             IPv4             Image
-k8s-master              Running           192.168.64.9     Ubuntu 20.04 LTS
-                                          10.42.0.0
-                                          10.42.0.1
-k8s-workernode-1        Running           192.168.64.10    Ubuntu 20.04 LTS
-                                          10.42.1.0
-                                          10.42.1.1
-k8s-workernode-2        Running           192.168.64.11    Ubuntu 20.04 LTS
-                                          10.42.2.0
-                                          10.42.2.1
+---
 
-$ curl 192.168.64.9:30001
+**Via K3s**
+
+```
+$ curl $master_ip:30001
 mydeploymentforservice-6bb797546-fh28g
-$ curl 192.168.64.10:30001
+$ curl $workernode1_ip:30001
 mydeploymentforservice-6bb797546-nld6h
-$ curl 192.168.64.11:30001
+$ curl $workernode2_ip:30001
 mydeploymentforservice-6bb797546-fh28g
 ```
 
-La commande sur l'outil **multipass** était nécessaire pour identifier l'IP des nœuds du cluster K8s. Tous les nœuds du cluster peuvent être utilisés pour interroger les `Pods`.
+Tous les nœuds du cluster peuvent être utilisés pour interroger les `Pods`.
+
+**Via K3d**
+
+TODO
+
+---
 
 Pour information, il est possible de combiner dans un même fichier plusieurs configurations. Dans l'exemple qui va suivre, nous allons combiner le précédent `Deployment` et le `Service` de type `NodePort`.
 
