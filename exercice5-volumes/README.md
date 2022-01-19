@@ -110,16 +110,16 @@ Kubernetes utilise les trois nœuds pour déployer les trois `Pods`. Puisque la 
 * Lister le contenu du système de fichiers de chaque nœud :
 
 ```
-$ multipass exec $master_name -- ls /
+$ multipass exec k8s-master -- ls /
 bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
 
-$ multipass exec $workernode1_name -- ls /
+$ multipass exec k8s-workernode-1 -- ls /
 bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
 
-$ multipass exec $workernode2_name -- ls /
+$ multipass exec k8s-workernode-2 -- ls /
 bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
 
-$ multipass exec $workernode2_name -- ls /myhostpath
+$ multipass exec k8s-workernode-2 -- ls /myhostpath
 ```
 
 Le dossier _/myhostpath_  est existant sur les trois nœuds, mais son contenu est vide et cela se confirme quand nous effectuons une requête pour récupérer la page web.
@@ -127,7 +127,7 @@ Le dossier _/myhostpath_  est existant sur les trois nœuds, mais son contenu es
 * Exécuter la requête suivante :
 
 ```
-$ curl workernode1_ip:30001
+$ curl $k8s_workernode1_ip:30001
 ```
 
 * Ajouter un fichier dans le dossier myhostpath

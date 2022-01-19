@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app2pod
+  template:
+    metadata:
+      labels:
+        app: app2pod
+    spec:
+      containers:
+      - name: app2container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        lifecycle:
+          postStart:
+            exec:
+              command: 
+                - /bin/sh
+                - -c
+                - >
+                  mkdir /usr/share/nginx/html/app2;
+                  echo App 2 fanout from $HOSTNAME > /usr/share/nginx/html/app2/index.html;
+                  echo App 2 vhosts from $HOSTNAME > /usr/share/nginx/html/index.html
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: app2service
+spec:
+  selector:
+    app: app2pod
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      targetPort: 80
+      port: 8080

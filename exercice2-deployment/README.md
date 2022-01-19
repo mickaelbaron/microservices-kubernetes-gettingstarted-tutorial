@@ -349,6 +349,3 @@ Pour continuer sur les concepts présentés dans cet exercice, nous proposons de
 * créer un `Deployment` basé sur une image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
 * changer la stratégie de montée en charge en `Recreate` ;
 * changer la version de l'image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) pour des versions antérieures tout en détaillant la cause du changement `CHANGE-CAUSE`.
-
-## Ressources
-

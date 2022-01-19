@@ -188,7 +188,7 @@ Un `Service` de type `ClusterIP` est accessible uniquement à l'intérieur d'un 
 ---
 
 ```
-$ multipass exec $master_name -- wget -qO- 10.43.245.174:8080
+$ multipass exec k8s-master -- wget -qO- 10.43.245.174:8080
 mydeploymentforservice-6bb797546-lx28c
 ```
 
@@ -284,11 +284,11 @@ Nous constatons que ce `Service` `NodePort` est bien basé sur un `Service` `Clu
 **Via K3s**
 
 ```
-$ curl $master_ip:30001
+$ curl $k8s_master_ip:30001
 mydeploymentforservice-6bb797546-fh28g
-$ curl $workernode1_ip:30001
+$ curl $k8s_workernode1_ip:30001
 mydeploymentforservice-6bb797546-nld6h
-$ curl $workernode2_ip:30001
+$ curl $k8s_workernode1_ip:30001
 mydeploymentforservice-6bb797546-fh28g
 ```
 
@@ -374,3 +374,4 @@ Pour continuer sur les concepts présentés dans cet exercice, nous proposons de
 ## Ressources
 
 * https://kubernetes.io/docs/tasks/configure-pod-container/attach-handler-lifecycle-event : documentation sur le cycle de vie d'un conteneur
+* https://medium.com/devops-mojo/kubernetes-service-types-overview-introduction-to-k8s-service-types-what-are-types-of-kubernetes-services-ea6db72c3f8c

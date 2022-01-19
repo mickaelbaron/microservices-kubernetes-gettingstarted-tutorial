@@ -214,10 +214,9 @@ Il ne reste plus qu'à tester les deux règles en effectuant des requêtes vers 
 * Exécuter les requêtes suivantes :
 
 ```
-
-$ curl $master_ip/app1/
+$ curl $k8s_master_ip/app1/
 App 1 from app1deployment-95f49fb56-d5pj5
-$ curl $workernode1_ip/app2/
+$ curl $k8s_workernode1_ip/app2/
 App 2 from app2deployment-567484c687-tbvxv
 ```
 
@@ -236,8 +235,8 @@ Les `Ingress` permettent également de gérer les hôtes virtuels pour éviter d
 * Récupéer l'adresse IP du nœud maître (`k8s-master`) :
 
 ```
-$ multipass list | grep k8s-master
-k8s-master              Running           192.168.64.9     Ubuntu 20.04 LTS
+$ echo $k8s_master_ip
+192.168.64.9
 ```
 
 * Éditer le fichier _/etc/hosts_ en ajoutant les deux lignes suivantes tout en remplaçant <IP_NODE> par l'adresse IP du nœud maître (dans le cas présenté `192.168.64.9`) :
@@ -320,5 +319,6 @@ Pour continuer sur les concepts présentés dans cet exercice, nous proposons de
 
 ## Ressources
 
+* https://medium.com/devops-mojo/kubernetes-ingress-overview-what-is-kubernetes-ingress-introduction-to-k8s-ingress-b0f81525ffe2
 * https://kubernetes.io/docs/concepts/services-networking/ingress/
 * https://gist.github.com/ogrrd/5831371
