@@ -174,7 +174,7 @@ Afin que nous puissions accéder au Cluster, nous devons récupérer un fichier 
 * Se placer à la racine du dossier du dépôt de ce tutoriel et exécuter les deux lignes de commande suivantes pour récupérer ce fichier d'accès :
 
 ```
-$ multipass exec k8s-master sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
+$ multipass exec k8s-master -- sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
 $ sed -i '' "s/127.0.0.1/$IP/" k3s.yaml
 ```
 

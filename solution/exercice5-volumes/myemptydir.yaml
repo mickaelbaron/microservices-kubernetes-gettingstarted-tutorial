@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydeploymentwithemptydir
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mypodforemptydir
+  template:
+    metadata:
+      labels:
+        app: mypodforemptydir
+    spec:
+      containers:
+      - name: mynginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80 
+        volumeMounts:
+          - mountPath: /usr/share/nginx/html
+            name: myemptydirvolume
+      initContainers:
+      - name: mygit
+        image: alpine/git
+        args:
+          - clone
+          - --
+          - https://github.com/cloudacademy/static-website-example
+          - /data
+        volumeMounts:
+          - mountPath: /data
+            name: myemptydirvolume
+      volumes:
+        - name: myemptydirvolume
+          emptyDir:
+            medium: Memory
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: mypodforemptydirservice
+spec:
+  selector:
+    app: mypodforemptydir
+  type: NodePort
+  ports:
+    - protocol: TCP
+      targetPort: 80
+      port: 8080
+      nodePort: 30002

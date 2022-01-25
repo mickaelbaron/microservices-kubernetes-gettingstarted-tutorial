@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydeploymentwithnfs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mypodfornfs
+  template:
+    metadata:
+      labels:
+        app: mypodfornfs
+    spec:
+      containers:
+      - name: mynginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: /usr/share/nginx/html
+            name: mynfsvolume
+      volumes:
+      - name: mynfsvolume
+        nfs:
+          server: 192.168.64.13
+          path: "/nfs"
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: mypodfornfsservice
+spec:
+  selector:
+    app: mypodfornfs
+  type: NodePort
+  ports:
+    - protocol: TCP
+      targetPort: 80
+      port: 8080
+      nodePort: 30003
