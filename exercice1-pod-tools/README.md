@@ -26,9 +26,9 @@ $ k9s
 
 ![Outil K9s affichant les Pods déployés sur le cluster K8s](../images/k9s-k3s.png "K9s pour gérer votre cluster K8s")
 
-L'outil [K9s](https://k9scli.io/) affiche tous les objets créés au sein du cluster. L'affichage au démarrage donne l'ensemble des objets de type Pod. Les Pods déjà présents concernent le fonctionnement interne de Kubernetes. Ces Pods sont identifiables par le `Namespace` appelé `kube-system` (colonne `NAMESPACE`).
+L'outil [K9s](https://k9scli.io/) affiche tous les objets créés au sein du cluster. L'affichage au démarrage donne l'ensemble des objets de type `Pod`. Les `Pods` déjà présents concernent le fonctionnement interne de Kubernetes. Ces `Pods` sont identifiables par le `Namespace` appelé `kube-system` (colonne `NAMESPACE`).
 
-L'utilisation [K9s](https://k9scli.io/) est très proche à l'éditeur de texte **Vim**. Deux modes sont disponibles : *commande* et *recherche*. Pour saisir une commande, la touche `:` doit être utilisée. Ce mode est identifiable par la forme du prompt `🐶>` qui représente un chien de race Bigle (enfin je crois). L'ensemble des commandes est disponible via le raccourci `ctrl + a` ou via la commande `:aliases`. Pour effectuer une recherche, la touche `/` doit être utilisée. Ce mode est identifiable par la forme du prompt `🐩>` qui est un chien de race Caniche (il n'y a pas à se tromper là).
+L'utilisation [K9s](https://k9scli.io/) est très proche de l'éditeur de texte **Vim**. Deux modes sont disponibles : *commande* et *recherche*. Pour saisir une commande, la touche `:` doit être utilisée. Ce mode est identifiable par la forme du prompt `🐶>` qui représente un chien de race Bigle (enfin je crois). L'ensemble des commandes est disponible via le raccourci `CTRL + a` ou via la commande `:aliases`. Pour effectuer une recherche, la touche `/` doit être utilisée. Ce mode est identifiable par la forme du prompt `🐩>` qui est un chien de race Caniche (il n'y a pas à se tromper là).
 
 * Depuis l'outil [K9s](https://k9scli.io/), afficher la liste des `Namespaces` via la commande `:namespaces`.
 
@@ -139,7 +139,7 @@ $ curl http://localhost:8080
 Modification de la page web par defaut
 ```
 
-* Arrêter le pont le machine locale et le `Pod` via `CTRL+C` puis supprimer le `Pod` depuis l'invite de commande *kubectl* :
+* Arrêter le pont réseau entre la machine locale et le `Pod` via `CTRL+C` puis supprimer le `Pod` depuis l'invite de commande *kubectl* :
 
 ```
 $ kubectl delete pods myfirstpod
@@ -265,7 +265,7 @@ Events:
   Normal  Started    31m   kubelet            Started container mycontainer-2
 ``` 
 
-* Comme le `Pod` _mypod_ dispose de deux conteneurs (_mycontainer-1_ et mycontainer-2_), nous allons montrer comment exécuter une commande en choisissant un contneur. Depuis l'invite de commande *kubectl* :
+* Comme le `Pod` _mypod_ dispose de deux conteneurs (_mycontainer-1_ et _mycontainer-2_), nous montrons comment exécuter une commande en choisissant un conteneur. Depuis l'invite de commande *kubectl* :
 
 ```
 $ kubectl exec -it mypod -c mycontainer-1 -- /bin/sh -c "echo 'Helloworld from K3s' > /usr/share/nginx/html/index.html"
@@ -284,9 +284,9 @@ Helloworld from K3s
 
 L'option `-f` permet d'afficher en continu l'arrivée de nouveaux messages sur la sortie console. L'option `-c`, déjà utilisée, permet de désigner le conteneur dans lequel nous souhaitons l'affichage des messages de la sortie console. Enfin `--tail=10` n'affichera que les dix dernières lignes.
 
-Nous allons nous intéresser au concept de `Namespace` qui permet de regrouper des `Pods` par projet, par équipe ou par famille. Actuellement, nous n'avons pas utilisé explicitement de `Namespace` lors de la création des `Pods`. Si aucun `Namespace` n'est précisé, un `Pod` sera automatiquement placé dans le `Namespace` intitulé `defautl`. 
+Nous allons nous intéresser au concept de `Namespace` qui permet de regrouper des `Pods` par projet, par équipe ou par famille. Actuellement, nous n'avons pas utilisé explicitement de `Namespace` lors de la création des `Pods`. Si aucun `Namespace` n'est précisé, un `Pod` sera automatiquement placé dans le `Namespace` intitulé `default`. 
 
-Pour associer un `Pod` à un `Namespace` vous le précisez soit dans le fichier de configuration, soit lors de la commande **kubectl**. Il est préférable d'utiliser la seconde technique car cela permet d'utiliser un même fichier de configuration dans des `Namespaces` différents. À noter que ce principe sera le même pour les autres types d'objets (`Service`, `PersistentVolume`...).
+L'association d'un `Pod` à un `Namespace` peut être faite soit dans le fichier de configuration, soit depuis la commande **kubectl**. Il est préférable d'utiliser la seconde technique car cela permet d'utiliser un même fichier de configuration dans des `Namespaces` différents. À noter que ce principe sera le même pour les autres types d'objets (`Service`, `PersistentVolume`...).
 
 * Commencer par supprimer le `Pod` précédemment créé :
 
@@ -318,7 +318,7 @@ $ kubectl apply -f exercice1-pod-tools/mypod.yaml -n mynamespaceexercice1
 pod/mypod created
 ```
 
-L'option `n` sert à préciser le `Namespace` qui contiendra notre `Pod`.
+L'option `-n` sert à préciser le `Namespace` qui contiendra notre `Pod`.
 
 * Pour lister les `Pods` d'un `Namespace` donné, il faudra soit spécifier le `Namespace` via l'option `n` soit utiliser l'option `-all-namespace` :
 
@@ -344,7 +344,7 @@ mynamespaceexercice1   mypod                                    2/2     Running 
 kube-system            traefik-786ff64748-2vvzh                 1/1     Running     4 (21h ago)   9d
 ```
 
-Vous remarquerez dans la première commande que seul les `Pods` dans le `Namespace` par défaut sont listés, sauf qu'il n'y en a pas. La deuxième commmande liste les `Pods` pour le `Namespace` `mynamespaceexercice1`. Enfin la troisième commande liste tous les `Pods` quelque soit son `Namespace`.
+Vous remarquerez dans la première commande que seuls les `Pods` dans le `Namespace` par défaut sont listés, sauf qu'il n'y en a pas. La deuxième commmande liste les `Pods` pour le `Namespace` `mynamespaceexercice1`. Enfin la troisième commande liste tous les `Pods` quelque soit son `Namespace`.
 
 * Si vous supprimez un `Namespace`, tous les objets qu'il contient seront supprimés.
 
@@ -371,7 +371,7 @@ kube-system   svclb-traefik-vvclx                      2/2     Running     8 (17
 
 ### Bilan de l'exercice
 
-À cette, vous savez :
+À cette étape, vous savez :
 
 * manipuler les outils **kubectl** et [K9s](https://k9scli.io/) ;
 * créer un `Pod` avec et sans un fichier de configuration ;
@@ -386,7 +386,7 @@ Pour continuer sur les concepts présentés dans cet exercice, nous proposons de
 * créer un `Pod` basé sur une image [Apache HTTP](https://httpd.apache.org/) et modifier le contenu du répertoire ;
 * créer plusieurs `Pods` dans un `Namespace` et le supprimer.
 
-À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur Twitter (@mickaelbaron)
+À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur Twitter (@mickaelbaron).
 
 ### Ressources
 
