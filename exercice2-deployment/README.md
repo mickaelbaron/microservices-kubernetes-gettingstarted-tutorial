@@ -33,7 +33,7 @@ metadata:
 * Créer ce `Namespace` dans notre cluster :
 
 ```
-$ kubectl apply namespace exercice2-deployment/mynamespaceexercice2.yaml
+$ kubectl apply -f exercice2-deployment/mynamespaceexercice2.yaml
 namespace/mynamespaceexercice2 created
 ```
 
@@ -79,7 +79,7 @@ NAME                            READY   STATUS    RESTARTS   AGE    IP          
 mydeployment-64dbfdbd44-hmw8h   1/1     Running   0          16m    10.42.1.18   k8s-workernode-1
 ```
 
-Nous remarquons que le nom du `Pod` n'est pas celui que nous avons donné dans le fichier de configuration. Cela est normal car nous aurons à construire plusieurs `Pods` basés sur un même patron (option `template`) lorsque nous étudierons la montée en charge horizontale.
+Nous remarquons que le nom du `Pod` n'est pas celui que nous avons donné dans le fichier de configuration, cela est normal car un `Deployment` peut créer plusieurs `Pods` basés sur un même patron (option `template`). Nous reviendrons sur cet aspect quand nous étudierons la montée en charge horizontale (`ReplicatSet`).
 
 * Afficher également les informations de ce `Deployment` :
 
@@ -123,7 +123,7 @@ NewReplicaSet:   mydeployment-64dbfdbd44 (1/1 replicas created)
 Events:          <none>
 ```
 
-La configuration d'un objet de type `Deployment` peut inclure le nombre de `Pods` à créér qui est de un actuellement. Cette information permet donc de gérer la montée en charge horizontale en utilisant un objet de type `ReplicatSet`. Il est possible d'écrire une configuration de type `ReplicatSet` au même titre que ceux que nous avons déjà fait pour `Pod` ou `Deployment`. Toutefois, `Deployment` inclut cette information.
+La configuration d'un objet de type `Deployment` peut inclure le nombre de `Pods` à créér qui est de `un` (1) actuellement. Cette information permet donc de gérer la montée en charge horizontale en utilisant un objet de type `ReplicatSet`. Il est possible d'écrire une configuration de type `ReplicatSet` au même titre que ceux que nous avons déjà fait pour `Pod` ou `Deployment`. Toutefois, `Deployment` peut inclure cette information directement dans sa configuration. C'est de cette manière que nous présenterons `ReplicatSet`.
 
 * Modifier le fichier de configuration _exercice2-deployment/mydeployment.yaml_ de façon à intégrer les informations de réplication (clé `replicas`) :
 
@@ -149,7 +149,7 @@ spec:
         - containerPort: 80
 ```
 
-Il est indiqué maintenant dans ce `Deployment` que trois `Pods` sont créés par Kubernetes. Toute la création est déléguée à K8s qui se chargera de trouver les bons nœuds pour héberger les nouveaux `Pods`. 
+Cette configuration de `Deployment` déclare maintenant que trois `Pods` basés sur le template nommé `mypod` devront être créés dans le cluster Kubernetes. Toute la création est déléguée à Kubernetes qui se chargera de trouver les bons nœuds pour héberger les nouveaux `Pods`. 
 
 * Appliquer la nouvelle configuration :
 
@@ -172,7 +172,7 @@ NAME           READY   UP-TO-DATE   AVAILABLE   AGE
 mydeployment   3/3     3            3           21h
 ```
 
-Nous remarquons d'une part que deux nouveaux `Pods` ont été ajoutés (information liée à l'âge) et d'autre part que Kubernetes a choisi d'équilibrer le déploiement sur l'ensemble des nœuds. Cela est cohérent car les ressources matérielles affectées aux nœuds à notre cluster sont assez réduites (1 Go de mémoire) et que K8s essaye de maximiser la disponibilité des `Pods` au cas où un nœud devait être indisponible. Notons également que les trois `Pods` ont des noms différents basés sur une même base.
+Nous remarquons d'une part que deux nouveaux `Pods` ont été ajoutés (information liée à l'âge) et d'autre part que Kubernetes a choisi d'équilibrer le déploiement sur l'ensemble des nœuds. Cela est cohérent car les ressources matérielles affectées aux nœuds à notre cluster sont assez réduites (1 Go de mémoire) et que K8s essaye de maximiser la disponibilité des `Pods` au cas où un nœud devait être indisponible. Notons également que les trois `Pods` ont des noms assez proches.
 
 Nous allons nous intéresser à la problématique de la montée en version des images [Docker](https://www.docker.com/ "Docker"). Dans le fichier de configuration _mydeployment.yaml_ la version de l'image [Docker](https://www.docker.com/ "Docker") [Nginx](https://www.nginx.com/) est actuellement de `1.19`. Il existe de nouvelles versions plus récentes, nous allons migrer progressivement vers celles-ci tout en s'assurant que notre dépoiement est disponible et qu'il est possible de revenir sur un déploiement précédent. Quand une montée en version est réalisée, un enroulement (_rollup_) est provoqué et référencé dans une revision (un numéro unique). Pour chaque révision la cause du changement peut être renseignée dans un texte libre. Cet enroulement pourra être consulté et utilisé pour revenir sur une révision donnée. À noter que cela ne concerne pas uniquement le changement des versions d'image, les changements sur les variables d'environnement et les ressources sont également considérées. Par contre, le changement sur la valeur de `replicas` ne sera pas enroulé.
 
@@ -197,6 +197,7 @@ deployment.apps/mydeployment annotated
 * Afficher de nouveau l'historique de l'enroulement (_rollup_) en cours pour le `Deployment` `mydeployment` pour vérifier que la description dans la colonne `CHANGE-CAUSE` a été modifiée :
 
 ```
+$ kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
 deployment.apps/mydeployment
 REVISION  CHANGE-CAUSE
 1         Image en 1.19
@@ -258,7 +259,7 @@ $ kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kuberne
 deployment.apps/mydeployment annotated
 ```
 
-Même s'il s'agit d'un nouveau fichier de configuration, le nom du `Deployment` est le même que le fichier de configuration _exercice2-deployment/mydeployment.yaml_. Kubernetes va identifier qu'il s'agit du même `Deployment` et appliquer cette configuration. La seule modification apportée concerne la version de l'image [Docker](https://www.docker.com/ "Docker") qui passe de `1.20` à `1.21`.
+Même s'il s'agit d'un nouveau fichier de configuration, le nom du `Deployment` est le même que celui du fichier de configuration _exercice2-deployment/mydeployment.yaml_. Kubernetes va identifier qu'il s'agit du même `Deployment` et appliquer cette configuration. La seule modification apportée concerne la version de l'image [Docker](https://www.docker.com/ "Docker") qui passe de `1.20` à `1.21`.
 
 * Afficher de nouveau l'historique de l'enroulement (_rollup_) pour le `Deployment` `mydeployment` :
 
@@ -344,7 +345,7 @@ Par ailleurs, nous ne l'avons pas détaillé, mais une stratégie de déploiemen
 
 ## Avez-vous bien compris ?
 
-Pour continuer sur les concepts présentés dans cet exercice, nous proposons de continuer avec les manipulations suivantes :
+Pour continuer sur les concepts présentés dans cet exercice, nous proposons les expérimentations suivantes :
 
 * créer un `Deployment` basé sur une image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
 * changer la stratégie de montée en charge en `Recreate` ;

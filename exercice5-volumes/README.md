@@ -33,7 +33,7 @@ metadata:
 * Créer ce `Namespace` dans notre cluster :
 
 ```
-$ kubectl apply namespace exercice5-volumes/mynamespaceexercice5.yaml
+$ kubectl apply -f exercice5-volumes/mynamespaceexercice5.yaml
 namespace/mynamespaceexercice5 created
 ```
 
@@ -87,7 +87,7 @@ spec:
       nodePort: 30001
 ```
 
-Le `Volume` est déclaré dans la partie `volumes` où il est identifié par un nom `myhostpathvolume`. Le type de `Volume` est ensuite précisé puis suivent des paramètres spécifiques à `hostPath`. Le paramètre `path` détaille le répertoire sur le système de fichiers où seront stockés les ressources à partager. Le paramètre `type` définit une stratégie de création du répertoire qui pour `DirectoryOrCreate` forcera la création du répertoire _myhostpath_ si celui-ci n'existe pas. La partie `volumeMounts` configure le `Volume` du côté du conteneur. Le paramètre `mountPath` détaille le chemin où ce `Volume` sera accessible depuis le `Pod`. Dans cet exemple, le répertoire (_/usr/share/nginx/html_) qui contient la page web par défaut de [Nginx](https://www.nginx.com/) est monté avec le dossier _/myhostpath_ qui se trouve sur le nœud hôte du `Pod`. Vous remarquerez que trois `Pods` ont été créés (`replicas: 3`), mais cela ne veut pas forcément dire que trois nœuds sont utilisés.
+Le `Volume` est déclaré dans la partie `volumes` où il est identifié par un nom `myhostpathvolume`. Le type de `Volume` est ensuite précisé puis suivent des paramètres spécifiques à `hostPath`. Le paramètre `path` détaille le répertoire sur le système de fichiers où seront stockés les ressources à partager. Le paramètre `type` définit une stratégie de création du répertoire qui pour `DirectoryOrCreate` forcera la création du répertoire _myhostpath_ si celui-ci n'existe pas. La partie `volumeMounts` configure le `Volume` du côté du conteneur. Le paramètre `mountPath` détaille le chemin où ce `Volume` sera accessible depuis le `Pod`. Dans cet exemple, le répertoire (_/usr/share/nginx/html_) qui contient la page web par défaut de [Nginx](https://www.nginx.com/) est monté avec le dossier _/myhostpath_ qui se trouve sur le nœud hôte du `Pod`. Vous remarquerez que trois `Pods` ont été créés (`replicas: 3`), mais cela ne veut pas forcément dire que trois nœuds seront utilisés.
 
 * Appliquer la configuration précédente pour créer le `Deployment` et le `Service` dans le cluster Kubernetes :
 
@@ -111,6 +111,10 @@ Kubernetes utilise les trois nœuds pour déployer les trois `Pods`. Puisque la 
 
 * Vérifier le contenu du système de fichiers à la racine _/_ de chaque nœud :
 
+---
+
+**Via K3s**
+
 ```
 $ multipass exec k8s-master -- ls /
 bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
@@ -122,11 +126,33 @@ $ multipass exec k8s-workernode-2 -- ls /
 bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
 
 $ multipass exec k8s-workernode-2 -- ls /myhostpath
+
 ```
 
-Un dossier _/myhostpath_  existe sur chacun des trois nœuds, mais son contenu est vide (vérifié sur le nœud k8s-workernode-2).
+**Via K3d**
+
+```
+$ docker exec -it k3d-mycluster-server-0 ls /
+bin  dev  etc  k3d  lib  myhostpath  output  proc  run	sbin  sys  tmp	usr  var
+
+$ docker exec -it k3d-mycluster-agent-0 ls /
+bin  dev  etc  k3d  lib  myhostpath  proc  run	sbin  sys  tmp	usr  var
+
+$ docker exec -it k3d-mycluster-agent-1 ls /
+bin  dev  etc  k3d  lib  myhostpath  proc  run	sbin  sys  tmp	usr  var
+
+$ docker exec -it k3d-mycluster-agent-1 ls /myhostpath
+
+```
+---
+
+Un dossier _/myhostpath_  existe sur chacun des trois nœuds, mais son contenu est vide (vérifié sur le second nœud de travail).
 
 * Exécuter une requête via l'utilisation du `Service` `NodePort` pour vérifier qu'il n'existe pas encore de contenu :
+
+---
+
+**Via K3s**
 
 ```
 $ curl $k8s_workernode1_ip:30001
@@ -139,17 +165,48 @@ $ curl $k8s_workernode1_ip:30001
 </html>
 ```
 
-Ne pas oublier que le `Service` `NodePort` va distribuer aléatoirement la requête sur tous les nœuds du cluster où le `Pod` est déployé. Dans ce cas, la requête est envoyée sur le nœud de travail `k8s-workernode-1`, mais c'est peut-être le `Pod` du nœud maître qui répondra à cette requête.
+**Via K3d**
+
+```
+$ curl localhost:30001
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.21.6</center>
+</body>
+</html>
+```
+
+---
+
+Ne pas oublier que le `Service` `NodePort` va distribuer aléatoirement la requête sur tous les nœuds du cluster où le `Pod` est déployé.
 
 * Ajouter un fichier `index.html` dans le dossier _myhostpath_ du nœud maître :
+
+---
+
+**Via K3s**
 
 ```
 $ multipass exec k8s-master -- sudo sh -c "echo 'Bonjour depuis le noeud Master' > /myhostpath/index.html"
 ```
 
+**Via K3d**
+
+```
+$ docker exec k3d-mycluster-server-0 sh -c "echo 'Bonjour depuis le noeud Master' > /myhostpath/index.html"
+```
+
+---
+
 À cet instant sur les trois nœuds disponibles de notre cluster Kubernetes, seul le nœud maître possède un contenu. 
 
 * Faire autant de requêtes sur le cluster Kubernetes pour obtenir le contenu suivant `Bonjour depuis le noeud Master` :
+
+---
+
+**Via K3s**
 
 ```
 $ curl $k8s_workernode1_ip:30001
@@ -164,7 +221,24 @@ $ curl $k8s_workernode1_ip:30001
 Bonjour depuis le noeud Master
 ```
 
-Le résultat attendu `Bonjour depuis le noeud Master` est obtenu ici en deux requêtes. Une manière détournée de `hostPath` pour partager une ressoource commune (dossier ou fichier) consisterait à monter sur chaque nœud un dossier distant comme par exemple NFS ou CIFS. Toutefois, nous vous recommandons de consulter la liste des volumes existants avant d'entreprendre des manipulations compliquées qui pourraient être réasliées simplement. 
+**Via K3d**
+
+```
+$ curl localhost:30001
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.21.6</center>
+</body>
+</html>
+$ curl localhost:30001
+Bonjour depuis le noeud Master
+```
+
+---
+
+Le résultat attendu `Bonjour depuis le noeud Master` est obtenu ici en deux requêtes. Une manière détournée de `hostPath` pour partager une ressoource commune (dossier ou fichier) consisterait à monter sur chaque nœud un dossier distant comme par exemple NFS ou CIFS. Toutefois, nous vous recommandons de consulter la liste des volumes existants avant d'entreprendre des manipulations compliquées qui pourraient être réalisées simplement. 
 
 * Pour continuer l'exercice, supprimer les précédents objets `Deployment` et `Service` :
 
@@ -234,10 +308,10 @@ spec:
     - protocol: TCP
       targetPort: 80
       port: 8080
-      nodePort: 30002
+      nodePort: 30001
 ```
 
-Ce fichier de configuration contient deux conteneurs appelés `mynginx` et `mygit`. Le premier est déclaré via le paramètre `containers` tandis que le second utilise le paramètre `initContainers`. Les conteneurs déclarés dans `initContainers` sont appelé des conteneurs d'initialisation. Ils sont démarrés les uns après les autres (l'ordre à une importance) et chaque conteneur d'initialisation doit se terminer avec succès avant que le prochain conteneur d'initialisation ne démarre. Quand tous les conteneurs d'initialisation sont terminés (sans erreur) alors les conteneurs déclarés dans le paramètre `containers` peuvent démarrer. Dans l'exemple que nous traitons, un conteneur d'initialisation s'occupera d'aller chercher dans un dépôt Git des fichiers d'une page web statique. Ces fichiers seront placés dans un `Volume` `emptyDir` qui est partagé avec le conteneur `mynginx` (même `Volume` identifié par `myemptydirvolume`). Veuillez noter que nous avons configuré le `Volume` `emptyDir` pour que le stockage se fasse en mémoire.
+Ce fichier de configuration contient deux conteneurs appelés `mynginx` et `mygit`. Le premier est déclaré via le paramètre `containers` tandis que le second utilise le paramètre `initContainers`. Les conteneurs déclarés dans `initContainers` sont appelés des conteneurs d'initialisation. Ils sont démarrés les uns après les autres (l'ordre à une importance) et chaque conteneur d'initialisation doit se terminer avec succès avant que le prochain conteneur d'initialisation ne démarre. Quand tous les conteneurs d'initialisation sont terminés (sans erreur), les conteneurs déclarés dans le paramètre `containers` peuvent démarrer. Dans l'exemple que nous traitons, un conteneur d'initialisation s'occupera d'aller chercher dans un dépôt Git des fichiers d'une page web statique. Ces fichiers seront placés dans un `Volume` `emptyDir` qui est partagé avec le conteneur `mynginx` (même `Volume` identifié par `myemptydirvolume`). Veuillez noter que nous avons configuré le `Volume` `emptyDir` pour que le stockage se fasse en mémoire.
 
 * Appliquer la configuration précédente pour créer le `Deployment` et le `Service` dans le cluster Kubernetes :
 
@@ -260,11 +334,11 @@ $ echo $k8s_workernode1_ip
 192.168.64.10
 ```
 
-* Ouvrir un navigateur et saisir l'adresse http://192.168.64.10:30002
+* Ouvrir un navigateur et saisir l'adresse http://192.168.64.10:30001
 
 **Via K3d**
 
-* Ouvrir un navigateur et saisir l'adresse http://localhost:???
+* Ouvrir un navigateur et saisir l'adresse http://localhost:30001
 
 ---
 
@@ -338,7 +412,7 @@ $ multipass info nfs-server | grep IPv4 | awk '{print $2}'
 
 **Via K3d**
 
-TODO
+TBA
 
 ---
 
@@ -387,7 +461,7 @@ spec:
     - protocol: TCP
       targetPort: 80
       port: 8080
-      nodePort: 30003
+      nodePort: 30001
 ```
 
 * Remplacer dans ce fichier de configuration `<IP_NFS-SERVER>` par l'adresse IP de la machine virtuelle (`192.168.64.13`).
@@ -413,11 +487,11 @@ $ echo $k8s_workernode1_ip
 192.168.64.10
 ```
 
-* Ouvrir un navigateur et saisir l'adresse http://192.168.64.10:30002
+* Ouvrir un navigateur et saisir l'adresse http://192.168.64.10:30001
 
 **Via K3d**
 
-* Ouvrir un navigateur et saisir l'adresse http://localhost:???
+TBA
 
 ---
 

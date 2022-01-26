@@ -36,9 +36,9 @@ L'utilisation [K9s](https://k9scli.io/) est très proche de l'éditeur de texte 
 
 Un ensemble de `Namespace` est donné par l'outil [K9s](https://k9scli.io/). Ces `Namespaces` existent déjà car ils sont utilisés pour le fonctionnement interne de Kubernetes.
 
-* Depuis l'outil [K9s](https://k9scli.io/), retourner à l'affichage de la liste des Pods via la commande `:pods`.
+* Depuis l'outil [K9s](https://k9scli.io/), retourner à l'affichage de la liste des `Pods` via la commande `:pods`.
 
-Nous allons obtenir les mêmes informations depuis l'outil **kubectl**. Cependant contrairement à l'outil [K9s](https://k9scli.io/), elles ne pourront être mises à jour qu'en exécutant plusieurs fois la même ligne de commande. En effet, [K9s](https://k9scli.io/) est réactif et tout changement sur le cluster Kubernetes est automatiquement affiché à l'utilisateur (sous condition qu'il se trouve dans la bonne commande).
+Nous allons obtenir les mêmes informations depuis l'outil **kubectl**. Cependant, contrairement à l'outil [K9s](https://k9scli.io/), elles ne pourront être mises à jour qu'en exécutant plusieurs fois la même ligne de commande. En effet, [K9s](https://k9scli.io/) est réactif et tout changement sur le cluster Kubernetes est automatiquement affiché à l'utilisateur (sous condition qu'il se trouve dans la bonne commande).
 
 * Depuis l'invite de commande *kubectl* :
 
@@ -381,7 +381,7 @@ kube-system   svclb-traefik-vvclx                      2/2     Running     8 (17
 
 ### Avez-vous bien compris ?
 
-Pour continuer sur les concepts présentés dans cet exercice, nous proposons de continuer avec les manipulations suivantes :
+Pour continuer sur les concepts présentés dans cet exercice, nous proposons les expérimentations suivantes :
 
 * créer un `Pod` basé sur une image [Apache HTTP](https://httpd.apache.org/) et modifier le contenu du répertoire ;
 * créer plusieurs `Pods` dans un `Namespace` et le supprimer.

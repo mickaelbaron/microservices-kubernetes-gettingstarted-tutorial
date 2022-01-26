@@ -46,10 +46,23 @@ Nous allons créer un cluster Kubernetes composé de trois nœuds dont un sera d
 * Créer un cluster Kubernetes via [K3d](https://k3d.io/) qui s'appelera `mycluster` :
 
 ```
-$ k3d cluster create mycluster -p "8081:30001@server:0" --agents 2 --servers 1
+$ k3d cluster create mycluster --agents 2 --servers 1
 ```
 
-Cette commande crée un cluster Kubernetes appelé `mycluster`. Il contient deux nœuds de travail (`--agents 2`) et un nœud maître (`--servers 1`). L'option `-p "8081:30001@server:0"` permet d'exposer le port `30001` du cluster vers le port `8001` du poste de développeur.
+Cette commande crée un cluster Kubernetes appelé `mycluster`. Il contient deux nœuds de travail (`--agents 2`) et un nœud maître (`--servers 1`). 
+
+* Consulter les conteneurs [Docker](https://www.docker.com/ "Docker") qui ont été créés :
+
+```
+$ docker ps
+CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                             NAMES
+1592d6eca165   rancher/k3d-proxy:5.2.2    "/bin/sh -c nginx-pr…"   45 seconds ago   Up 26 seconds   80/tcp, 0.0.0.0:62002->6443/tcp   k3d-mycluster-serverlb
+b7e9d52a3d89   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   45 seconds ago   Up 36 seconds                                     k3d-mycluster-agent-1
+e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   45 seconds ago   Up 36 seconds                                     k3d-mycluster-agent-0
+6ae3be322c8c   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   45 seconds ago   Up 43 seconds                                     k3d-mycluster-server-0
+```
+
+Les deux nœuds de travail sont encapsulés par les deux conteneurs nommés `k3d-mycluster-agent-0` et `k3d-mycluster-agent-1`, le nœud maître est encapsulé par un (1) conteneur nommé `k3d-mycluster-server-0` et finalement un conteneur `k3d-mycluster-serverlb` servira d'équilibreur de charge (_LoadBalancer_) pour le cluster K8s.
 
 Afin que nous puissions accéder au cluster Kubernetes, nous devons récupérer un fichier d'accès qui contiendra des informations comme les autorisations pour les outils clients. Ce fichier d'accès permet de communiquer avec le composant *API Server* d'un cluster.
 

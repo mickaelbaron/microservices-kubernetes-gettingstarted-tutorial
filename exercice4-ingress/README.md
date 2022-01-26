@@ -21,7 +21,7 @@ $ kubectl delete namespace mynamespaceexercice3
 namespace "mynamespaceexercice3" deleted
 ```
 
-* Créer dans le répertoire _exercice4-ingress/_ un fichier appelé mynamespaceexercice4.yaml_ en ajoutant le contenu suivant :
+* Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _mynamespaceexercice4.yaml_ en ajoutant le contenu suivant :
 
 ```
 apiVersion: v1
@@ -33,11 +33,11 @@ metadata:
 * Créer ce `Namespace` dans notre cluster :
 
 ```
-$ kubectl apply namespace exercice4-ingress/mynamespaceexercice4.yaml
+$ kubectl apply -f exercice4-ingress/mynamespaceexercice4.yaml
 namespace/mynamespaceexercice4 created
 ```
 
-Dans les étapes suivantes, nous allons créer deux `Deployments` afin de simuler l'existence de deux applications différentes (microservices). Les deux `Deployment` seront basés sur la même image [Docker](https://www.docker.com/ "Docker") [Nginx](https://www.nginx.com/) pour déployer des `Pods`. Pour différencier les deux applications, nous modifierons la page _index.html_ de chaque conteneur afin d'identifier clairement l'application visée par nos requêtes. Pour accéder à ces applications (microservices) depuis l'extérieur du cluster, nous utiliserons un `Ingress` avec deux règles afin de pouvoir accéder aux deux applications via les URL suivantes : http://<IP_NODE>/app1 pour la première application et http://<IP_NODE>/app2 pour la seconde application. Cette forme de configuration est appelée `fanout` et permet de définir une règle à base de sous-chemins.
+Dans les étapes suivantes, nous allons créer deux `Deployments` afin de simuler l'existence de deux applications différentes (microservices). Les deux `Deployment` seront basés sur la même image [Docker](https://www.docker.com/ "Docker") [Nginx](https://www.nginx.com/) pour déployer des `Pods`. Pour différencier les deux applications, nous modifierons la page _index.html_ de chaque conteneur afin d'identifier clairement l'application visée par nos requêtes. Pour accéder à ces applications (microservices) depuis l'extérieur du cluster, nous utiliserons un `Ingress` avec deux règles pour les relier aux URL suivantes : http://<IP_NODE>/app1 pour la première application et http://<IP_NODE>/app2 pour la seconde application. Cette forme de configuration est appelée `fanout` et permet de définir une règle à base de sous-chemins.
 
 * Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _app1deployment.yaml_ qui décrit un `Deployment` et un `Service` `ClusterIP` pour la première application :
 
@@ -69,7 +69,7 @@ spec:
                 - -c
                 - >                  
                   mkdir /usr/share/nginx/html/app1;
-                  echo App 1 fanout from $HOSTNAME > /usr/share/nginx/html/app1/index.html
+                  echo App 1 fanout from $HOSTNAME > /usr/share/nginx/html/app1/index.html;
                   echo App 1 vhosts from $HOSTNAME > /usr/share/nginx/html/index.html
 
 ---
@@ -88,9 +88,9 @@ spec:
       port: 8080
 ```
 
-Vous noterez dans la partie `command` la création du répertoire _app1_. Cela est nécessaire pour que la requête puisse aboutir, problématique courante quand il est nécessaire de déployer avec des sous-chemins.
+Vous noterez dans la partie `command` la création du répertoire _app1_ (`mkdir /usr/share/nginx/html/app1`). Cela est nécessaire pour que la requête puisse aboutir, problématique courante quand il est nécessaire de déployer avec des sous-chemins.
 
-* Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _app1deployment.yaml_ qui décrit un `Deployment` et un `Service` `ClusterIP` pour la seconde application :
+* Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _app2deployment.yaml_ qui décrit un `Deployment` et un `Service` `ClusterIP` pour la seconde application :
 
 ```yaml
 apiVersion: apps/v1
@@ -120,7 +120,7 @@ spec:
                 - -c
                 - >
                   mkdir /usr/share/nginx/html/app2;
-                  echo App 2 fanout from $HOSTNAME > /usr/share/nginx/html/app2/index.html
+                  echo App 2 fanout from $HOSTNAME > /usr/share/nginx/html/app2/index.html;
                   echo App 2 vhosts from $HOSTNAME > /usr/share/nginx/html/index.html
 
 ---
@@ -139,7 +139,7 @@ spec:
       port: 8080
 ```
 
-* Appliquer les deux configurations précédente pour créer les `Deployments` et les `Services` dans le cluster Kubernetes :
+* Appliquer les deux configurations précédentes pour créer les `Deployments` et les `Services` dans le cluster Kubernetes :
 
 ```
 $ kubectl apply -f exercice4-ingress/app1deployment.yaml -n mynamespaceexercice4
@@ -175,7 +175,6 @@ spec:
               name: app2service
               port:
                 number: 8080
-
 ```
 
 Deux règles sont définies. La première traite du chemin (`path`) `/app1` et s'applique au `Service` `app1service` et la seconde traite du chemin (`path`) `/app2` et s'applique au `Service` `app2service`. 
@@ -222,7 +221,48 @@ App 2 from app2deployment-567484c687-tbvxv
 
 **Via K3d**
 
-TODO
+* Lister l'ensemble des conteneurs disponibles :
+
+```
+$ docker ps
+CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                                       NAMES
+e3156d411390   d0554070bc8c               "/bin/sh -c nginx-pr…"   5 minutes ago    Up 5 minutes    80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:62002->6443/tcp   k3d-mycluster-serverlb
+b7e9d52a3d89   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-agent-1
+e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-agent-0
+6ae3be322c8c   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-server-0
+```
+
+* Actuellement aucun conteneur du cluster K8s ne peut répondre à une requête sur le port `80`. Modifier le cluster [K3d](https://k3d.io/) afin d'ajouter l'écoute sur ce port :
+
+```
+$ k3d cluster edit mycluster --port-add 80:80@loadbalancer
+INFO[0000] portmapping '80:80' targets the loadbalancer: defaulting to [servers:*:proxy agents:*:proxy]
+INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-PvqeT...
+INFO[0000] Creating new node k3d-mycluster-serverlb...
+INFO[0000] Stopping existing node k3d-mycluster-serverlb-PvqeT...
+INFO[0010] Starting new node k3d-mycluster-serverlb...
+INFO[0011] Starting Node 'k3d-mycluster-serverlb'
+INFO[0017] Deleting old node k3d-mycluster-serverlb-PvqeT...
+INFO[0017] Successfully updated mycluster
+
+$ docker ps
+CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                                                   NAMES
+9bf5cfe46f58   d0554070bc8c               "/bin/sh -c nginx-pr…"   5 minutes ago    Up 4 minutes    0.0.0.0:30001->30001/tcp, 0.0.0.0:80->80/tcp, 0.0.0.0:62002->6443/tcp   k3d-mycluster-serverlb
+b7e9d52a3d89   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   31 minutes ago   Up 31 minutes                                                                           k3d-mycluster-agent-1
+e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   31 minutes ago   Up 31 minutes                                                                           k3d-mycluster-agent-0
+6ae3be322c8c   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   31 minutes ago   Up 31 minutes                                                                           k3d-mycluster-server-0
+```
+
+Le port `80` du cluster K8s est maintenant exposé sur le port `80` du poste de développeur.
+
+* Toutes requêtes sur le port `80` du poste du développeur sont transférées vers le contrôleur `Ingress` :
+
+```
+$ curl localhost:80/app1/
+App 1 from app1deployment-95f49fb56-d5pj5
+$ curl localhost/app2/
+App 2 from app2deployment-567484c687-tbvxv
+```
 
 ---
 
@@ -249,7 +289,13 @@ $ echo $k8s_master_ip
 
 **Via K3d**
 
-TODO
+* Éditer le fichier _/etc/hosts_ en ajoutant les deux lignes suivantes  :
+
+```
+...
+127.0.0.1 app1.mydomain.test
+127.0.0.1 app2.mydomain.test
+```
 
 ---
 
@@ -311,7 +357,7 @@ App 2 vhosts from app2deployment-6c8d974467-njw55
 
 ## Avez-vous bien compris ?
 
-Pour continuer sur les concepts présentés dans cet exercice, nous proposons de continuer avec les manipulations suivantes :
+Pour continuer sur les concepts présentés dans cet exercice, nous proposons les expérimentations suivantes :
 
 * créer un `Deployment` basé sur une image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
 * créer un `Service` de type `ClusterIP` pour ce `Deployment`;
