@@ -116,7 +116,8 @@ Puisqu'un `Pod` est une représentation logique de un ou plusieurs conteneurs, n
 
 ```
 $ kubectl exec -it myfirstpod -- /bin/bash
-root@myfirstpod:/#
+root@myfirstpod:/# ls
+bin  boot  dev	docker-entrypoint.d  docker-entrypoint.sh  etc	home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
 ```
 
 L'option `exec` permet d'exécuter une commande sur un conteneur d'un `Pod`. Comme un `Pod` peut représenter plusieurs conteneurs, il est possible d'indiquer le conteneur sur lequel la commande doit être exécutée. S'il n'y a pas de conteneur d'indiquer en paramètre, le conteneur par défaut choisi sera le premier. Dans notre cas, comme il n'y a qu'un conteneur dans notre `Pod`, c'est le conteneur associé à l'image [Nginx](https://www.nginx.com/) qui sera utilisé. Les options `i` et `t` indiquent que la commande à exécuter sera interactive et le résultat sera affiché sur le teminal courant. Ces options sont identiques à [Docker](https://www.docker.com/ "Docker"). L'option `--` précise que les paramètres qui suivront concerneront la commande à exécuter par le conteneur. Dans cet exemple, nous ouvrons un prompt depuis le conteneur. 
@@ -317,11 +318,11 @@ $ kubectl apply -f exercice1-pod-tools/mypod.yaml -n mynamespaceexercice1
 pod/mypod created
 ```
 
-C'est l'option `n` qui sert à préciser le `Namespace` qui contiendra notre `Pod`.
+L'option `n` sert à préciser le `Namespace` qui contiendra notre `Pod`.
 
 * Pour lister les `Pods` d'un `Namespace` donné, il faudra soit spécifier le `Namespace` via l'option `n` soit utiliser l'option `-all-namespace` :
 
-```yaml
+```
 $ kubectl get pods
 No resources found in default namespace.
 

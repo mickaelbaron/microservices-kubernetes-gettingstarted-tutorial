@@ -245,13 +245,15 @@ Nous avons désormais un cluster Kubernetes, mais nous ne disposns pas encore de
 
 **kubectl** est un outil en ligne de commande (CLI) qui permet d'interagir avec un cluster Kubernetes via le composant **kube-apiserver**.
 
-* **macOS** : pour installer **kubectl** via [Homebrew](https://brew.sh/) :
+---
+
+**macOS** : pour installer **kubectl** via [Homebrew](https://brew.sh/) :
 
 ```
 $ brew install kubectl
 ```
 
-* **Linux** : pour installer **kubectl** sur n'importe quelle distribution Linux :
+**Linux** : pour installer **kubectl** sur n'importe quelle distribution Linux :
 
 ```
 $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
@@ -259,6 +261,8 @@ $ chmod +x ./kubectl
 $ sudo mv ./kubectl /usr/local/bin/kubectl
 $ kubectl version --client
 ```
+
+---
 
 * Pour tester si **kubectl** est correctement installé :
 
@@ -277,18 +281,22 @@ La première ligne de commande permet d'indiquer à **kubectl** où se trouve le
 
 [K9s](https://k9scli.io/) est un gestionnaire de cluster Kubernetes qui a la particularité de fonctionner dans la console. L'interface utilisateur est très simpliste, mais permet de retourner en continu l'état du cluster.
 
-* **macOS** : pour installer **K9s** via [Homebrew](https://brew.sh/) :
+---
+
+**macOS** : pour installer **K9s** via [Homebrew](https://brew.sh/) :
 
 ```
 $ brew install k9s
 ```
 
-* **Linux** : pour installer **K9s** :
+**Linux** : pour installer **K9s** :
 
 ```
 $ wget https://github.com/derailed/k9s/releases/download/v0.25.15/k9s_Linux_x86_64.tar.gz
 $ tar xzf k9s_Linux_x86_64.tar.gz
 ```
+
+---
 
 * Pour tester si **K9s** est correctement installé, depuis un autre terminal :
 
@@ -299,7 +307,7 @@ $ k9s
 
 Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 
-![Outil K9s affichant les Pods déployés sur le cluster K8s](../images/k9s.png "K9s pour gérer votre cluster K8s")
+![Outil K9s affichant les Pods déployés sur le cluster K8s d'une distribution K3s ](../images/k9s-k3s.png "K9s pour gérer votre cluster K8s d'une distribution K3s")
 
 ## Bilan de l'exercice
 
