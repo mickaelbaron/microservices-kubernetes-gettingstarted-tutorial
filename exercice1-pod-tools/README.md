@@ -24,7 +24,7 @@ $ export KUBECONFIG=$PWD/k3s.yaml
 $ k9s
 ```
 
-![Outil K9s affichant les Pods déployés sur le cluster K8s](../images/k9s.png "K9s pour gérer votre cluster K8s")
+![Outil K9s affichant les Pods déployés sur le cluster K8s](../images/k9s-k3s.png "K9s pour gérer votre cluster K8s")
 
 L'outil [K9s](https://k9scli.io/) affiche tous les objets créés au sein du cluster. L'affichage au démarrage donne l'ensemble des objets de type Pod. Les Pods déjà présents concernent le fonctionnement interne de Kubernetes. Ces Pods sont identifiables par le `Namespace` appelé `kube-system` (colonne `NAMESPACE`).
 
