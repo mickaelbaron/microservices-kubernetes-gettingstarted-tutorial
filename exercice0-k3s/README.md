@@ -239,7 +239,7 @@ Launched: k8s-workernode-2
 
 Nous avons désormais un cluster Kubernetes, mais nous ne disposns pas encore des outils pour interagir avec celui-ci. Nous détaillons ci-après comment installer les outils de gestion **kubectl** et [K9s](https://k9scli.io/) sur votre poste de développeur. Leurs utilisations seront détaillées dans l'exercice suivant.
 
-**kubectl** et [K9s](https://k9scli.io/) sont des outils qui communiquent avec le composant *API Server* et nécessite d'accéder au fichier *k3s.yaml* obtenu précédemment.
+**kubectl** et [K9s](https://k9scli.io/) sont des outils qui communiquent avec le composant *API Server* et nécessitent d'accéder au fichier *k3s.yaml* obtenu précédemment.
 
 ### Installation kubectl 
 
@@ -275,7 +275,7 @@ k8s-workernode-1   20m          2%     469Mi           47%
 k8s-workernode-2   20m          2%     472Mi           48%
 ```
 
-La première ligne de commande permet d'indiquer à **kubectl** où se trouve le fichier d'accès au Cluster Kubernetes. Cette commande n'est à réaliser qu'une seule fois à l'ouvertue de votre terminal. Le seconde ligne de commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
+La première ligne de commande permet d'indiquer à **kubectl** où se trouve le fichier d'accès au cluster Kubernetes. Cette commande n'est à réaliser qu'une seule fois à l'ouvertue de votre terminal. Le seconde ligne de commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
 
 ### Installation K9s
 
@@ -313,7 +313,7 @@ Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 
 À cette étape, vous disposez :
 
-* d'un cluster Kubernetes avec trois nœuds dont un pour le maître (`k8s-master`) et deux autres pour les nœuds de travail ;
+* d'un cluster Kubernetes avec trois nœuds dont un pour le maître et deux autres pour les nœuds de travail ;
 * de deux outils pour contrôler notre cluster Kubernetes.
 
 ## Ressources

@@ -4,6 +4,8 @@ Cette préparation d'environnement cible la mise en place d'un cluster Kubernete
 
 Comme précisé en introduction, l'ensemble des expérimentations ont été testées depuis macOS et Linux. L'adaptation sous Windows n'est pas insurmontable, il faudra adapter certains scripts.
 
+> **Il est important de signaler que cette préparation d'environnement ne peut être appliquée pour une mise en production.**
+
 ## But
 
 * Créer un cluster [K3d](https://k3d.io/)
@@ -39,7 +41,7 @@ k3d version v5.2.2
 k3s version v1.21.7-k3s1 (default)
 ```
 
-Nous allons créer un cluster Kubernetes composé de trois nœuds dont un sera dédié au nœud maître et les deux autres seront dédiées aux nœuds de travail. Sous [K3d](https://k3d.io/), un nœud de travail est intitulé `agents` et un nœud maître est intitulé `servers`.
+Nous allons créer un cluster Kubernetes composé de trois nœuds dont un sera dédié au nœud maître et les deux autres seront dédiés aux nœuds de travail. Sous [K3d](https://k3d.io/), un nœud de travail est intitulé `agent` et un nœud maître est intitulé `server`.
 
 * Créer un cluster Kubernetes via [K3d](https://k3d.io/) qui s'appelera `mycluster` :
 
@@ -49,7 +51,7 @@ $ k3d cluster create mycluster -p "8081:30001@server:0" --agents 2 --servers 1
 
 Cette commande crée un cluster Kubernetes appelé `mycluster`. Il contient deux nœuds de travail (`--agents 2`) et un nœud maître (`--servers 1`). L'option `-p "8081:30001@server:0"` permet d'exposer le port `30001` du cluster vers le port `8001` du poste de développeur.
 
-Afin que nous puissions accéder au Cluster, nous devons récupérer un fichier d'accès qui contiendra des informations comme les autorisations pour les outils clients. Ce fichier d'accès permet de communiquer avec le composant *API Server* d'un cluster.
+Afin que nous puissions accéder au cluster Kubernetes, nous devons récupérer un fichier d'accès qui contiendra des informations comme les autorisations pour les outils clients. Ce fichier d'accès permet de communiquer avec le composant *API Server* d'un cluster.
 
 * Se placer à la racine du dossier du dépôt de ce tutoriel et exécuter la ligne de commande suivante pour récupérer ce fichier d'accès :
 
@@ -59,7 +61,7 @@ $ k3d kubeconfig get mycluster > k3s.yaml
 
 Nous avons désormais un cluster Kubernetes, mais nous ne disposns pas encore des outils pour interagir avec celui-ci. Nous détaillons ci-après comment installer les outils de gestion **kubectl** et [K9s](https://k9scli.io/) sur votre poste de développeur. Leurs utilisations seront détaillées dans l'exercice suivant.
 
-**kubectl** et [K9s](https://k9scli.io/) sont des outils qui communiquent avec le composant *API Server* et nécessite d'accéder au fichier *k3s.yaml* obtenu précédemment.
+**kubectl** et [K9s](https://k9scli.io/) sont des outils qui communiquent avec le composant *API Server* et nécessitent d'accéder au fichier *k3s.yaml* obtenu précédemment.
 
 ### Installation kubectl 
 
@@ -95,7 +97,7 @@ k3d-mycluster-agent-1    59m          2%     144Mi           9%
 k3d-mycluster-server-0   202m         10%    552Mi           37%
 ```
 
-La première ligne de commande permet d'indiquer à **kubectl** où se trouve le fichier d'accès au Cluster Kubernetes. Cette commande n'est à réaliser qu'une seule fois à l'ouvertue de votre terminal. Le seconde ligne de commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
+La première ligne de commande permet d'indiquer à **kubectl** où se trouve le fichier d'accès au cluster Kubernetes. Cette commande n'est à réaliser qu'une seule fois à l'ouvertue de votre terminal. Le seconde ligne de commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
 
 ### Installation K9s
 
@@ -133,7 +135,7 @@ Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 
 À cette étape, vous disposez :
 
-* d'un cluster Kubernetes avec trois nœuds dont un pour le maître (`k8s-master`) et deux autres pour les nœuds de travail ;
+* d'un cluster Kubernetes avec trois nœuds dont un pour le maître et deux autres pour les nœuds de travail ;
 * de deux outils pour contrôler notre cluster Kubernetes.
 
 ## Ressources
