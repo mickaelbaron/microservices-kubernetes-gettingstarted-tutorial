@@ -1,10 +1,10 @@
 # Exercice 0 : préparer son environnement d'orchestration avec K3d
 
-Cette préparation d'environnement cible la mise en place d'un cluster Kubernetes à partir de [K3d](https://k3d.io/) qui s'appuie sur la distribution légère [K3s](https://k3s.io/). [K3d](https://k3d.io/) sera utilisé comme solution _Dind_ => [Docker](https://www.docker.com/ "Docker") in [Docker](https://www.docker.com/ "Docker"). Cette approche _Dind_ permet de déployer un cluster Kubernetes multi-nœuds directement sur votre poste développeur. Tous les nœuds (maître et de travail) sont encapsulés dans un conteneur [Docker](https://www.docker.com/ "Docker"). L'avantage est de pouvoir profiter des performances des conteneurs (rapidité et occupation mémoire réduite) pour créer des nœuds.
+Cette préparation d'environnement cible la mise en place d'un cluster Kubernetes à partir de l'outil [K3d](https://k3d.io/) qui s'appuie sur la distribution légère [K3s](https://k3s.io/). [K3d](https://k3d.io/) sera utilisé comme solution _DinD_ => [Docker](https://www.docker.com/ "Docker") in [Docker](https://www.docker.com/ "Docker"). Cette approche _DinD_ permet de déployer un cluster Kubernetes multi-nœuds directement sur votre poste développeur. Tous les nœuds (maître et de travail) sont encapsulés dans un conteneur [Docker](https://www.docker.com/ "Docker"). L'avantage est de pouvoir profiter des performances des conteneurs (rapidité et occupation mémoire réduite) pour créer des nœuds.
 
 Comme précisé en introduction, l'ensemble des expérimentations ont été testées depuis macOS et Linux. L'adaptation sous Windows n'est pas insurmontable, il faudra adapter certains scripts.
 
-> **Il est important de signaler que cette préparation d'environnement ne peut être appliquée pour une mise en production.**
+> **Il est important de signaler que cette préparation d'environnement ne peut être appliquée pour une mise en production. Elle est dédiée au poste du développeur qui souhaite s'assurer que les configurations fonctionnent correctement.**
 
 ## But
 
@@ -49,7 +49,7 @@ Nous allons créer un cluster Kubernetes composé de trois nœuds dont un sera d
 $ k3d cluster create mycluster --agents 2 --servers 1
 ```
 
-Cette commande crée un cluster Kubernetes appelé `mycluster`. Il contient deux nœuds de travail (`--agents 2`) et un nœud maître (`--servers 1`). 
+Cette commande crée un cluster Kubernetes appelé `mycluster`. Il contient deux nœuds de travail (`--agents 2`) et un (1) nœud maître (`--servers 1`). 
 
 * Consulter les conteneurs [Docker](https://www.docker.com/ "Docker") qui ont été créés :
 
@@ -149,7 +149,7 @@ Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 À cette étape, vous disposez :
 
 * d'un cluster Kubernetes avec trois nœuds dont un pour le maître et deux autres pour les nœuds de travail ;
-* de deux outils pour contrôler notre cluster Kubernetes.
+* de deux outils de contrôle pour notre cluster Kubernetes.
 
 ## Ressources
 
