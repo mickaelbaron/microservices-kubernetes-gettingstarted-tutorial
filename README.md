@@ -4,7 +4,7 @@ L'objectif de cette série d'exercices est d'apprendre à démystifier Kubernete
 
 Ci-dessous sont détaillés les exercices de ce tutoriel :
 
-* préparer son environnement d'orchestration K8s : différentes configurations sont détaillées (avec [K3d](https://k3d.io/) pour créer un cluster K8s avec [Docker](https://www.docker.com/ "Docker"), avec [K3s](https://k3s.io/) pour créer un cluster K8s depuis des machines virtuelles, avec la distribution de référence depuis des machines virtuelles) ;
+* préparer son environnement d'orchestration K8s : différentes configurations sont détaillées (avec [K3d](https://k3d.io/) pour créer un cluster K8s avec [Docker](https://www.docker.com/ "Docker") ou avec [K3s](https://k3s.io/) pour créer un cluster K8s depuis des machines virtuelles) ;
 * créer un premier `Pod` et manipuler son environnement d'orchestration K8s : créer et déployer une représentation logique de conteneurs en écrivant un fichier de configuration basé sur un objet `Pod` puis utiliser les outils **kubectl** et [K9s](https://k9scli.io/) ;
 * créer et déployer une représentation logique de `Pods` : créer un `Deployment` et gérer la montée en charge des `Pods` (`ReplicaSets`) ;
 * communiquer avec les Pods : créer et déployer des services de type `ClusterIP` et `NodePort` ;
@@ -21,6 +21,8 @@ Avant de démarrer cette série d'exercices, veuillez préparer votre poste de d
 * [Docker](https://www.docker.com/ "Docker") ;
 * Editeur de texte : **vim**, **emacs** ou [VSCode](https://code.visualstudio.com/) ;
 * [cURL](https://curl.haxx.se "cURL").
+
+TODO
 
 ## Ressources
 

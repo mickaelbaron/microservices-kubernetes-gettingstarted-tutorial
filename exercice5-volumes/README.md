@@ -355,6 +355,8 @@ deployment.apps "mydeploymentwithemptydir" deleted
 
 Avant de montrer la configuration pour manipuler un `Volume` de type `NFS`, nous allons devoir configurer un serveur NFS pour les besoins de notre exercice.
 
+> La mise en place d'un `Volume` de type `NFS` avec la distribution [K3d](https://k3d.io/) n'est pas complète. Je n'ai pas encore trouvé de solution élégante pour tout intégrer dans des conteneurs [Docker](https://www.docker.com/ "Docker"). Il subsiste également un problème quand on souhaite configurer un `Volume` `NFS` à [K3d](https://k3d.io/), la connexion est refusée quoi qu'il arrive.
+
 ---
 
 **Via K3s**
