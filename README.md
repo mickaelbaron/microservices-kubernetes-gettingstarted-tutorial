@@ -11,7 +11,7 @@ Ci-dessous sont détaillés les exercices de ce tutoriel :
 * communiquer avec les Pods via des règles de routage : créer et déployer un objet de type `Ingress` ;
 * conserver les données : créer des volumes et des volumes persistants (`PersistentVolume` et `PersistentVolumeClaim`). 
 
-**Buts pédagogiques** : mettre en place un cluster K8s, créer un `Pod`, communiquer avec un `Pod`, utiliser des outils d'administration (**kubectl** et [K9s](https://k9scli.io/)).
+**Buts pédagogiques** : mettre en place un cluster K8s, créer un `Pod`, communiquer avec un `Pod`, partager des données entre des `Pods`, utiliser des outils d'administration (**kubectl** et [K9s](https://k9scli.io/)).
 
 ## Prérequis matériels et logiciels
 
@@ -43,5 +43,5 @@ Pour aller plus loin, vous pouvez consulter les ressources suivantes :
 
 L'apprentissage de Kubernetes m'a pris un certain temps et j'ai pu compter sur de nombreuses ressources sur Internet. J'ai pu également compter sur de nombreuses personnes pour m'aiguiller à qui j'ai posé de nombreuses questions. Je voulais en profiter pour les remercier :
 
-* Guilhem Lettron (@guilhemlettron)
-* Idriss Neumann (@idriss_neumann)
+* Guilhem Lettron ([@guilhemlettron](https://twitter.com/guilhemlettron))
+* Idriss Neumann ([@idriss_neumann](https://twitter.com/idriss_neumann))
