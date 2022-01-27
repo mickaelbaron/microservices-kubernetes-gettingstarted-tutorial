@@ -22,7 +22,10 @@ Avant de démarrer cette série d'exercices, veuillez préparer votre poste de d
 * Editeur de texte : **vim**, **emacs** ou [VSCode](https://code.visualstudio.com/) ;
 * [cURL](https://curl.haxx.se "cURL").
 
-TODO
+Veuillez ensuite choisir votre environnement d'orchestration Kubernetes :
+
+* [K3d (solution Docker in Docker)](./exercice0-k3d)
+* [K3s (solution à base de machines virtuelles)](./exercice0-k3s)
 
 ## Ressources
 
