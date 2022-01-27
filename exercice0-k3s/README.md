@@ -18,17 +18,21 @@ Nous utiliserons [MultiPass](https://multipass.run/) pour créer des machines vi
 
 Nous donnons ci-dessous les instructions d'installation pour Linux et macOS.
 
-* **macOS** : pour installer [MultiPass](https://multipass.run/) via [Homebrew](https://brew.sh/) :
+---
+
+**macOS** : pour installer [MultiPass](https://multipass.run/) via [Homebrew](https://brew.sh/) :
 
 ```
 $ brew install --cask multipass
 ```
 
-* **Linux** : pour installer [MultiPass](https://multipass.run/) via [snap](https://snapcraft.io/) :
+**Linux** : pour installer [MultiPass](https://multipass.run/) via [snap](https://snapcraft.io/) :
 
 ```
 $ sudo snap install multipass
 ```
+
+---
 
 * Pour s'assurer que [MultiPass](https://multipass.run/) est correctement installé, exécuter les deux commandes suivantes :
 
@@ -118,7 +122,7 @@ $ multipass exec k8s-workernode-2 -- sudo sed -ri 's/nameserver.*/nameserver 8.8
 
 L'accès aux machines virtuelles se fait directement depuis l'outil **multipass**. Si vous souhaitez passer par un accès via SSH, vous devrez configurer chaque machine virtuelle en ajoutant votre clé SSH publique.
 
-* Pour installer [K3s](https://k3s.io/) sur le nœud maître. 
+* Pour installer [K3s](https://k3s.io/) sur le nœud maître :
 
 ```
 $ multipass --verbose exec k8s-master -- sh -c "
@@ -196,7 +200,7 @@ $ echo $k8s_workernode2_ip
 192.168.64.11
 ```
 
-Il est important d'utiliser la commande `$ source exercice0-k3s/extractnodeip.sh` car contrairement à `$ ./exercice0-k3s/extractnodeip.sh` l'exécution du script _extractnodeip.sh_ se fera dans la même session Shell et nous pourrons réutiliser les trois variables d'environnement.
+Il est important d'utiliser la commande `$ source exercice0-k3s/extractnodeip.sh` car contrairement à `$ ./exercice0-k3s/extractnodeip.sh` l'exécution du script _extractnodeip.sh_ se fera dans la session shell courante et nous pourrons réutiliser les trois variables d'environnement.
 
 Toutes les instructions précédentes ont été regroupées dans un fichier script _exercice0-k3s/createk3scluster.sh_. Il permet de paramétrer le nombre de nœuds de travail, la seule limite étant les ressources de votre ordinateur.
 
@@ -314,7 +318,7 @@ Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 À cette étape, vous disposez :
 
 * d'un cluster Kubernetes avec trois nœuds dont un pour le maître et deux autres pour les nœuds de travail ;
-* de deux outils pour contrôler notre cluster Kubernetes.
+* de deux outils de contrôle pour notre cluster Kubernetes.
 
 ## Ressources
 
