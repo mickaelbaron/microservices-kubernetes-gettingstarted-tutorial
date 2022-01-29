@@ -13,7 +13,7 @@ Ci-dessous sont détaillés les exercices de ce tutoriel :
 
 **Buts pédagogiques** : mettre en place un cluster K8s, créer un `Pod`, communiquer avec un `Pod`, partager des données entre des `Pods`, utiliser des outils d'administration (**kubectl** et [K9s](https://k9scli.io/)).
 
-## Prérequis matériels et logiciels
+## Préparer son environnement de test : prérequis matériels et logiciels
 
 Avant de démarrer cette série d'exercices, veuillez préparer votre poste de développeur en installant les outils suivants :
 
@@ -22,10 +22,21 @@ Avant de démarrer cette série d'exercices, veuillez préparer votre poste de d
 * Editeur de texte : **vim**, **emacs** ou [VSCode](https://code.visualstudio.com/) ;
 * [cURL](https://curl.haxx.se "cURL").
 
-Veuillez ensuite choisir votre environnement d'orchestration Kubernetes :
+Récupérer le contenu de ce dépôt :
+
+```
+$ git clone https://github.com/mickaelbaron/microservices-kubernetes-gettingstarted-tutorial
+```
+
+Choisir votre environnement d'orchestration Kubernetes :
 
 * [K3d (solution Docker in Docker)](./exercice0-k3d)
 * [K3s (solution à base de machines virtuelles)](./exercice0-k3s)
+
+Ce tutoriel a été testé avec les systèmes suivants :
+
+* macOS Big Sur 11.6.2
+* Linux Ubuntu 20
 
 ## Ressources
 

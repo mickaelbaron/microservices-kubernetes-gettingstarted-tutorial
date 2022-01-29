@@ -177,10 +177,23 @@ Afin que nous puissions accéder au Cluster, nous devons récupérer un fichier 
 
 * Se placer à la racine du dossier du dépôt de ce tutoriel et exécuter les deux lignes de commande suivantes pour récupérer ce fichier d'accès :
 
+---
+
+**macOS** :
+
 ```
 $ multipass exec k8s-master -- sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
 $ sed -i '' "s/127.0.0.1/$IP/" k3s.yaml
 ```
+
+**Linux** :
+
+```
+$ multipass exec k8s-master -- sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
+$ sed -i "s/127.0.0.1/$IP/" k3s.yaml
+```
+
+---
 
 Le script _exercice0-k3s/exportvmip.sh_ sert à initialiser trois variables d'environnement (`k8s_master_ip`, `k8s_workernode1_ip` et `k8s_workernode2_ip`) qui contiendront les adresses IP de tous les nœuds. Ce script nous sera utile quand nous devrons effectuer des requêtes à partir des nœuds du cluster.
 
@@ -264,6 +277,7 @@ $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s h
 $ chmod +x ./kubectl
 $ sudo mv ./kubectl /usr/local/bin/kubectl
 $ kubectl version --client
+Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.3", GitCommit:"816c97ab8cff8a1c72eccca1026f7820e93e0d25", GitTreeState:"clean", BuildDate:"2022-01-25T21:25:17Z", GoVersion:"go1.17.6", Compiler:"gc", Platform:"linux/amd64"}
 ```
 
 ---
@@ -298,6 +312,7 @@ $ brew install k9s
 ```
 $ wget https://github.com/derailed/k9s/releases/download/v0.25.15/k9s_Linux_x86_64.tar.gz
 $ tar xzf k9s_Linux_x86_64.tar.gz
+$ sudo mv ./k9s /usr/local/bin/k9s
 ```
 
 ---
