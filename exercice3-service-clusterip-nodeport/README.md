@@ -22,7 +22,7 @@ $ kubectl delete namespace mynamespaceexercice2
 namespace "mynamespaceexercice2" deleted
 ```
 
-* Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé mynamespaceexercice3.yaml_ en ajoutant le contenu suivant :
+* Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé _mynamespaceexercice3.yaml_ en ajoutant le contenu suivant :
 
 ```
 apiVersion: v1
