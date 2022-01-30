@@ -15,7 +15,7 @@ Ci-dessous sont détaillés les exercices de ce tutoriel :
 
 ## Préparer son environnement de test : prérequis matériels et logiciels
 
-![Kubernetes = K3s + K3d](../images/k8s_k3s_k3d.png "Kubernetes déployée avec la distribution K3s et une solution DinD avec K3d")
+![Kubernetes = K3s + K3d](./images/k8s_k3s_k3d.png "Kubernetes déployée avec la distribution K3s et une solution DinD avec K3d")
 
 Avant de démarrer cette série d'exercices, veuillez préparer votre poste de développeur en installant les outils suivants :
 
