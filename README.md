@@ -35,10 +35,12 @@ Choisir votre environnement d'orchestration Kubernetes :
 * [K3d (solution Docker in Docker)](./exercice0-k3d)
 * [K3s (solution à base de machines virtuelles)](./exercice0-k3s)
 
+> Seul un environnement est nécessaire pour réaliser les expérimentations de cette série d'exercices.
+
 Ce tutoriel a été testé avec les systèmes suivants :
 
-* macOS Big Sur 11.6.2
-* Linux Ubuntu 20
+* macOS Big Sur
+* Linux Ubuntu 20, Debian 11
 
 ## Ressources
 
