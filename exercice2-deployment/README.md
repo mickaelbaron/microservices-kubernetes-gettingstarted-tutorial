@@ -89,7 +89,7 @@ NAME           READY   UP-TO-DATE   AVAILABLE   AGE
 mydeployment   1/1     1            1           18m
 ```
 
-* Nous pouvons également donner un détail complet de ce `Deplyment` via l'option `describe` :
+* Nous pouvons également donner un détail complet de ce `Deployment` via l'option `describe` :
 
 ```
 $ kubectl describe deployments.apps -n mynamespaceexercice2 mydeployment

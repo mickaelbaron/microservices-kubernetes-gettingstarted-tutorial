@@ -32,15 +32,17 @@ $ git clone https://github.com/mickaelbaron/microservices-kubernetes-gettingstar
 
 Choisir votre environnement d'orchestration Kubernetes :
 
-* [K3d (solution Docker in Docker)](./exercice0-k3d)
-* [K3s (solution à base de machines virtuelles)](./exercice0-k3s)
+* [K3d (solution Docker in Docker)](./exercice0-k3d) : solution adaptée aux configurations matérielles légères (8 Go de mémoire)
+* [K3s (solution à base de machines virtuelles)](./exercice0-k3s) : solution adaptée aux configurations matérielles plus robustes (16 Go de mémoire)
 
-> Seul un environnement est nécessaire pour réaliser les expérimentations de cette série d'exercices.
+Seul un environnement est nécessaire pour réaliser les expérimentations de cette série d'exercices.
 
 Ce tutoriel a été testé avec les systèmes suivants :
 
 * macOS Big Sur
 * Linux Ubuntu 20, Debian 11
+
+> **Attention** si vous réalisez cette série d'exercices dans le cadre d'une formation avec plusieurs participants. Il est fortement recommandé d'utiliser un registre d'images [Docker](https://www.docker.com/ "Docker") privé pour éviter les [limites](https://www.docker.com/increase-rate-limits) imposer par l'utilisation de [Docker Hub](https://hub.docker.com/). En effet, chaque nœud de votre cluster K8s devra télécharger plusieurs images [Docker](https://www.docker.com/ "Docker") et la limite imposée par [Docker](https://www.docker.com/ "Docker") pour récupérer des images (100 en anonyme et 200 pour un compte gratuite toutes les six heures) peut être rapidement atteinte.
 
 ## Ressources
 

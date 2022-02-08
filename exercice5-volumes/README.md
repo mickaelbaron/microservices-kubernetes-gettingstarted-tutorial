@@ -519,3 +519,4 @@ Pour continuer sur les concepts présentés dans cet exercice, nous proposons de
 ## Ressources
 
 * https://www.digitalocean.com/community/tutorials/how-to-set-up-an-nfs-mount-on-ubuntu-20-04
+* https://github.com/kubernetes-csi/csi-driver-nfs
