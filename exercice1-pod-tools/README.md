@@ -371,7 +371,7 @@ kube-system   svclb-traefik-v7wxj                      2/2     Running     8 (17
 kube-system   svclb-traefik-vvclx                      2/2     Running     8 (17h ago)   9d
 ```
 
-### Bilan de l'exercice
+## Bilan de l'exercice
 
 À cette étape, vous savez :
 
@@ -381,7 +381,7 @@ kube-system   svclb-traefik-vvclx                      2/2     Running     8 (17
 * tester en créant un pont entre la machine locale et un `Pod` (uniquement pour faire des tests !!!) ;
 * créer des `Namespaces` pour organiser ses déploiements.
 
-### Avez-vous bien compris ?
+## Avez-vous bien compris ?
 
 Pour continuer sur les concepts présentés dans cet exercice, nous proposons les expérimentations suivantes :
 
@@ -390,7 +390,7 @@ Pour continuer sur les concepts présentés dans cet exercice, nous proposons le
 
 À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur Twitter (@mickaelbaron).
 
-### Ressources
+## Ressources
 
 * https://blog.eleven-labs.com/fr/k9s/
 * https://medium.com/flant-com/k9s-terminal-ui-for-kubernetes-aeead8b0303f
