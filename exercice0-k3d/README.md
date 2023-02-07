@@ -145,7 +145,7 @@ Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 
 ![Outil K9s affichant les Pods déployés sur le cluster K8s d'une distribution K3d](../images/k9s-k3d.png "K9s pour gérer votre cluster K8s d'une distribution K3d")
 
-## Configurer un registre d'images Docker mirroir
+## Configurer un registre d'images Docker miroir
 
 L'utilisation de Kubernetes amène à télécharger de nombreuses images [Docker](https://www.docker.com/ "Docker") depuis le dépôt [Docker HUB](https://hub.docker.com/ "Docker HUB"). Le problème est que ce dernier impose une limite à 100 téléchargements d'image [Docker](https://www.docker.com/ "Docker") chaque 6 heures par adresse IP (ou 200 téléchargements pour les utilisateurs authentifiés). Des informations supplémentaires sont disponibles ici : https://docs.docker.com/docker-hub/download-rate-limit/.
 
@@ -182,7 +182,7 @@ docker-ratelimit-source: X.Y.Z.W
 
 La limite est fixée par `ratelimit-limit: 100;w=21600` et la consommation par `ratelimit-remaining: 100;w=21600`. 
 
-Pour résoudre le problème de quota au niveau de [Docker HUB](https://hub.docker.com/ "Docker HUB"), vous pouvez soit passer par un abonnement payant soit passer par un mirroir d'images [Docker](https://www.docker.com/ "Docker") privé. C'est cette seconde solution que nous allons expliquer dans la suite. Bien entendu il vous conviendra de fournir un mirroir d'images [Docker](https://www.docker.com/ "Docker") privé, nous montrerons simplement comment configurer un cluster [K3d](https://k3d.io/) avec un mirroir d'images [Docker](https://www.docker.com/ "Docker") privé.
+Pour résoudre le problème de quota au niveau de [Docker HUB](https://hub.docker.com/ "Docker HUB"), vous pouvez soit passer par un abonnement payant soit passer par un miroir d'images [Docker](https://www.docker.com/ "Docker") privé. C'est cette seconde solution que nous allons expliquer dans la suite. Bien entendu il vous conviendra de fournir un miroir d'images [Docker](https://www.docker.com/ "Docker") privé, nous montrerons simplement comment configurer un cluster [K3d](https://k3d.io/) avec un miroir d'images [Docker](https://www.docker.com/ "Docker") privé.
 
 * Créer un fichier de configuration appelé _registries.yaml_ avec le contenu suivant.
 
@@ -193,7 +193,7 @@ mirrors:
       - https://URL_YOUR_REGISTRY
 ```
 
-* La configuration du mirroir d'images [Docker](https://www.docker.com/ "Docker") privé se fait lors de la création du cluster [K3d](https://k3d.io/).
+* La configuration du miroir d'images [Docker](https://www.docker.com/ "Docker") privé se fait lors de la création du cluster [K3d](https://k3d.io/).
 
 ```
 $ k3d cluster create mycluster --agents 2 --servers 1 --registry-config "$(pwd)/my-registries.yaml"
