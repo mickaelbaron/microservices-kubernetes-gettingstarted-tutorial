@@ -191,15 +191,17 @@ ingress.networking.k8s.io/myingressfanout created
 ```
 $ kubectl describe ingress -n mynamespaceexercice4 myingressfanout
 Name:             myingressfanout
+Labels:           <none>
 Namespace:        mynamespaceexercice4
-Address:          192.168.64.10,192.168.64.11,192.168.64.9
-Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Address:          172.29.0.3,172.29.0.4,172.29.0.5
+Ingress Class:    traefik
+Default backend:  <default>
 Rules:
   Host        Path  Backends
   ----        ----  --------
   *
-              /app1   app1service:8080 (10.42.0.83:80,10.42.2.68:80)
-              /app2   app2service:8080 (10.42.1.67:80,10.42.2.71:80)
+              /app1   app1service:8080 (10.42.0.11:80,10.42.2.16:80)
+              /app2   app2service:8080 (10.42.1.10:80,10.42.2.17:80)
 Annotations:  <none>
 Events:       <none>
 ```
@@ -237,20 +239,21 @@ e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes 
 ```
 $ k3d cluster edit mycluster --port-add 80:80@loadbalancer
 INFO[0000] portmapping '80:80' targets the loadbalancer: defaulting to [servers:*:proxy agents:*:proxy]
-INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-PvqeT...
+INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-gNOwY...
 INFO[0000] Creating new node k3d-mycluster-serverlb...
-INFO[0000] Stopping existing node k3d-mycluster-serverlb-PvqeT...
+INFO[0000] Stopping existing node k3d-mycluster-serverlb-gNOwY...
 INFO[0010] Starting new node k3d-mycluster-serverlb...
-INFO[0011] Starting Node 'k3d-mycluster-serverlb'
-INFO[0017] Deleting old node k3d-mycluster-serverlb-PvqeT...
+INFO[0010] Starting Node 'k3d-mycluster-serverlb'
+INFO[0017] Deleting old node k3d-mycluster-serverlb-gNOwY...
 INFO[0017] Successfully updated mycluster
 
 $ docker ps
-CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                                                   NAMES
-9bf5cfe46f58   d0554070bc8c               "/bin/sh -c nginx-pr…"   5 minutes ago    Up 4 minutes    0.0.0.0:30001->30001/tcp, 0.0.0.0:80->80/tcp, 0.0.0.0:62002->6443/tcp   k3d-mycluster-serverlb
-b7e9d52a3d89   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   31 minutes ago   Up 31 minutes                                                                           k3d-mycluster-agent-1
-e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   31 minutes ago   Up 31 minutes                                                                           k3d-mycluster-agent-0
-6ae3be322c8c   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   31 minutes ago   Up 31 minutes                                                                           k3d-mycluster-server-0
+CONTAINER ID   IMAGE                            COMMAND                  CREATED         STATUS              PORTS                                                                   NAMES
+017f86faa708   ef33158baf49                     "/bin/sh -c nginx-pr…"   2 minutes ago   Up About a minute   0.0.0.0:80->80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:61868->6443/tcp   k3d-mycluster-serverlb
+218cfd215045   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    5 hours ago     Up 5 hours                                                                                  k3d-mycluster-tools
+fc1b05755fa1   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   5 hours ago     Up 5 hours                                                                                  k3d-mycluster-agent-1
+881b02b75046   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   5 hours ago     Up 5 hours                                                                                  k3d-mycluster-agent-0
+ccb827ca9afd   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   5 hours ago     Up 5 hours                                                                                  k3d-mycluster-server-0
 ```
 
 Le port `80` du cluster K8s est maintenant exposé sur le port `80` du poste de développeur.

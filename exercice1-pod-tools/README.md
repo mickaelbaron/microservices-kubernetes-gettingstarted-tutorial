@@ -24,7 +24,7 @@ $ export KUBECONFIG=$PWD/k3s.yaml
 $ k9s
 ```
 
-![Outil K9s affichant les Pods déployés sur le cluster K8s](../images/k9s-k3s.png "K9s pour gérer votre cluster K8s")
+![Outil K9s affichant les Pods déployés sur le cluster K8s](../images/k9s-k3d.png "K9s pour gérer votre cluster K8s")
 
 L'outil [K9s](https://k9scli.io/) affiche tous les objets créés au sein du cluster. L'affichage au démarrage donne l'ensemble des objets de type `Pod`. Les `Pods` déjà présents concernent le fonctionnement interne de Kubernetes. Ces `Pods` sont identifiables par le `Namespace` appelé `kube-system` (colonne `NAMESPACE`).
 
@@ -33,6 +33,8 @@ L'utilisation [K9s](https://k9scli.io/) est très proche de l'éditeur de texte 
 * Depuis l'outil [K9s](https://k9scli.io/), afficher la liste des `Namespaces` via la commande `:namespaces`.
 
 ![Liste des Namespaces via la commande :namespace](../images/k9s-namespace.png "K9s pour gérer votre cluster K8s")
+
+> Le résultat est identique selon que vous utilisez le singulier ou le pluriel. `:namespaces` donne le même résultat que `:namespace`.
 
 Un ensemble de `Namespace` est donné par l'outil [K9s](https://k9scli.io/). Ces `Namespaces` existent déjà car ils sont utilisés pour le fonctionnement interne de Kubernetes.
 
@@ -45,32 +47,32 @@ Nous allons obtenir les mêmes informations depuis l'outil **kubectl**. Cependan
 ```
 $ export KUBECONFIG=$PWD/k3s.yaml
 $ kubectl get pods --all-namespaces
-NAMESPACE     NAME                                     READY   STATUS      RESTARTS       AGE
-kube-system   helm-install-traefik-crd--1-z4nl5        0/1     Completed   0              6d15h
-kube-system   helm-install-traefik--1-pwdm6            0/1     Completed   1              6d15h
-kube-system   svclb-traefik-vvclx                      2/2     Running     6 (122m ago)   6d15h
-kube-system   svclb-traefik-v7wxj                      2/2     Running     6 (122m ago)   6d15h
-kube-system   local-path-provisioner-64ffb68fd-jwxxg   1/1     Running     6 (122m ago)   6d15h
-kube-system   coredns-85cb69466-mz48l                  1/1     Running     3 (122m ago)   6d15h
-kube-system   svclb-traefik-r8npj                      2/2     Running     6 (122m ago)   6d15h
-kube-system   traefik-786ff64748-2vvzh                 1/1     Running     3 (122m ago)   6d15h
-kube-system   metrics-server-9cf544f65-d96nt           1/1     Running     6 (122m ago)   6d15h
+NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
+kube-system   local-path-provisioner-79f67d76f8-flwh9   1/1     Running     0          115m
+kube-system   coredns-597584b69b-kwbdc                  1/1     Running     0          115m
+kube-system   helm-install-traefik-crd-67bd4            0/1     Completed   0          115m
+kube-system   svclb-traefik-86c9da09-xdmwv              2/2     Running     0          115m
+kube-system   svclb-traefik-86c9da09-mhm2n              2/2     Running     0          115m
+kube-system   helm-install-traefik-k6j29                0/1     Completed   1          115m
+kube-system   svclb-traefik-86c9da09-zs7tn              2/2     Running     0          115m
+kube-system   traefik-66c46d954f-pzwrl                  1/1     Running     0          115m
+kube-system   metrics-server-5f9f776df5-2rgdh           1/1     Running     0          115m
 ```
 
 L'option `get` permet de récupérer les informations de l'objet passé en paramètre `pods`. Le paramètre `--all-namespaces` indique que tous les `Namespaces` sont considérés.
 
-* Affichons maintenant la liste des `Namespaces` de notre cluster Kubernest, depuis l'invite de commande *kubectl* :
+* Affichons maintenant la liste des `Namespaces` de notre cluster Kubernetes, depuis l'invite de commande *kubectl* :
 
 ```
 $ kubectl get namespace
 NAME              STATUS   AGE
-default           Active   6d15h
-kube-system       Active   6d15h
-kube-public       Active   6d15h
-kube-node-lease   Active   6d15h
+default           Active   117m
+kube-system       Active   117m
+kube-public       Active   117m
+kube-node-lease   Active   117m
 ```
 
-Il est maintenant temps de créer notre premier `Pod` qui pour rappel est une représentation logique de un ou plusieurs conteneurs. 
+Il est maintenant temps de créer notre premier `Pod` qui, pour rappel, est une représentation logique de un ou plusieurs conteneurs. 
 
 * Dans l'exemple qui va suivre, nous allons créer un `Pod` avec un conteneur basé sur l'image du serveur web [Nginx](https://www.nginx.com/). Depuis l'invite de commande *kubectl* :
 
@@ -84,7 +86,7 @@ pod/myfirstpod created
 ```
 $ kubectl get pods
 NAME         READY   STATUS    RESTARTS   AGE
-myfirstpod   1/1     Running   0          43s
+myfirstpod   1/1     Running   0          34s
 ```
 
 Depuis l'outil [K9s](https://k9scli.io/), vous devriez obtenir le résultat suivant (commande `:pods` si vous n'affichez pas la liste des `Pods`).
@@ -173,7 +175,7 @@ Ce fichier de configuration décrit un objet de type `Pod`. Deux conteneurs sont
 * Pour créer ce `Pod` dans notre cluster :
 
 ```
-$ kubectl apply -f mypod.yaml
+$ kubectl apply -f exercice1-pod-tools/mypod.yaml
 pod/mypod created
 ```
 
@@ -183,45 +185,46 @@ L'option `apply` permet d'appliquer un fichier de configuration au cluster K8s.
 
 ```
 $ kubectl get pods mypod -o wide
-NAME    READY   STATUS    RESTARTS   AGE   IP          NODE            
-mypod   2/2     Running   0          19m   10.42.1.7   k8s-workernode-1
+NAME    READY   STATUS    RESTARTS   AGE   IP          NODE                 
+mypod   2/2     Running   0          23s   10.42.2.6   k3d-mycluster-agent-1
 ```
 
-Nous introduisons le paramètre `-o` dans l'option `get` qui permet d'obtenir des informations plus détaillées. Nous remarquons également que les deux conteneurs sont en cours d'exécution (`2/2`). Enfin, le `Pod` est déployé dans le nœud de travail `k8s-workernode-1`.
+Nous introduisons le paramètre `-o` dans l'option `get` qui permet d'obtenir des informations plus détaillées. Nous remarquons également que les deux conteneurs sont en cours d'exécution (`2/2`). Enfin, le `Pod` est déployé dans le nœud de travail `k3d-mycluster-agent-1`.
 
 * Une autre option intéressante proposée par **kubectl** est `describe` qui permet d'obtenir un détail complet des informations d'un `Pod` :
 
 ```
 $ kubectl describe pods mypod
-Name:         mypod
-Namespace:    default
-Priority:     0
-Node:         k8s-workernode-2/192.168.64.11
-Start Time:   Fri, 31 Dec 2021 07:21:46 +0100
-Labels:       <none>
-Annotations:  <none>
-Status:       Running
-IP:           10.42.2.8
+Name:             mypod
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             k3d-mycluster-agent-1/172.29.0.4
+Start Time:       Tue, 07 Feb 2023 14:49:58 +0100
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.42.2.6
 IPs:
-  IP:  10.42.2.8
+  IP:  10.42.2.6
 Containers:
   mycontainer-1:
-    Container ID:   containerd://676178fe6a86a23bca08e7c1d6793689da08d871f539289efc547f75338b7138
+    Container ID:   containerd://79f46fa666100f1d1cb45c8a1e3d706c1df5fa7f677675f1350d6a08780f7527
     Image:          nginx:latest
-    Image ID:       docker.io/library/nginx@sha256:0d17b565c37bcbd895e9d92315a05c1c3c9a29f762b011a10c54a66cd53c9b31
+    Image ID:       docker.io/library/nginx@sha256:c54fb26749e49dc2df77c6155e8b5f0f78b781b7f0eadd96ecfabdcdfa5b1ec4
     Port:           80/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Fri, 31 Dec 2021 07:21:53 +0100
+      Started:      Tue, 07 Feb 2023 14:49:59 +0100
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pzcnb (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zlnj6 (ro)
   mycontainer-2:
-    Container ID:  containerd://0bfaad4634ec5c958f84a97cd9d4c0e72be8c4e34b2a8fde3b520b4255b79e73
+    Container ID:  containerd://5f76a700206b9ad9157751d4e99770a7741c7273278a3e5b8dff1ea7ffc6b20d
     Image:         alpine:latest
-    Image ID:      docker.io/library/alpine@sha256:21a3deaa0d32a8057914f36584b5288d2e5ecc984380bc0118285c70fa8c9300
+    Image ID:      docker.io/library/alpine@sha256:f271e74b17ced29b915d351685fd4644785c6d1559dd1f2d4189a5e851ef753a
     Port:          <none>
     Host Port:     <none>
     Command:
@@ -230,12 +233,12 @@ Containers:
       -qO-
       localhost
     State:          Running
-      Started:      Fri, 31 Dec 2021 07:21:57 +0100
+      Started:      Tue, 07 Feb 2023 14:50:02 +0100
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pzcnb (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zlnj6 (ro)
 Conditions:
   Type              Status
   Initialized       True
@@ -243,7 +246,7 @@ Conditions:
   ContainersReady   True
   PodScheduled      True
 Volumes:
-  kube-api-access-pzcnb:
+  kube-api-access-zlnj6:
     Type:                    Projected (a volume that contains injected data from multiple sources)
     TokenExpirationSeconds:  3607
     ConfigMapName:           kube-root-ca.crt
@@ -256,15 +259,15 @@ Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists fo
 Events:
   Type    Reason     Age   From               Message
   ----    ------     ----  ----               -------
-  Normal  Scheduled  31m   default-scheduler  Successfully assigned default/mypod to k8s-workernode-2
-  Normal  Pulling    31m   kubelet            Pulling image "nginx:latest"
-  Normal  Pulled     31m   kubelet            Successfully pulled image "nginx:latest" in 6.001292094s
-  Normal  Created    31m   kubelet            Created container mycontainer-1
-  Normal  Started    31m   kubelet            Started container mycontainer-1
-  Normal  Pulling    31m   kubelet            Pulling image "alpine:latest"
-  Normal  Pulled     31m   kubelet            Successfully pulled image "alpine:latest" in 3.160324343s
-  Normal  Created    31m   kubelet            Created container mycontainer-2
-  Normal  Started    31m   kubelet            Started container mycontainer-2
+  Normal  Scheduled  97s   default-scheduler  Successfully assigned default/mypod to k3d-mycluster-agent-1
+  Normal  Pulling    98s   kubelet            Pulling image "nginx:latest"
+  Normal  Pulled     97s   kubelet            Successfully pulled image "nginx:latest" in 660.068216ms (660.07449ms including waiting)
+  Normal  Created    97s   kubelet            Created container mycontainer-1
+  Normal  Started    97s   kubelet            Started container mycontainer-1
+  Normal  Pulling    97s   kubelet            Pulling image "alpine:latest"
+  Normal  Pulled     94s   kubelet            Successfully pulled image "alpine:latest" in 2.756540405s (2.756547566s including waiting)
+  Normal  Created    94s   kubelet            Created container mycontainer-2
+  Normal  Started    94s   kubelet            Started container mycontainer-2
 ``` 
 
 * Comme le `Pod` _mypod_ dispose de deux conteneurs (_mycontainer-1_ et _mycontainer-2_), nous montrons comment exécuter une commande en choisissant un conteneur. Depuis l'invite de commande *kubectl* :
@@ -279,7 +282,7 @@ Le choix du conteneur se fait via l'option `-c` et dont le nom a été défini d
 
 ```
 $ kubectl logs mypod --tail=10 -f -c mycontainer-2
-Every 2.0s: wget -qO- localhost                             2021-12-31 06:45:45
+Every 2.0s: wget -qO- localhost                             2023-02-07 13:53:08
 
 Helloworld from K3s
 ```
@@ -288,7 +291,7 @@ L'option `-f` permet d'afficher en continu l'arrivée de nouveaux messages sur l
 
 Nous allons nous intéresser au concept de `Namespace` qui permet de regrouper des `Pods` par projet, par équipe ou par famille. Actuellement, nous n'avons pas utilisé explicitement de `Namespace` lors de la création des `Pods`. Si aucun `Namespace` n'est précisé, un `Pod` sera automatiquement placé dans le `Namespace` intitulé `default`. 
 
-L'association d'un `Pod` à un `Namespace` peut être faite soit dans le fichier de configuration, soit depuis la commande **kubectl**. Il est préférable d'utiliser la seconde technique car cela permet d'utiliser un même fichier de configuration dans des `Namespaces` différents. À noter que ce principe sera le même pour les autres types d'objets (`Service`, `PersistentVolume`...).
+L'association d'un `Pod` à un `Namespace` peut être faite soit dans le fichier de configuration, soit depuis la commande **kubectl**. Il est préférable d'utiliser la seconde technique car cela permet d'utiliser un même fichier de configuration dans des `Namespaces` différents. À noter que ce principe sera le même pour les autres types d'objets (`Service`, `PersistentVolume`, etc.).
 
 * Commencer par supprimer le `Pod` précédemment créé :
 
@@ -330,20 +333,20 @@ No resources found in default namespace.
 
 $ kubectl get pods -n mynamespaceexercice1
 NAME    READY   STATUS    RESTARTS   AGE
-mypod   2/2     Running   0          3h12m
+mypod   2/2     Running   0          24s
 
 $ kubectl get pods --all-namespaces
-NAMESPACE              NAME                                     READY   STATUS              RESTARTS       AGE
-kube-system            helm-install-traefik-crd--1-z4nl5        0/1     Completed   0             9d
-kube-system            helm-install-traefik--1-pwdm6            0/1     Completed   1             9d
-kube-system            svclb-traefik-r8npj                      2/2     Running     8 (21h ago)   9d
-kube-system            coredns-85cb69466-mz48l                  1/1     Running     4 (21h ago)   9d
-kube-system            metrics-server-9cf544f65-d96nt           1/1     Running     8 (21h ago)   9d
-kube-system            local-path-provisioner-64ffb68fd-jwxxg   1/1     Running     8 (21h ago)   9d
-kube-system            svclb-traefik-v7wxj                      2/2     Running     8 (21h ago)   9d
-kube-system            svclb-traefik-vvclx                      2/2     Running     8 (21h ago)   9d
-mynamespaceexercice1   mypod                                    2/2     Running     0             3h15m
-kube-system            traefik-786ff64748-2vvzh                 1/1     Running     4 (21h ago)   9d
+NAMESPACE              NAME                                      READY   STATUS      RESTARTS   AGE
+kube-system            local-path-provisioner-79f67d76f8-flwh9   1/1     Running     0          135m
+kube-system            coredns-597584b69b-kwbdc                  1/1     Running     0          135m
+kube-system            helm-install-traefik-crd-67bd4            0/1     Completed   0          135m
+kube-system            svclb-traefik-86c9da09-xdmwv              2/2     Running     0          135m
+kube-system            svclb-traefik-86c9da09-mhm2n              2/2     Running     0          135m
+kube-system            helm-install-traefik-k6j29                0/1     Completed   1          135m
+kube-system            svclb-traefik-86c9da09-zs7tn              2/2     Running     0          135m
+kube-system            traefik-66c46d954f-pzwrl                  1/1     Running     0          135m
+kube-system            metrics-server-5f9f776df5-2rgdh           1/1     Running     0          135m
+mynamespaceexercice1   mypod                                     2/2     Running     0          65s
 ```
 
 Vous remarquerez dans la première commande que seuls les `Pods` dans le `Namespace` par défaut sont listés, sauf qu'il n'y en a pas. La deuxième commmande liste les `Pods` pour le `Namespace` `mynamespaceexercice1`. Enfin la troisième commande liste tous les `Pods` quelque soit son `Namespace`.
@@ -360,15 +363,15 @@ namespace "mynamespaceexercice1" deleted
 ```
 $ kubectl get pods --all-namespaces
 NAMESPACE     NAME                                     READY   STATUS      RESTARTS      AGE
-kube-system   helm-install-traefik-crd--1-z4nl5        0/1     Completed   0             9d
-kube-system   helm-install-traefik--1-pwdm6            0/1     Completed   1             9d
-kube-system   svclb-traefik-r8npj                      2/2     Running     8 (17h ago)   9d
-kube-system   coredns-85cb69466-mz48l                  1/1     Running     4 (17h ago)   9d
-kube-system   metrics-server-9cf544f65-d96nt           1/1     Running     8 (17h ago)   9d
-kube-system   local-path-provisioner-64ffb68fd-jwxxg   1/1     Running     8 (17h ago)   9d
-kube-system   traefik-786ff64748-2vvzh                 1/1     Running     4 (17h ago)   9d
-kube-system   svclb-traefik-v7wxj                      2/2     Running     8 (17h ago)   9d
-kube-system   svclb-traefik-vvclx                      2/2     Running     8 (17h ago)   9d
+kube-system   local-path-provisioner-79f67d76f8-flwh9   1/1     Running     0          137m
+kube-system   coredns-597584b69b-kwbdc                  1/1     Running     0          137m
+kube-system   helm-install-traefik-crd-67bd4            0/1     Completed   0          137m
+kube-system   svclb-traefik-86c9da09-xdmwv              2/2     Running     0          136m
+kube-system   svclb-traefik-86c9da09-mhm2n              2/2     Running     0          136m
+kube-system   helm-install-traefik-k6j29                0/1     Completed   1          137m
+kube-system   svclb-traefik-86c9da09-zs7tn              2/2     Running     0          136m
+kube-system   traefik-66c46d954f-pzwrl                  1/1     Running     0          136m
+kube-system   metrics-server-5f9f776df5-2rgdh           1/1     Running     0          137m
 ```
 
 ## Bilan de l'exercice
@@ -385,10 +388,10 @@ kube-system   svclb-traefik-vvclx                      2/2     Running     8 (17
 
 Pour continuer sur les concepts présentés dans cet exercice, nous proposons les expérimentations suivantes :
 
-* créer un `Pod` basé sur une image [Apache HTTP](https://httpd.apache.org/) et modifier le contenu du répertoire ;
+* créer un `Pod` basé sur une image [Apache HTTP](https://httpd.apache.org/) et modifier le contenu du répertoire (_/var/www/html_);
 * créer plusieurs `Pods` dans un `Namespace` et le supprimer.
 
-À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur Twitter (@mickaelbaron).
+À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur Twitter (@mickaelbaron), je répondrai avec plaisir.
 
 ## Ressources
 

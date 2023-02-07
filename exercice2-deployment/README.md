@@ -75,8 +75,8 @@ deployment.apps/mydeployment created
 
 ```
 $ kubectl get pods -n mynamespaceexercice2 -o wide
-NAME                            READY   STATUS    RESTARTS   AGE    IP           NODE            
-mydeployment-64dbfdbd44-hmw8h   1/1     Running   0          16m    10.42.1.18   k8s-workernode-1
+NAME                            READY   STATUS    RESTARTS   AGE   IP          NODE                  
+mydeployment-59f769b799-hpfvs   1/1     Running   0          21s   10.42.2.8   k3d-mycluster-agent-1
 ```
 
 Nous remarquons que le nom du `Pod` n'est pas celui que nous avons donné dans le fichier de configuration, cela est normal car un `Deployment` peut créer plusieurs `Pods` basés sur un même patron (option `template`). Nous reviendrons sur cet aspect quand nous étudierons la montée en charge horizontale (`ReplicatSet`).
@@ -86,7 +86,7 @@ Nous remarquons que le nom du `Pod` n'est pas celui que nous avons donné dans l
 ```
 $ kubectl get deployments.apps -n mynamespaceexercice2
 NAME           READY   UP-TO-DATE   AVAILABLE   AGE
-mydeployment   1/1     1            1           18m
+mydeployment   1/1     1            1           2m14s
 ```
 
 * Nous pouvons également donner un détail complet de ce `Deployment` via l'option `describe` :
@@ -95,7 +95,7 @@ mydeployment   1/1     1            1           18m
 $ kubectl describe deployments.apps -n mynamespaceexercice2 mydeployment
 Name:                   mydeployment
 Namespace:              mynamespaceexercice2
-CreationTimestamp:      Fri, 07 Jan 2022 11:46:45 +0100
+CreationTimestamp:      Tue, 07 Feb 2023 15:11:21 +0100
 Labels:                 <none>
 Annotations:            deployment.kubernetes.io/revision: 1
 Selector:               app=mypod
@@ -116,11 +116,14 @@ Pod Template:
 Conditions:
   Type           Status  Reason
   ----           ------  ------
-  Progressing    True    NewReplicaSetAvailable
   Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
 OldReplicaSets:  <none>
-NewReplicaSet:   mydeployment-64dbfdbd44 (1/1 replicas created)
-Events:          <none>
+NewReplicaSet:   mydeployment-59f769b799 (1/1 replicas created)
+Events:
+  Type    Reason             Age    From                   Message
+  ----    ------             ----   ----                   -------
+  Normal  ScalingReplicaSet  2m29s  deployment-controller  Scaled up replica set mydeployment-59f769b799 to 1
 ```
 
 La configuration d'un objet de type `Deployment` peut inclure le nombre de `Pods` à créér qui est de `un` (1) actuellement. Cette information permet donc de gérer la montée en charge horizontale en utilisant un objet de type `ReplicatSet`. Il est possible d'écrire une configuration de type `ReplicatSet` au même titre que ceux que nous avons déjà fait pour `Pod` ou `Deployment`. Toutefois, `Deployment` peut inclure cette information directement dans sa configuration. C'est de cette manière que nous présenterons `ReplicatSet`.
@@ -162,17 +165,17 @@ deployment.apps/mydeployment configured
 
 ```
 $ kubectl get pods -n mynamespaceexercice2 -o wide
-NAME                            READY   STATUS    RESTARTS   AGE    IP           NODE               
-mydeployment-64dbfdbd44-hmw8h   1/1     Running   0          21h    10.42.1.18   k8s-workernode-1   
-mydeployment-64dbfdbd44-bhdql   1/1     Running   0          104s   10.42.2.17   k8s-workernode-2   
-mydeployment-64dbfdbd44-mkl76   1/1     Running   0          104s   10.42.0.39   k8s-master         
+NAME                            READY   STATUS    RESTARTS   AGE    IP          NODE 
+mydeployment-59f769b799-hpfvs   1/1     Running   0          4m9s   10.42.2.8   k3d-mycluster-agent-1
+mydeployment-59f769b799-xkjhz   1/1     Running   0          18s    10.42.0.5   k3d-mycluster-server-0
+mydeployment-59f769b799-kbxwd   1/1     Running   0          18s    10.42.1.5   k3d-mycluster-agent-0
 
 $ kubectl get deployments.apps -n mynamespaceexercice2
 NAME           READY   UP-TO-DATE   AVAILABLE   AGE
-mydeployment   3/3     3            3           21h
+mydeployment   3/3     3            3           4m35s
 ```
 
-Nous remarquons d'une part que deux nouveaux `Pods` ont été ajoutés (information liée à l'âge) et d'autre part que Kubernetes a choisi d'équilibrer le déploiement sur l'ensemble des nœuds. Cela est cohérent car les ressources matérielles affectées aux nœuds à notre cluster sont assez réduites (1 Go de mémoire) et que K8s essaye de maximiser la disponibilité des `Pods` au cas où un nœud devait être indisponible. Notons également que les trois `Pods` ont des noms assez proches.
+Nous remarquons d'une part que deux nouveaux `Pods` ont été ajoutés (information liée à l'âge) et d'autre part que Kubernetes a choisi d'équilibrer le déploiement sur l'ensemble des nœuds. Cela est cohérent car les ressources matérielles affectées aux nœuds à notre cluster sont assez réduites (1 Go de mémoire) et que K8s essaye de maximiser la disponibilité des `Pods` au cas où un nœud deviendrait indisponible. Notons également que les trois `Pods` ont des noms assez proches.
 
 Nous allons nous intéresser à la problématique de la montée en version des images [Docker](https://www.docker.com/ "Docker"). Dans le fichier de configuration _mydeployment.yaml_ la version de l'image [Docker](https://www.docker.com/ "Docker") [Nginx](https://www.nginx.com/) est actuellement de `1.19`. Il existe de nouvelles versions plus récentes, nous allons migrer progressivement vers celles-ci tout en s'assurant que notre dépoiement est disponible et qu'il est possible de revenir sur un déploiement précédent. Quand une montée en version est réalisée, un enroulement (_rollup_) est provoqué et référencé dans une revision (un numéro unique). Pour chaque révision la cause du changement peut être renseignée dans un texte libre. Cet enroulement pourra être consulté et utilisé pour revenir sur une révision donnée. À noter que cela ne concerne pas uniquement le changement des versions d'image, les changements sur les variables d'environnement et les ressources sont également considérées. Par contre, le changement sur la valeur de `replicas` ne sera pas enroulé.
 
@@ -280,7 +283,7 @@ Une troisième révision est ajoutée à l'enroulement du `Deployment` `mydeploy
 $ kubectl describe deployments.apps -n mynamespaceexercice2 mydeployment
 Name:                   mydeployment
 Namespace:              mynamespaceexercice2
-CreationTimestamp:      Sun, 09 Jan 2022 15:46:51 +0100
+CreationTimestamp:      Tue, 07 Feb 2023 15:11:21 +0100
 Labels:                 <none>
 Annotations:            deployment.kubernetes.io/revision: 3
                         kubernetes.io/change-cause: Image en 1.21
@@ -305,20 +308,22 @@ Conditions:
   Available      True    MinimumReplicasAvailable
   Progressing    True    NewReplicaSetAvailable
 OldReplicaSets:  <none>
-NewReplicaSet:   mydeployment-5664b99d6c (3/3 replicas created)
+NewReplicaSet:   mydeployment-84fd77684b (3/3 replicas created)
 Events:
-  Type    Reason             Age                    From                   Message
-  ----    ------             ----                   ----                   -------
-  Normal  ScalingReplicaSet  6m5s                   deployment-controller  Scaled up replica set mydeployment-64dbfdbd44 to 3
-  Normal  ScalingReplicaSet  5m55s                  deployment-controller  Scaled up replica set mydeployment-84f5f67756 to 1
-  Normal  ScalingReplicaSet  5m54s                  deployment-controller  Scaled down replica set mydeployment-64dbfdbd44 to 2
-  Normal  ScalingReplicaSet  5m54s                  deployment-controller  Scaled up replica set mydeployment-84f5f67756 to 2
-  Normal  ScalingReplicaSet  5m52s                  deployment-controller  Scaled down replica set mydeployment-64dbfdbd44 to 1
-  Normal  ScalingReplicaSet  5m52s                  deployment-controller  Scaled up replica set mydeployment-84f5f67756 to 3
-  Normal  ScalingReplicaSet  5m51s                  deployment-controller  Scaled down replica set mydeployment-64dbfdbd44 to 0
-  Normal  ScalingReplicaSet  5m35s                  deployment-controller  Scaled up replica set mydeployment-5664b99d6c to 1
-  Normal  ScalingReplicaSet  5m34s                  deployment-controller  Scaled down replica set mydeployment-84f5f67756 to 2
-  Normal  ScalingReplicaSet  5m31s (x4 over 5m34s)  deployment-controller  (combined from similar events): Scaled down replica set mydeployment-84f5f67756 to 0
+  Type    Reason             Age                 From                   Message
+  ----    ------             ----                ----                   -------
+  Normal  ScalingReplicaSet  45m                 deployment-controller  Scaled up replica set mydeployment-59f769b799 to 1
+  Normal  ScalingReplicaSet  41m                 deployment-controller  Scaled up replica set mydeployment-59f769b799 to 3 from 1
+  Normal  ScalingReplicaSet  4m3s                deployment-controller  Scaled up replica set mydeployment-7c5dfd9d6c to 1
+  Normal  ScalingReplicaSet  3m53s               deployment-controller  Scaled down replica set mydeployment-59f769b799 to 2 from 3
+  Normal  ScalingReplicaSet  3m53s               deployment-controller  Scaled up replica set mydeployment-7c5dfd9d6c to 2 from 1
+  Normal  ScalingReplicaSet  3m47s               deployment-controller  Scaled down replica set mydeployment-59f769b799 to 1 from 2
+  Normal  ScalingReplicaSet  3m47s               deployment-controller  Scaled up replica set mydeployment-7c5dfd9d6c to 3 from 2
+  Normal  ScalingReplicaSet  3m41s               deployment-controller  Scaled down replica set mydeployment-59f769b799 to 0 from 1
+  Normal  ScalingReplicaSet  115s                deployment-controller  Scaled up replica set mydeployment-84fd77684b to 1
+  Normal  ScalingReplicaSet  108s                deployment-controller  Scaled down replica set mydeployment-7c5dfd9d6c to 2 from 3
+  Normal  ScalingReplicaSet  108s                deployment-controller  Scaled up replica set mydeployment-84fd77684b to 2 from 1
+  Normal  ScalingReplicaSet  96s (x3 over 102s)  deployment-controller  (combined from similar events): Scaled down replica set mydeployment-7c5dfd9d6c to 0 from 1
 ```
 
 La version de l'image [Docker](https://www.docker.com/ "Docker") est bien à `1.21`. Dans la partie `Events` nous constatons les différentes opérations réalisées pour passer de la version `1.19` jusqu'à la version `1.21`.

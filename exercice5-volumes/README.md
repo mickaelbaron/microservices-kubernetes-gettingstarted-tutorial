@@ -21,7 +21,7 @@ $ kubectl delete namespace mynamespaceexercice4
 namespace "mynamespaceexercice4" deleted
 ```
 
-* Créer dans le répertoire _exercice5-volumes/_ un fichier appelé mynamespaceexercice5.yaml_ en ajoutant le contenu suivant :
+* Créer dans le répertoire _exercice5-volumes/_ un fichier appelé _mynamespaceexercice5.yaml_ en ajoutant le contenu suivant :
 
 ```
 apiVersion: v1
@@ -101,13 +101,13 @@ service/mypodforhostpathservice created
 
 ```
 $ kubectl get Pods -n mynamespaceexercice5 -o wide
-NAME                                        READY   STATUS    RESTARTS   AGE   IP           NODE               
-mydeploymentwithhostpath-685cc77c87-622g2   1/1     Running   0          99m   10.42.2.75   k8s-workernode-2   
-mydeploymentwithhostpath-685cc77c87-7t6dv   1/1     Running   0          99m   10.42.1.72   k8s-workernode-1   
-mydeploymentwithhostpath-685cc77c87-hzg4h   1/1     Running   0          98m   10.42.0.84   k8s-master         
+NAME                                        READY   STATUS    RESTARTS   AGE   IP           NODE                  
+mydeploymentwithhostpath-5744565654-tdq5x   1/1     Running   0          7s    10.42.1.11   k3d-mycluster-agent-0 
+mydeploymentwithhostpath-5744565654-kbp6r   1/1     Running   0          7s    10.42.0.12   k3d-mycluster-server-0
+mydeploymentwithhostpath-5744565654-ptrdr   1/1     Running   0          7s    10.42.2.18   k3d-mycluster-agent-1 
 ```
 
-Kubernetes utilise les trois nœuds pour déployer les trois `Pods`. Puisque la stratégie de création du répertoire est `DirectoryOrCreate`, un répertoire _/myhostpath_ devrait exister sur les trois nœuds.
+Kubernetes utilise les trois nœuds pour déployer les trois `Pods`. Un répertoire _/myhostpath_ devrait exister sur les trois nœuds, puisque la stratégie de création du répertoire est `DirectoryOrCreate`.
 
 * Vérifier le contenu du système de fichiers à la racine _/_ de chaque nœud :
 
@@ -160,7 +160,7 @@ $ curl $k8s_workernode1_ip:30001
 <head><title>403 Forbidden</title></head>
 <body>
 <center><h1>403 Forbidden</h1></center>
-<hr><center>nginx/1.21.5</center>
+<hr><center>nginx/1.23.3</center>
 </body>
 </html>
 ```
@@ -173,7 +173,7 @@ $ curl localhost:30001
 <head><title>403 Forbidden</title></head>
 <body>
 <center><h1>403 Forbidden</h1></center>
-<hr><center>nginx/1.21.6</center>
+<hr><center>nginx/1.23.3</center>
 </body>
 </html>
 ```
@@ -214,7 +214,7 @@ $ curl $k8s_workernode1_ip:30001
 <head><title>403 Forbidden</title></head>
 <body>
 <center><h1>403 Forbidden</h1></center>
-<hr><center>nginx/1.21.5</center>
+<hr><center>nginx/1.23.3</center>
 </body>
 </html>
 $ curl $k8s_workernode1_ip:30001
@@ -229,7 +229,7 @@ $ curl localhost:30001
 <head><title>403 Forbidden</title></head>
 <body>
 <center><h1>403 Forbidden</h1></center>
-<hr><center>nginx/1.21.6</center>
+<hr><center>nginx/1.23.3</center>
 </body>
 </html>
 $ curl localhost:30001
@@ -501,11 +501,11 @@ TBA
 
 À cette étape, vous savez :
 
-* Créer un `Volume` local de type `hostPath`
-* Créer un `Volume` local de type `emptyDir`
-* Créer un conteneur d'initialisation
-* Créer un serveur NFS
-* Créer un `Volume` distant de type `NFS`
+* créer un `Volume` local de type `hostPath` ;
+* créer un `Volume` local de type `emptyDir` ;
+* créer un conteneur d'initialisation ;
+* créer un serveur NFS ;
+* créer un `Volume` distant de type `NFS`.
 
 ## Avez-vous bien compris ?
 

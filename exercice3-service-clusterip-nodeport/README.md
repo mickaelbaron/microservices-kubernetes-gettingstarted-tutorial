@@ -1,6 +1,6 @@
 # Exercice 3 : communiquer avec les Pods via les Services ClusterIP et NodePort
 
-À cette étape, la seule solution que nous ayons étudiée pour communiquer avec un `Pod` depuis l'extérieur de notre cluser K8s est d'utiliser la redirection de port avec l'outil **kubectl** et l'option `port-forward` (vue dans l'[exercice 1](../exercice1-pod-tools/README.md)). Toutefois, cette solution n'est pas envisageable pour une mise en production puisqu'elle nécessite l'accès au composant *API Server* (réservé à l'administrateur et au développeur) et surtout elle ne permet d'accéder qu'à un seul `Pod` à la fois. Ce dernier point est gênant puisque depuis l'exercice [exercice 2](/exercice2-deployment/README.md) nous avons appris à créer plusieurs `Pods` basés sur un même template.
+À cette étape, la seule solution étudiée pour communiquer avec un `Pod` depuis l'extérieur de notre cluser K8s est d'utiliser la redirection de port avec l'outil **kubectl** et l'option `port-forward` (vue dans l'[exercice 1](../exercice1-pod-tools/README.md)). Toutefois, cette solution n'est pas envisageable pour une mise en production puisqu'elle nécessite l'accès au composant *API Server* (réservé à l'administrateur et au développeur) et surtout elle ne permet d'accéder qu'à un seul `Pod` à la fois. Ce dernier point est gênant puisque depuis l'exercice [exercice 2](/exercice2-deployment/README.md) nous avons appris à créer plusieurs `Pods` basés sur un même template.
 
 Ce troisième exercice adresse deux problèmes d'accès aux `Pods`. Le premier s'intéresse aux besoins de communication entre des `Pods` depuis l'intérieur du cluster K8s et le second s'intéresse aux besoins de communication depuis l'extérieur du cluster K8s vers des `Pods`. La solution technique proposée par Kubernetes est d'utiliser des objets de type `Service`. Il en existe plusieurs sortes et les principaux sont `ClusterIP`, `NodePort` et `LoadBalancer`. Nous allons étudier les deux premiers car le dernier `LoadBalancer` nécessite que le cluster K8s soit déployé dans un Cloud public.
 
@@ -79,13 +79,13 @@ deployment.apps/mydeploymentforservice created
 
 ```
 $ kubectl get pod -n mynamespaceexercice3
-NAME                                     READY   STATUS    RESTARTS   AGE
-mydeploymentforservice-6bb797546-fh28g   1/1     Running   0          152m
-mydeploymentforservice-6bb797546-lx28c   1/1     Running   0          152m
-mydeploymentforservice-6bb797546-nld6h   1/1     Running   0          152m
+NAME                                      READY   STATUS    RESTARTS   AGE
+mydeploymentforservice-7f4dfcd55c-xrqz9   1/1     Running   0          3m27s
+mydeploymentforservice-7f4dfcd55c-bsc58   1/1     Running   0          3m27s
+mydeploymentforservice-7f4dfcd55c-8rctf   1/1     Running   0          3m27s
 
-$ kubectl exec -it -n mynamespaceexercice3 mydeploymentforservice-6bb797546-fh28g -- more /usr/share/nginx/html/index.html
-mydeploymentforservice-6bb797546-fh28g
+$ kubectl exec -it -n mynamespaceexercice3 mydeploymentforservice-7f4dfcd55c-xrqz9 -- more /usr/share/nginx/html/index.html
+mydeploymentforservice-7f4dfcd55c-xrqz9
 ```
 
 La première commande affiche la liste des `Pods` depuis notre `Namespace`. En considérant le premier `Pod` de la liste, nous exécutons une commande sur le conteneur pour afficher le contenu du fichier _/usr/share/nginx/html/index.html_. Si le résultat est similaire à `mydeploymentforservice-XXXXXXXXX-YYYYY`, c'est que la commande au démarrage du conteneur a été correctement exécutée.
@@ -122,17 +122,16 @@ service/myclusteripservice created
 
 ```
 $ kubectl get service -n mynamespaceexercice3 -o wide
-
 NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE   SELECTOR
-myclusteripservice   ClusterIP   10.43.245.174   <none>        8080/TCP   56m   app=mypod
+myclusteripservice   ClusterIP   10.43.173.137   <none>        8080/TCP   7s    app=mypod
 ```
 
-Le `Service` `myclusteripservice` est disponible. L'accès à ce `Service` se fera via l'IP `10.43.245.174` ou via le CNAME `myclusteripservice`. 
+Le `Service` `myclusteripservice` est disponible. L'accès à ce `Service` se fera via l'IP `10.43.173.137` ou via le CNAME `myclusteripservice`. 
 
 Pour tester notre `Service` qui va distribuer des requêtes aux `Pods` de notre `Deployment`, nous allons créer un `Pod` de test basé sur l'image [Docker](https://www.docker.com/ "Docker") Alpine (penser à adapter l'adresse IP du `ClusterIP`) :
 
 ```
-$ kubectl run podtest --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- 10.43.245.174:8080; sleep 1; done"
+$ kubectl run podtest --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- 10.43.173.137:8080; sleep 1; done"
 pod/podtest created
 
 $ kubectl logs podtest -f
@@ -190,20 +189,20 @@ Un `Service` de type `ClusterIP` est accessible uniquement à l'intérieur d'un 
 ---
 
 ```
-$ multipass exec k8s-master -- wget -qO- 10.43.245.174:8080
+$ multipass exec k8s-master -- wget -qO- 10.43.173.137:8080
 mydeploymentforservice-6bb797546-lx28c
 ```
 
 **Via K3d**
 
 ```
-$ docker exec -it k3d-mycluster-server-0 wget -qO- 10.43.86.202:8080
+$ docker exec -it k3d-mycluster-server-0 wget -qO- 10.43.173.137:8080
 mydeploymentforservice-6bb797546-lx28c
 ```
 
 ---
 
-Si vous souhaitez cependant accéder à ce `Service` depuis l'extérieur, il y a une solution, mais **elle ne doit être utilisée qu'à des fins de tests**. Cette solution basée sur l'utilisation de l'outil **kubectl** permet de créer un `proxy` entre la machine locale et le cluster.
+Si vous souhaitez cependant accéder à ce `Service` depuis l'extérieur, il y a une solution, mais **elle ne doit être utilisée qu'à des fins de tests**. Cette solution, basée sur l'utilisation de l'outil **kubectl**, permet de créer un `proxy` entre la machine locale et le cluster.
 
 * Depuis l'invite de commande *kubectl* :
 
@@ -243,7 +242,7 @@ $ kubectl delete service -n mynamespaceexercice3 myclusteripservice
 service "myclusteripservice" deleted
 ```
 
-Nous allons maintenant nous intéresser aux `Services` de type `NodePort` qui contrairement à `ClusterIP` sont accessibles depuis l'extérieur du cluster K8s. Le principe de fonctionnement du `Service` `NodePort` est en deux temps. Dans un premier temps, ce `Service` est exposé sur une IP et un CNAME (Canonical Name) puis distribue les requêtes vers l'adresse IP d'un `Pod` (identique à `ClusterIP`). Un `Service` `NodePort`s'appuie donc sur un `Service` `ClusterIP`. Dans un second temps, ce `Service` est exposé sur l'IP de chaque nœud à un port statique (appelé `nodePort`). La plage du `nodePort` est comprise entre `30000` et `32767`, cela laisse de la marge, mais n'est pas illimité. Ainsi, pour accéder à un `Service` `NodePort` depuis l'extérieur, il n'y aura plus qu'à requêter l'adresse `<IP Nœud>:<nodePort>`.
+Nous allons maintenant nous intéresser aux `Services` de type `NodePort` qui contrairement à `ClusterIP` sont accessibles depuis l'extérieur du cluster K8s. Le principe de fonctionnement du `Service` `NodePort` est en deux temps. Dans un premier temps, ce `Service` est exposé sur une IP et un CNAME (Canonical Name) puis distribue les requêtes vers l'adresse IP d'un `Pod` (identique à `ClusterIP`). Un `Service` `NodePort` s'appuie donc sur un `Service` `ClusterIP`. Dans un second temps, ce `Service` est exposé sur l'IP de chaque nœud à un port statique (appelé `nodePort`). La plage du `nodePort` est comprise entre `30000` et `32767`, cela laisse de la marge, mais n'est pas illimité. Ainsi, pour accéder à un `Service` `NodePort` depuis l'extérieur, il n'y aura plus qu'à requêter l'adresse `<IP Nœud>:<nodePort>`.
 
 * Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé _mynodeportservice.yaml_ qui décrit un `Service` de type `ClusterIP` :
 
@@ -277,7 +276,7 @@ service/mynodeportservice created
 ```
 $ kubectl get service -n mynamespaceexercice3 -o wide
 NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE   SELECTOR
-mynodeportservice   NodePort   10.43.192.164   <none>        8080:30001/TCP   41s   app=mypod
+mynodeportservice   NodePort   10.43.145.109   <none>        8080:30001/TCP   35s   app=mypod
 ```
 
 Nous constatons que ce `Service` `NodePort` est bien basé sur un `Service` `ClusterIP` puisqu'une IP interne a été définie `10.43.192.164`. La valeur du `nodePort` se retrouve dans la colonne `PORT(s)`. Le `Service` `NodePort` va donc recevoir une requête sur le port `30001` qu'il va retourner au `Service` `ClusterIP` sur le port `8080` qui à son tour va distribuer aléatoirement sur tous les `Pods`.
@@ -305,31 +304,33 @@ Tous les nœuds du cluster peuvent être utilisés pour interroger les `Pods`.
 
 ```
 $ docker ps
-CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                             NAMES
-1592d6eca165   rancher/k3d-proxy:5.2.2    "/bin/sh -c nginx-pr…"   45 seconds ago   Up 26 seconds   80/tcp, 0.0.0.0:62002->6443/tcp   k3d-mycluster-serverlb
-b7e9d52a3d89   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   45 seconds ago   Up 36 seconds                                     k3d-mycluster-agent-1
-e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   45 seconds ago   Up 36 seconds                                     k3d-mycluster-agent-0
-6ae3be322c8c   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   45 seconds ago   Up 43 seconds                                     k3d-mycluster-server-0
+CONTAINER ID   IMAGE                            COMMAND                  CREATED       STATUS       PORTS                             NAMES
+218cfd215045   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    4 hours ago   Up 4 hours                                     k3d-mycluster-tools
+7e507d8c048f   ghcr.io/k3d-io/k3d-proxy:5.4.7   "/bin/sh -c nginx-pr…"   4 hours ago   Up 4 hours   80/tcp, 0.0.0.0:61868->6443/tcp   k3d-mycluster-serverlb
+fc1b05755fa1   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago   Up 4 hours                                     k3d-mycluster-agent-1
+881b02b75046   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago   Up 4 hours                                     k3d-mycluster-agent-0
+ccb827ca9afd   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago   Up 4 hours                                     k3d-mycluster-server-0
 ```
 
 * Actuellement aucun conteneur du cluster K8s ne peut répondre à une requête sur le port `30001`. Modifier le cluster [K3d](https://k3d.io/) afin d'ajouter l'écoute sur ce port :
 
 ```
 $ k3d cluster edit mycluster --port-add 30001:30001@server:0
-INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-GUxGF...
+INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-AtDbL...
 INFO[0000] Creating new node k3d-mycluster-serverlb...
-INFO[0000] Stopping existing node k3d-mycluster-serverlb-GUxGF...
+INFO[0000] Stopping existing node k3d-mycluster-serverlb-AtDbL...
 INFO[0010] Starting new node k3d-mycluster-serverlb...
-INFO[0011] Starting Node 'k3d-mycluster-serverlb'
-INFO[0017] Deleting old node k3d-mycluster-serverlb-GUxGF...
+INFO[0010] Starting Node 'k3d-mycluster-serverlb'
+INFO[0017] Deleting old node k3d-mycluster-serverlb-AtDbL...
 INFO[0017] Successfully updated mycluster
 
 $ docker ps
-CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                                       NAMES
-e3156d411390   d0554070bc8c               "/bin/sh -c nginx-pr…"   5 minutes ago    Up 5 minutes    80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:62002->6443/tcp   k3d-mycluster-serverlb
-b7e9d52a3d89   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-agent-1
-e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-agent-0
-6ae3be322c8c   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-server-0
+CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS                                                       NAMES
+71daed0bd9cd   ef33158baf49                     "/bin/sh -c nginx-pr…"   About a minute ago   Up About a minute   80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:61868->6443/tcp   k3d-mycluster-serverlb
+218cfd215045   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    4 hours ago          Up 4 hours                                                                      k3d-mycluster-tools
+fc1b05755fa1   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago          Up 4 hours                                                                      k3d-mycluster-agent-1
+881b02b75046   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago          Up 4 hours                                                                      k3d-mycluster-agent-0
+ccb827ca9afd   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago          Up 4 hours                                                                      k3d-mycluster-server-0
 ```
 
 Le port `30001` du cluster K8s est maintenant exposé sur le port `30001` du poste de développeur.
@@ -413,7 +414,7 @@ Comme les identifiants sont les mêmes que ceux utilisés pendant l'exercice, au
 Pour continuer sur les concepts présentés dans cet exercice, nous proposons les expérimentations suivantes :
 
 * créer un `Deployment` basé sur une image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
-* créer un `Service` de type `ClusterIP` pour ce `Deployment`;
+* créer un `Service` de type `ClusterIP` pour ce `Deployment` ;
 * créer un `Service` de type `NodePort` pour ce `Deployment`.
 
 ## Ressources
