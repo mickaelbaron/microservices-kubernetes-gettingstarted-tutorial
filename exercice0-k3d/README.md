@@ -2,7 +2,7 @@
 
 Cette préparation d'environnement cible la mise en place d'un cluster Kubernetes à partir de l'outil [K3d](https://k3d.io/) qui s'appuie sur la distribution légère [K3s](https://k3s.io/). [K3d](https://k3d.io/) sera utilisé comme solution _DinD_ => [Docker](https://www.docker.com/ "Docker") in [Docker](https://www.docker.com/ "Docker"). Cette approche _DinD_ permet de déployer un cluster Kubernetes multi-nœuds directement sur votre poste développeur. Tous les nœuds (maître et de travail) sont encapsulés dans un conteneur [Docker](https://www.docker.com/ "Docker"). L'avantage est de pouvoir profiter des performances des conteneurs (rapidité et occupation mémoire réduite) pour créer des nœuds.
 
-Comme précisé en introduction, l'ensemble des expérimentations ont été testées depuis macOS et Linux. L'adaptation sous Windows n'est pas insurmontable, il faudra adapter certains scripts.
+Comme précisé en introduction, l'ensemble des expérimentations ont été testées depuis macOS et Linux. L'adaptation sous Windows n'est pas insurmontable, il faudra adapter certains scripts. Tout retour sur une installation sous Windows est le bienvenu.
 
 > **Il est important de signaler que cette préparation d'environnement ne peut être appliquée pour une mise en production. Elle est dédiée au poste du développeur qui souhaite s'assurer que les configurations fonctionnent correctement.**
 
@@ -37,8 +37,8 @@ $ wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | b
 
 ```
 $ k3d version
-k3d version v5.4.7
-k3s version v1.25.6-k3s1 (default)
+k3d version v5.6.0
+k3s version v1.27.5-k3s1 (default)
 ```
 
 Nous allons créer un cluster Kubernetes composé de trois nœuds dont un sera dédié au nœud maître et les deux autres seront dédiés aux nœuds de travail. Sous [K3d](https://k3d.io/), un nœud de travail est intitulé `agent` et un nœud maître est intitulé `server`.
@@ -56,11 +56,11 @@ Cette commande crée un cluster Kubernetes appelé `mycluster`. Il contient deux
 ```
 $ docker ps
 CONTAINER ID   IMAGE                            COMMAND                  CREATED          STATUS          PORTS                             NAMES
-9f2d698dbc2f   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    30 seconds ago   Up 28 seconds                                     k3d-mycluster-tools
-f26ca44f1a13   ghcr.io/k3d-io/k3d-proxy:5.4.7   "/bin/sh -c nginx-pr…"   30 seconds ago   Up 18 seconds   80/tcp, 0.0.0.0:59937->6443/tcp   k3d-mycluster-serverlb
-61f42423fc40   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 21 seconds                                     k3d-mycluster-agent-1
-fc10281a3582   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 22 seconds                                     k3d-mycluster-agent-0
-7e8c1dc93b0d   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 27 seconds                                     k3d-mycluster-server-0
+9f2d698dbc2f   ghcr.io/k3d-io/k3d-tools:5.6.0   "/app/k3d-tools noop"    30 seconds ago   Up 28 seconds                                     k3d-mycluster-tools
+f26ca44f1a13   ghcr.io/k3d-io/k3d-proxy:5.6.0   "/bin/sh -c nginx-pr…"   30 seconds ago   Up 18 seconds   80/tcp, 0.0.0.0:59937->6443/tcp   k3d-mycluster-serverlb
+61f42423fc40   rancher/k3s:v1.27.5-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 21 seconds                                     k3d-mycluster-agent-1
+fc10281a3582   rancher/k3s:v1.27.5-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 22 seconds                                     k3d-mycluster-agent-0
+7e8c1dc93b0d   rancher/k3s:v1.27.5-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 27 seconds                                     k3d-mycluster-server-0
 ```
 
 Les deux nœuds de travail sont encapsulés par les deux conteneurs nommés `k3d-mycluster-agent-0` et `k3d-mycluster-agent-1`, le nœud maître est encapsulé par un (1) conteneur nommé `k3d-mycluster-server-0`, un conteneur `k3d-mycluster-serverlb` qui sert d'équilibreur de charge (_LoadBalancer_) pour le cluster K8s et finalement un conteneur `k3d-mycluster-tools` qui fournit des outils spécifiques comme par exemple l'importation d'images [Docker](https://www.docker.com/ "Docker") vers un cluster [K3s](https://k3s.io/).
@@ -73,7 +73,7 @@ Afin que nous puissions accéder au cluster Kubernetes, nous devons récupérer 
 $ k3d kubeconfig get mycluster > k3s.yaml
 ```
 
-Nous avons désormais un cluster Kubernetes, mais nous ne disposns pas encore des outils pour interagir avec celui-ci. Nous détaillons ci-après comment installer les outils de gestion **kubectl** et [K9s](https://k9scli.io/) sur votre poste de développeur. Leurs utilisations seront détaillées dans l'exercice suivant.
+Nous avons désormais un cluster Kubernetes, mais nous ne disposons pas encore des outils pour interagir avec celui-ci. Nous détaillons ci-après comment installer les outils de gestion **kubectl** et [K9s](https://k9scli.io/) sur votre poste de développeur. Leurs utilisations seront détaillées dans l'exercice suivant.
 
 **kubectl** et [K9s](https://k9scli.io/) sont des outils qui communiquent avec le composant *API Server* et nécessitent d'accéder au fichier *k3s.yaml* obtenu précédemment.
 
@@ -106,9 +106,9 @@ $ kubectl version --client
 $ export KUBECONFIG=$PWD/k3s.yaml
 $ kubectl top nodes
 NAME                     CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
-k3d-mycluster-agent-0    26m          1%     102Mi           6%
-k3d-mycluster-agent-1    36m          1%     176Mi           11%
-k3d-mycluster-server-0   82m          4%     408Mi           27%
+k3d-mycluster-agent-0    26m          1%     122Mi           1%
+k3d-mycluster-agent-1    36m          1%     209Mi           2%
+k3d-mycluster-server-0   82m          4%     626Mi           7%
 ```
 
 La première ligne de commande permet d'indiquer à **kubectl** où se trouve le fichier d'accès au cluster Kubernetes. Cette commande n'est à réaliser qu'une seule fois à l'ouvertue de votre terminal. Le seconde ligne de commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
@@ -196,7 +196,7 @@ mirrors:
 * La configuration du miroir d'images [Docker](https://www.docker.com/ "Docker") privé se fait lors de la création du cluster [K3d](https://k3d.io/).
 
 ```
-$ k3d cluster create mycluster --agents 2 --servers 1 --registry-config "$(pwd)/my-registries.yaml"
+$ k3d cluster create mycluster --agents 2 --servers 1 --registry-config "$(pwd)/registries.yaml"
 ```
 
 ## Bilan de l'exercice

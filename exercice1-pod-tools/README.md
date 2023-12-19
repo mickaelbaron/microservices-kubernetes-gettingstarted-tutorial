@@ -391,7 +391,7 @@ Pour continuer sur les concepts présentés dans cet exercice, nous proposons le
 * créer un `Pod` basé sur une image [Apache HTTP](https://httpd.apache.org/) et modifier le contenu du répertoire (_/var/www/html_);
 * créer plusieurs `Pods` dans un `Namespace` et le supprimer.
 
-À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur Twitter (@mickaelbaron), je répondrai avec plaisir.
+À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur [Github](https://github.com/mickaelbaron/mickaelbaron.github.io/issues), je répondrai avec plaisir.
 
 ## Ressources
 

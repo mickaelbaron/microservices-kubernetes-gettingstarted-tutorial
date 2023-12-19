@@ -4,7 +4,7 @@ L'objectif de cette série d'exercices est d'apprendre à démystifier Kubernete
 
 Ci-dessous sont détaillés les exercices de ce tutoriel :
 
-* préparer son environnement d'orchestration K8s : différentes configurations sont détaillées (avec [K3d](https://k3d.io/) pour créer un cluster K8s avec [Docker](https://www.docker.com/ "Docker") ou avec [K3s](https://k3s.io/) pour créer un cluster K8s depuis des machines virtuelles) ;
+* préparer son environnement d'orchestration K8s : différentes configurations sont détaillées (avec [K3d](https://k3d.io/) pour créer un cluster K8s avec [Docker](https://www.docker.com/ "Docker") ou avec [K3s](https://k3s.io/) pour créer un cluster K8s depuis des machines virtuelles voir physiques) ;
 * créer un premier `Pod` et manipuler son environnement d'orchestration K8s : créer et déployer une représentation logique de conteneurs en écrivant un fichier de configuration basé sur un objet `Pod` puis utiliser les outils **kubectl** et [K9s](https://k9scli.io/) ;
 * créer et déployer une représentation logique de `Pods` : créer un `Deployment` et gérer la montée en charge des `Pods` (`ReplicaSets`) ;
 * communiquer avec les Pods : créer et déployer des services de type `ClusterIP` et `NodePort` ;
@@ -19,7 +19,7 @@ Ci-dessous sont détaillés les exercices de ce tutoriel :
 
 Avant de démarrer cette série d'exercices, veuillez préparer votre poste de développeur en installant les outils suivants :
 
-* Un PC ou un Mac avec au minimum 8 Go de mémoire et les options de virtualisation acives ;
+* Un PC ou un Mac avec au minimum 8 Go de mémoire et les options de virtualisation actives ;
 * [Docker](https://www.docker.com/ "Docker") ;
 * Editeur de texte : **vim**, **emacs** ou [VSCode](https://code.visualstudio.com/) ;
 * [cURL](https://curl.haxx.se "cURL").
@@ -39,8 +39,8 @@ Seul un environnement est nécessaire pour réaliser les expérimentations de ce
 
 Ce tutoriel a été testé avec les systèmes suivants :
 
-* macOS Big Sur
-* Linux Ubuntu 20, Debian 11
+* macOS Sonoma ;
+* Linux Ubuntu 20, Debian 11.
 
 > **Attention** si vous réalisez cette série d'exercices dans le cadre d'une formation avec plusieurs participants. Il est fortement recommandé d'utiliser un registre d'images [Docker](https://www.docker.com/ "Docker") privé pour éviter les [limites](https://www.docker.com/increase-rate-limits) imposer par l'utilisation de [Docker Hub](https://hub.docker.com/). En effet, chaque nœud de votre cluster K8s devra télécharger plusieurs images [Docker](https://www.docker.com/ "Docker") et la limite imposée par [Docker](https://www.docker.com/ "Docker") pour récupérer des images (100 en anonyme et 200 pour un compte gratuite toutes les six heures) peut être rapidement atteinte.
 
