@@ -310,7 +310,7 @@ $ brew install k9s
 **Linux** : pour installer **K9s** :
 
 ```
-$ wget https://github.com/derailed/k9s/releases/download/v0.30.8/k9s_Linux_amd64.tar.gz
+$ wget https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_Linux_amd64.tar.gz
 $ tar xzf k9s_Linux_amd64.tar.gz
 $ sudo mv ./k9s /usr/local/bin/k9s
 ```
