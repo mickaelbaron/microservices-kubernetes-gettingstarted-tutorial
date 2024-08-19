@@ -195,12 +195,12 @@ $ sed -i "s/127.0.0.1/$IP/" k3s.yaml
 
 ---
 
-Le script _exercice0-k3s/exportvmip.sh_ sert à initialiser trois variables d'environnement (`k8s_master_ip`, `k8s_workernode1_ip` et `k8s_workernode2_ip`) qui contiendront les adresses IP de tous les nœuds. Ce script nous sera utile quand nous devrons effectuer des requêtes à partir des nœuds du cluster.
+Le script _exercice0-k3s/extractnodeip.sh_ sert à initialiser trois variables d'environnement (`k8s_master_ip`, `k8s_workernode1_ip` et `k8s_workernode2_ip`) qui contiendront les adresses IP de tous les nœuds. Ce script nous sera utile quand nous devrons effectuer des requêtes à partir des nœuds du cluster.
 
-* Pour exécuter le script _exercice0-k3s/exportvmip.sh_ :
+* Pour exécuter le script _exercice0-k3s/extractnodeip.sh_ :
 
 ```
-$ source exercice0-k3s/exportvmip.sh
+$ source exercice0-k3s/extractnodeip.sh
 k8s-master 🧑: k8s_master_ip=192.168.64.9
 k8s-workernode1-ip 👷: k8s_workernode1_ip=192.168.64.10
 k8s-workernode2-ip 👷: k8s_workernode2_ip=192.168.64.11
@@ -310,7 +310,7 @@ $ brew install k9s
 **Linux** : pour installer **K9s** :
 
 ```
-$ wget https://github.com/derailed/k9s/releases/download/v0.30.8/k9s_Linux_amd64.tar.gz
+$ wget https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_Linux_amd64.tar.gz
 $ tar xzf k9s_Linux_amd64.tar.gz
 $ sudo mv ./k9s /usr/local/bin/k9s
 ```
