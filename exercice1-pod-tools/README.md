@@ -20,7 +20,6 @@ Ce premier exercice sera aussi l'occasion de manipuler les outils **kubectl** et
 * Depuis l'invite de commande *k9s* : 
 
 ```
-$ export KUBECONFIG=$PWD/k3s.yaml
 $ k9s
 ```
 
@@ -45,18 +44,17 @@ Nous allons obtenir les mêmes informations depuis l'outil **kubectl**. Cependan
 * Depuis l'invite de commande *kubectl* :
 
 ```
-$ export KUBECONFIG=$PWD/k3s.yaml
 $ kubectl get pods --all-namespaces
 NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
-kube-system   local-path-provisioner-79f67d76f8-flwh9   1/1     Running     0          115m
-kube-system   coredns-597584b69b-kwbdc                  1/1     Running     0          115m
-kube-system   helm-install-traefik-crd-67bd4            0/1     Completed   0          115m
-kube-system   svclb-traefik-86c9da09-xdmwv              2/2     Running     0          115m
-kube-system   svclb-traefik-86c9da09-mhm2n              2/2     Running     0          115m
-kube-system   helm-install-traefik-k6j29                0/1     Completed   1          115m
-kube-system   svclb-traefik-86c9da09-zs7tn              2/2     Running     0          115m
-kube-system   traefik-66c46d954f-pzwrl                  1/1     Running     0          115m
-kube-system   metrics-server-5f9f776df5-2rgdh           1/1     Running     0          115m
+kube-system   coredns-7b98449c4-ks2sf                   1/1     Running     0          2m11s
+kube-system   helm-install-traefik-crd-l98k2            0/1     Completed   0          2m11s
+kube-system   helm-install-traefik-rszld                0/1     Completed   1          2m11s
+kube-system   local-path-provisioner-595dcfc56f-zc5vw   1/1     Running     0          2m11s
+kube-system   metrics-server-cdcc87586-z55gf            1/1     Running     0          2m11s
+kube-system   svclb-traefik-a8a5499c-5b4t6              2/2     Running     0          113s
+kube-system   svclb-traefik-a8a5499c-8d92f              2/2     Running     0          113s
+kube-system   svclb-traefik-a8a5499c-mn5dd              2/2     Running     0          113s
+kube-system   traefik-d7c9c5778-2nqnm                   1/1     Running     0          113s
 ```
 
 L'option `get` permet de récupérer les informations de l'objet passé en paramètre `pods`. Le paramètre `--all-namespaces` indique que tous les `Namespaces` sont considérés.
@@ -66,10 +64,10 @@ L'option `get` permet de récupérer les informations de l'objet passé en param
 ```
 $ kubectl get namespace
 NAME              STATUS   AGE
-default           Active   117m
-kube-system       Active   117m
-kube-public       Active   117m
-kube-node-lease   Active   117m
+default           Active   2m57s
+kube-node-lease   Active   2m57s
+kube-public       Active   2m57s
+kube-system       Active   2m57s
 ```
 
 Il est maintenant temps de créer notre premier `Pod` qui, pour rappel, est une représentation logique de un ou plusieurs conteneurs. 
@@ -186,7 +184,7 @@ L'option `apply` permet d'appliquer un fichier de configuration au cluster K8s.
 ```
 $ kubectl get pods mypod -o wide
 NAME    READY   STATUS    RESTARTS   AGE   IP          NODE                 
-mypod   2/2     Running   0          23s   10.42.2.6   k3d-mycluster-agent-1
+mypod   2/2     Running   0          15s   10.42.0.6   k3d-mycluster-agent-0
 ```
 
 Nous introduisons le paramètre `-o` dans l'option `get` qui permet d'obtenir des informations plus détaillées. Nous remarquons également que les deux conteneurs sont en cours d'exécution (`2/2`). Enfin, le `Pod` est déployé dans le nœud de travail `k3d-mycluster-agent-1`.
@@ -199,32 +197,32 @@ Name:             mypod
 Namespace:        default
 Priority:         0
 Service Account:  default
-Node:             k3d-mycluster-agent-1/172.29.0.4
-Start Time:       Tue, 07 Feb 2023 14:49:58 +0100
+Node:             k3d-mycluster-agent-0/172.18.0.4
+Start Time:       Thu, 09 Jan 2025 15:23:03 +0000
 Labels:           <none>
 Annotations:      <none>
 Status:           Running
-IP:               10.42.2.6
+IP:               10.42.0.6
 IPs:
-  IP:  10.42.2.6
+  IP:  10.42.0.6
 Containers:
   mycontainer-1:
-    Container ID:   containerd://79f46fa666100f1d1cb45c8a1e3d706c1df5fa7f677675f1350d6a08780f7527
+    Container ID:   containerd://5070b101ca8e4617207ee43db26973758372273a2ca34f73202688f2d3caf5fa
     Image:          nginx:latest
-    Image ID:       docker.io/library/nginx@sha256:c54fb26749e49dc2df77c6155e8b5f0f78b781b7f0eadd96ecfabdcdfa5b1ec4
+    Image ID:       docker.io/library/nginx@sha256:42e917aaa1b5bb40dd0f6f7f4f857490ac7747d7ef73b391c774a41a8b994f15
     Port:           80/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Tue, 07 Feb 2023 14:49:59 +0100
+      Started:      Thu, 09 Jan 2025 15:23:04 +0000
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zlnj6 (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v9jks (ro)
   mycontainer-2:
-    Container ID:  containerd://5f76a700206b9ad9157751d4e99770a7741c7273278a3e5b8dff1ea7ffc6b20d
+    Container ID:  containerd://6aab02d6708a43e2c478922ba23a1393af5ab34e17d020a63cb8f504af167a66
     Image:         alpine:latest
-    Image ID:      docker.io/library/alpine@sha256:f271e74b17ced29b915d351685fd4644785c6d1559dd1f2d4189a5e851ef753a
+    Image ID:      docker.io/library/alpine@sha256:56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
     Port:          <none>
     Host Port:     <none>
     Command:
@@ -233,20 +231,21 @@ Containers:
       -qO-
       localhost
     State:          Running
-      Started:      Tue, 07 Feb 2023 14:50:02 +0100
+      Started:      Thu, 09 Jan 2025 15:23:05 +0000
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zlnj6 (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v9jks (ro)
 Conditions:
-  Type              Status
-  Initialized       True
-  Ready             True
-  ContainersReady   True
-  PodScheduled      True
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
 Volumes:
-  kube-api-access-zlnj6:
+  kube-api-access-v9jks:
     Type:                    Projected (a volume that contains injected data from multiple sources)
     TokenExpirationSeconds:  3607
     ConfigMapName:           kube-root-ca.crt
@@ -259,15 +258,15 @@ Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists fo
 Events:
   Type    Reason     Age   From               Message
   ----    ------     ----  ----               -------
-  Normal  Scheduled  97s   default-scheduler  Successfully assigned default/mypod to k3d-mycluster-agent-1
-  Normal  Pulling    98s   kubelet            Pulling image "nginx:latest"
-  Normal  Pulled     97s   kubelet            Successfully pulled image "nginx:latest" in 660.068216ms (660.07449ms including waiting)
-  Normal  Created    97s   kubelet            Created container mycontainer-1
-  Normal  Started    97s   kubelet            Started container mycontainer-1
-  Normal  Pulling    97s   kubelet            Pulling image "alpine:latest"
-  Normal  Pulled     94s   kubelet            Successfully pulled image "alpine:latest" in 2.756540405s (2.756547566s including waiting)
-  Normal  Created    94s   kubelet            Created container mycontainer-2
-  Normal  Started    94s   kubelet            Started container mycontainer-2
+  Normal  Scheduled  43s   default-scheduler  Successfully assigned default/mypod to k3d-mycluster-agent-0
+  Normal  Pulling    43s   kubelet            Pulling image "nginx:latest"
+  Normal  Pulled     42s   kubelet            Successfully pulled image "nginx:latest" in 668ms (668ms including waiting). Image size: 72099410 bytes.
+  Normal  Created    42s   kubelet            Created container mycontainer-1
+  Normal  Started    42s   kubelet            Started container mycontainer-1
+  Normal  Pulling    42s   kubelet            Pulling image "alpine:latest"
+  Normal  Pulled     42s   kubelet            Successfully pulled image "alpine:latest" in 709ms (709ms including waiting). Image size: 3652536 bytes.
+  Normal  Created    42s   kubelet            Created container mycontainer-2
+  Normal  Started    41s   kubelet            Started container mycontainer-2
 ``` 
 
 * Comme le `Pod` _mypod_ dispose de deux conteneurs (_mycontainer-1_ et _mycontainer-2_), nous montrons comment exécuter une commande en choisissant un conteneur. Depuis l'invite de commande *kubectl* :

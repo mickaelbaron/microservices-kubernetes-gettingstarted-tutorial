@@ -37,8 +37,8 @@ $ wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | b
 
 ```
 $ k3d version
-k3d version v5.6.0
-k3s version v1.27.5-k3s1 (default)
+k3d version v5.7.5
+k3s version v1.30.6-k3s1 (default)
 ```
 
 Nous allons créer un cluster Kubernetes composé de trois nœuds dont un sera dédié au nœud maître et les deux autres seront dédiés aux nœuds de travail. Sous [K3d](https://k3d.io/), un nœud de travail est intitulé `agent` et un nœud maître est intitulé `server`.
@@ -56,18 +56,17 @@ Cette commande crée un cluster Kubernetes appelé `mycluster`. Il contient deux
 ```
 $ docker ps
 CONTAINER ID   IMAGE                            COMMAND                  CREATED          STATUS          PORTS                             NAMES
-9f2d698dbc2f   ghcr.io/k3d-io/k3d-tools:5.6.0   "/app/k3d-tools noop"    30 seconds ago   Up 28 seconds                                     k3d-mycluster-tools
-f26ca44f1a13   ghcr.io/k3d-io/k3d-proxy:5.6.0   "/bin/sh -c nginx-pr…"   30 seconds ago   Up 18 seconds   80/tcp, 0.0.0.0:59937->6443/tcp   k3d-mycluster-serverlb
-61f42423fc40   rancher/k3s:v1.27.5-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 21 seconds                                     k3d-mycluster-agent-1
-fc10281a3582   rancher/k3s:v1.27.5-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 22 seconds                                     k3d-mycluster-agent-0
-7e8c1dc93b0d   rancher/k3s:v1.27.5-k3s1         "/bin/k3d-entrypoint…"   35 seconds ago   Up 27 seconds                                     k3d-mycluster-server-0
+d704cbb9c45c   ghcr.io/k3d-io/k3d-proxy:5.7.5   "/bin/sh -c nginx-pr…"   33 seconds ago   Up 23 seconds   80/tcp, 0.0.0.0:44741->6443/tcp   k3d-mycluster-serverlb
+c0198c7d914d   rancher/k3s:v1.30.6-k3s1         "/bin/k3d-entrypoint…"   40 seconds ago   Up 28 seconds                                     k3d-mycluster-agent-1
+a27803a3028f   rancher/k3s:v1.30.6-k3s1         "/bin/k3d-entrypoint…"   40 seconds ago   Up 28 seconds                                     k3d-mycluster-agent-0
+7fba4be33563   rancher/k3s:v1.30.6-k3s1         "/bin/k3d-entrypoint…"   40 seconds ago   Up 32 seconds                                     k3d-mycluster-server-0
 ```
 
-Les deux nœuds de travail sont encapsulés par les deux conteneurs nommés `k3d-mycluster-agent-0` et `k3d-mycluster-agent-1`, le nœud maître est encapsulé par un (1) conteneur nommé `k3d-mycluster-server-0`, un conteneur `k3d-mycluster-serverlb` qui sert d'équilibreur de charge (_LoadBalancer_) pour le cluster K8s et finalement un conteneur `k3d-mycluster-tools` qui fournit des outils spécifiques comme par exemple l'importation d'images [Docker](https://www.docker.com/ "Docker") vers un cluster [K3s](https://k3s.io/).
+Les deux nœuds de travail sont encapsulés par les deux conteneurs nommés `k3d-mycluster-agent-0` et `k3d-mycluster-agent-1`, le nœud maître est encapsulé par un (1) conteneur nommé `k3d-mycluster-server-0` et un conteneur `k3d-mycluster-serverlb` qui sert d'équilibreur de charge (_LoadBalancer_) pour le cluster K8s.
 
-Afin que nous puissions accéder au cluster Kubernetes, nous devons récupérer un fichier d'accès qui contiendra des informations comme les autorisations pour les outils clients. Ce fichier d'accès permet de communiquer avec le composant *API Server* d'un cluster.
+Pour permettre l'accès au cluster Kubernetes, [K3d](https://k3d.io/) génère un fichier dans _~/.kube/config_. Ce fichier contient des informations, telles que les autorisations nécessaires pour les outils clients, et sert à établir la communication avec le composant API Server du cluster.
 
-* Se placer à la racine du dossier du dépôt de ce tutoriel et exécuter la ligne de commande suivante pour récupérer ce fichier d'accès :
+Si vous souhaitez récupérer ce fichier, vous pouvez exécuter la commande suivante pour l'obtenir :
 
 ```
 $ k3d kubeconfig get mycluster > k3s.yaml
@@ -103,15 +102,14 @@ $ kubectl version --client
 * Pour tester si **kubectl** est correctement installé :
 
 ```
-$ export KUBECONFIG=$PWD/k3s.yaml
 $ kubectl top nodes
 NAME                     CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
-k3d-mycluster-agent-0    26m          1%     122Mi           1%
-k3d-mycluster-agent-1    36m          1%     209Mi           2%
-k3d-mycluster-server-0   82m          4%     626Mi           7%
+k3d-mycluster-agent-0    55m          2%     176Mi           2%
+k3d-mycluster-agent-1    78m          3%     235Mi           2%
+k3d-mycluster-server-0   101m         5%     426Mi           5%
 ```
 
-La première ligne de commande permet d'indiquer à **kubectl** où se trouve le fichier d'accès au cluster Kubernetes. Cette commande n'est à réaliser qu'une seule fois à l'ouvertue de votre terminal. Le seconde ligne de commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
+La commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
 
 ### Installation K9s
 
@@ -128,7 +126,7 @@ $ brew install k9s
 **Linux** : pour installer **K9s** :
 
 ```
-$ wget https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_Linux_amd64.tar.gz
+$ wget https://github.com/derailed/k9s/releases/download/v0.32.7/k9s_Linux_amd64.tar.gz
 $ tar xzf k9s_Linux_amd64.tar.gz
 $ sudo mv ./k9s /usr/local/bin/k9s
 ```
@@ -138,8 +136,7 @@ $ sudo mv ./k9s /usr/local/bin/k9s
 * Pour tester si **K9s** est correctement installé, depuis un autre terminal :
 
 ```
-$ export KUBECONFIG=./k3s.yaml
-$ ./k9s
+$ k9s
 ```
 
 Vous devriez obtenir le même résultat que sur la figure ci-dessous.
