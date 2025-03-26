@@ -21,22 +21,27 @@ Ci-dessous sont données les instructions d'installation de [K3d](https://k3d.io
 
 **macOS** : pour installer [K3d](https://k3d.io/) via [Homebrew](https://brew.sh/) :
 
-```
-$ brew install k3d
+```bash
+brew install k3d
 ```
 
 **Linux** : pour installer [K3d](https://k3d.io/) :
 
-```
-$ wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+```bash
+wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
 ```
 
 ---
 
 * Pour s'assurer que [K3d](https://k3d.io/) est correctement installé, exécuter les deux commandes suivantes :
 
+```bash
+k3d version
 ```
-$ k3d version
+
+La sortie console attendue :
+
+```bash
 k3d version v5.7.5
 k3s version v1.30.6-k3s1 (default)
 ```
@@ -46,15 +51,20 @@ Nous allons créer un cluster Kubernetes composé de trois nœuds dont un sera d
 * Créer un cluster Kubernetes via [K3d](https://k3d.io/) qui s'appelera `mycluster` :
 
 ```
-$ k3d cluster create mycluster --agents 2 --servers 1
+k3d cluster create mycluster --agents 2 --servers 1
 ```
 
 Cette commande crée un cluster Kubernetes appelé `mycluster`. Il contient deux nœuds de travail (`--agents 2`) et un (1) nœud maître (`--servers 1`). 
 
 * Consulter les conteneurs [Docker](https://www.docker.com/ "Docker") qui ont été créés :
 
+```bash
+docker ps
 ```
-$ docker ps
+
+La sortie console attendue :
+
+```bash
 CONTAINER ID   IMAGE                            COMMAND                  CREATED          STATUS          PORTS                             NAMES
 d704cbb9c45c   ghcr.io/k3d-io/k3d-proxy:5.7.5   "/bin/sh -c nginx-pr…"   33 seconds ago   Up 23 seconds   80/tcp, 0.0.0.0:44741->6443/tcp   k3d-mycluster-serverlb
 c0198c7d914d   rancher/k3s:v1.30.6-k3s1         "/bin/k3d-entrypoint…"   40 seconds ago   Up 28 seconds                                     k3d-mycluster-agent-1
@@ -68,8 +78,8 @@ Pour permettre l'accès au cluster Kubernetes, [K3d](https://k3d.io/) génère u
 
 Si vous souhaitez récupérer ce fichier, vous pouvez exécuter la commande suivante pour l'obtenir :
 
-```
-$ k3d kubeconfig get mycluster > k3s.yaml
+```bash
+k3d kubeconfig get mycluster > k3s.yaml
 ```
 
 Nous avons désormais un cluster Kubernetes, mais nous ne disposons pas encore des outils pour interagir avec celui-ci. Nous détaillons ci-après comment installer les outils de gestion **kubectl** et [K9s](https://k9scli.io/) sur votre poste de développeur. Leurs utilisations seront détaillées dans l'exercice suivant.
@@ -84,25 +94,30 @@ Nous avons désormais un cluster Kubernetes, mais nous ne disposons pas encore d
 
 **macOS** : pour installer **kubectl** via [Homebrew](https://brew.sh/) :
 
-```
-$ brew install kubectl
+```bash
+brew install kubectl
 ```
 
 **Linux** : pour installer **kubectl** sur n'importe quelle distribution Linux :
 
-```
-$ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-$ chmod +x ./kubectl
-$ sudo mv ./kubectl /usr/local/bin/kubectl
-$ kubectl version --client
+```bash
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+kubectl version --client
 ```
 
 ---
 
 * Pour tester si **kubectl** est correctement installé :
 
+```bash
+kubectl top nodes
 ```
-$ kubectl top nodes
+
+La sortie console attendue :
+
+```bash
 NAME                     CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
 k3d-mycluster-agent-0    55m          2%     176Mi           2%
 k3d-mycluster-agent-1    78m          3%     235Mi           2%
@@ -119,24 +134,24 @@ La commande permet d'obtenir des informations sur les ressources utilisées par 
 
 **macOS** : pour installer **K9s** via [Homebrew](https://brew.sh/) :
 
-```
-$ brew install k9s
+```bash
+brew install k9s
 ```
 
 **Linux** : pour installer **K9s** :
 
-```
-$ wget https://github.com/derailed/k9s/releases/download/v0.32.7/k9s_Linux_amd64.tar.gz
-$ tar xzf k9s_Linux_amd64.tar.gz
-$ sudo mv ./k9s /usr/local/bin/k9s
+```bash
+wget https://github.com/derailed/k9s/releases/download/v0.32.7/k9s_Linux_amd64.tar.gz
+tar xzf k9s_Linux_amd64.tar.gz
+sudo mv ./k9s /usr/local/bin/k9s
 ```
 
 ---
 
 * Pour tester si **K9s** est correctement installé, depuis un autre terminal :
 
-```
-$ k9s
+```bash
+k9s
 ```
 
 Vous devriez obtenir le même résultat que sur la figure ci-dessous.
@@ -151,20 +166,25 @@ Si vous souhaitez connaître l'état de votre consommation, veuillez procéder a
 
 * Pour obtenir un _token_, en anonyme.
 
-```console
-$ TOKEN=$(curl "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)
+```bash
+TOKEN=$(curl "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)
 ```
 
 * Ou pour obtenir un _token_ en mode authentifié.
 
-```console
-$ TOKEN=$(curl --user 'username:password' "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)
+```bash
+TOKEN=$(curl --user 'username:password' "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)
 ```
 
 * Enfin, pour obtenir les informations liées au quota de [Docker HUB](https://hub.docker.com/ "Docker HUB").
 
-```console
-$ curl --head -H "Authorization: Bearer $TOKEN" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest
+```bash
+curl --head -H "Authorization: Bearer $TOKEN" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest
+```
+
+La sortie console attendue :
+
+```bash
 HTTP/1.1 200 OK
 content-length: 2782
 content-type: application/vnd.docker.distribution.manifest.v1+prettyjws
@@ -193,8 +213,8 @@ mirrors:
 
 * La configuration du miroir d'images [Docker](https://www.docker.com/ "Docker") privé se fait lors de la création du cluster [K3d](https://k3d.io/).
 
-```
-$ k3d cluster create mycluster --agents 2 --servers 1 --registry-config "$(pwd)/registries.yaml"
+```bash
+k3d cluster create mycluster --agents 2 --servers 1 --registry-config "$(pwd)/registries.yaml"
 ```
 
 ## Bilan de l'exercice

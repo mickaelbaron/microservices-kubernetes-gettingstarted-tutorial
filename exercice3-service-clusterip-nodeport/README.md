@@ -17,14 +17,19 @@ Ce troisième exercice adresse deux problèmes d'accès aux `Pods`. Le premier s
 
 * Avant de commencer les étapes de cet exercice, assurez-vous que le `Namespace` créé dans l'exercice précédent `mynamespaceexercice2` soit supprimé. Si ce n'est pas le cas :
 
+```bash
+kubectl delete namespace mynamespaceexercice2
 ```
-$ kubectl delete namespace mynamespaceexercice2
+
+La sortie console attendue :
+
+```bash
 namespace "mynamespaceexercice2" deleted
 ```
 
 * Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé _mynamespaceexercice3.yaml_ en ajoutant le contenu suivant :
 
-```
+```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -33,8 +38,13 @@ metadata:
 
 * Créer ce `Namespace` dans notre cluster :
 
+```yaml
+kubectl apply -f exercice3-service-clusterip-nodeport/mynamespaceexercice3.yaml
 ```
-$ kubectl apply -f exercice3-service-clusterip-nodeport/mynamespaceexercice3.yaml
+
+La sortie console attendue :
+
+```bash
 namespace/mynamespaceexercice3 created
 ```
 
@@ -70,21 +80,40 @@ Le paramètre `lifecycle` gère le cycle de vie du démarrage d'un conteneur. Da
 
 * Appliquer cette configuration pour créer ce `Deployment` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice3-service-clusterip-nodeport/mydeploymentforservice.yaml -n mynamespaceexercice3
 ```
-$ kubectl apply -f exercice3-service-clusterip-nodeport/mydeploymentforservice.yaml -n mynamespaceexercice3
+
+La sortie console attendue :
+
+```
 deployment.apps/mydeploymentforservice created
 ```
 
 * Pour vérifier que la page web par défaut de chaque `Pod` a été modifiée (penser à adapter la seconde commande en fonction des noms des `Pods` retournés par la première commande) :
 
+```bash
+kubectl get pod -n mynamespaceexercice3
 ```
-$ kubectl get pod -n mynamespaceexercice3
+
+La sortie console attendue :
+
+```bash
 NAME                                      READY   STATUS    RESTARTS   AGE
 mydeploymentforservice-7f4dfcd55c-xrqz9   1/1     Running   0          3m27s
 mydeploymentforservice-7f4dfcd55c-bsc58   1/1     Running   0          3m27s
 mydeploymentforservice-7f4dfcd55c-8rctf   1/1     Running   0          3m27s
+```
 
-$ kubectl exec -it -n mynamespaceexercice3 mydeploymentforservice-7f4dfcd55c-xrqz9 -- more /usr/share/nginx/html/index.html
+* Afficher le contenu statique du site web :
+
+```bash
+kubectl exec -it -n mynamespaceexercice3 mydeploymentforservice-7f4dfcd55c-xrqz9 -- more /usr/share/nginx/html/index.html
+```
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-7f4dfcd55c-xrqz9
 ```
 
@@ -113,15 +142,25 @@ Le `Service` va rediriger les requêtes reçues vers les `Pods` identifiés par 
 
 * Appliquer cette configuration de `Service` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice3-service-clusterip-nodeport/myclusteripservice.yaml -n mynamespaceexercice3
 ```
-$ kubectl apply -f exercice3-service-clusterip-nodeport/myclusteripservice.yaml -n mynamespaceexercice3
+
+La sortie console attendue :
+
+```bash
 service/myclusteripservice created
 ```
 
 * Afficher la liste des `Services` du `Namespace` `mynamespaceexercice3`:
 
+```bash
+kubectl get service -n mynamespaceexercice3 -o wide
 ```
-$ kubectl get service -n mynamespaceexercice3 -o wide
+
+La sortie console attendue :
+
+```bash
 NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE   SELECTOR
 myclusteripservice   ClusterIP   10.43.173.137   <none>        8080/TCP   7s    app=mypod
 ```
@@ -130,11 +169,25 @@ Le `Service` `myclusteripservice` est disponible. L'accès à ce `Service` se fe
 
 Pour tester notre `Service` qui va distribuer des requêtes aux `Pods` de notre `Deployment`, nous allons créer un `Pod` de test basé sur l'image [Docker](https://www.docker.com/ "Docker") Alpine (penser à adapter l'adresse IP du `ClusterIP`) :
 
+```bash
+kubectl run podtest --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- 10.43.173.137:8080; sleep 1; done"
 ```
-$ kubectl run podtest --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- 10.43.173.137:8080; sleep 1; done"
-pod/podtest created
 
-$ kubectl logs podtest -f
+La sortie console attendue :
+
+```bash
+pod/podtest created
+```
+
+* Afficher le contenu du `Pod` :
+
+```bash
+kubectl logs podtest -f
+```
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-6bb797546-fh28g
 mydeploymentforservice-6bb797546-lx28c
 mydeploymentforservice-6bb797546-fh28g
@@ -145,18 +198,41 @@ mydeploymentforservice-6bb797546-lx28c
 CTRL+C
 ```
 
-Nous constatons que l'accès au `Service` via son IP permet de distribuer aléatoirement la requête sur les trois `Pods`.
+Nous constatons que l'accès au `Service` via son IP permet de distribuer aléatoirement la requête sur les trois `Pods`. Essayons maintenant d'utiliser le nom (CNAME) du `Service` à la place de son IP pour l'identifier.
 
-* Essayons maintenant d'utiliser le nom (CNAME) du `Service` à la place de son IP pour l'identifier :
+* Supprimer l'ancien `Pod` :
 
+```bash
+kubectl delete pod podtest
 ```
-$ kubectl delete pod podtest
+
+La sortie console attendue :
+
+```bash
 pod "podtest" deleted
+```
 
-$ kubectl run podtest --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- myclusteripservice:8080; sleep 1; done"
+* Créer un `Pod` en utilisant le nom du `Service` :
+
+```bash
+kubectl run podtest --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- myclusteripservice:8080; sleep 1; done"
+```
+
+La sortie console attendue :
+
+```bash
 pod/podtest created
+```
 
-$ kubectl logs podtest -f
+* Afficher le contenu du `Pod` :
+
+```bash
+kubectl logs podtest -f
+```
+
+La sortie console attendue :
+
+```bash
 wget: bad address 'myclusteripservice:8080'
 wget: bad address 'myclusteripservice:8080'
 ```
@@ -165,12 +241,15 @@ Le nom du `Service` (via son CNAME) ne peut être utilisé que si les `Pods` qui
 
 * Corrigeons ce problème en créant le `Pod` de test dans le même `Namespace` que notre `Deployment`:
 
+```bash
+kubectl delete pod podtest 
+kubectl run podtest -n mynamespaceexercice3 --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- myclusteripservice:8080; sleep 1; done"
+kubectl logs podtest -n mynamespaceexercice3 -f
 ```
-$ kubectl delete pod podtest 
 
-$ kubectl run podtest -n mynamespaceexercice3 --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- myclusteripservice:8080; sleep 1; done"
+La sortie console attendue :
 
-$ kubectl logs podtest -n mynamespaceexercice3 -f
+```bash
 mydeploymentforservice-6bb797546-lx28c
 mydeploymentforservice-6bb797546-lx28c
 mydeploymentforservice-6bb797546-lx28c
@@ -188,15 +267,25 @@ Un `Service` de type `ClusterIP` est accessible uniquement à l'intérieur d'un 
 
 ---
 
+```bash
+multipass exec k8s-master -- wget -qO- 10.43.173.137:8080
 ```
-$ multipass exec k8s-master -- wget -qO- 10.43.173.137:8080
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-6bb797546-lx28c
 ```
 
 **Via K3d**
 
+```bash
+docker exec -it k3d-mycluster-server-0 wget -qO- 10.43.173.137:8080
 ```
-$ docker exec -it k3d-mycluster-server-0 wget -qO- 10.43.173.137:8080
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-6bb797546-lx28c
 ```
 
@@ -206,8 +295,13 @@ Si vous souhaitez cependant accéder à ce `Service` depuis l'extérieur, il y a
 
 * Depuis l'invite de commande *kubectl* :
 
+```bash
+kubectl proxy --port=8080
 ```
-$ kubectl proxy --port=8080
+
+La sortie console attendue :
+
+```bash
 Starting to serve on 127.0.0.1:8080
 ```
 
@@ -215,8 +309,13 @@ L'option `proxy` permet de créer un proxy entre la machine locale (depuis le po
 
 * Ouvrir un nouvel invite de commande :
 
+```bash
+curl -s http://localhost:8080/api/v1/namespaces | jq -r '.items[].metadata.name'
 ```
-$ curl -s http://localhost:8080/api/v1/namespaces | jq -r '.items[].metadata.name'
+
+La sortie console attendue :
+
+```bash
 default
 kube-system
 kube-public
@@ -226,8 +325,13 @@ mynamespaceexercice3
 
 Par exemple, avec cette requête, nous obtenons tous les `Namespaces` du cluster Kubernetes.
 
+```bash
+curl http://localhost:8080/api/v1/namespaces/mynamespaceexercice3/services/myclusteripservice:8080/proxy/
 ```
-$ curl http://localhost:8080/api/v1/namespaces/mynamespaceexercice3/services/myclusteripservice:8080/proxy/
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-6bb797546-nld6h
 ```
 
@@ -235,11 +339,9 @@ Avec cette commande, nous envoyons une requête au `Service` qui distribuera al�
 
 * Avant de continuer, stopper le proxy (CTRL+C), supprimer le `Pod` `podtest` et supprimer le `Service` `myclusteripservice`.
 
-```
-$ kubectl delete pods -n mynamespaceexercice3 podtest
-pod "podtest" deleted
-$ kubectl delete service -n mynamespaceexercice3 myclusteripservice
-service "myclusteripservice" deleted
+```bash
+kubectl delete pods -n mynamespaceexercice3 podtest
+kubectl delete service -n mynamespaceexercice3 myclusteripservice
 ```
 
 Nous allons maintenant nous intéresser aux `Services` de type `NodePort` qui contrairement à `ClusterIP` sont accessibles depuis l'extérieur du cluster K8s. Le principe de fonctionnement du `Service` `NodePort` est en deux temps. Dans un premier temps, ce `Service` est exposé sur une IP et un CNAME (Canonical Name) puis distribue les requêtes vers l'adresse IP d'un `Pod` (identique à `ClusterIP`). Un `Service` `NodePort` s'appuie donc sur un `Service` `ClusterIP`. Dans un second temps, ce `Service` est exposé sur l'IP de chaque nœud à un port statique (appelé `nodePort`). La plage du `nodePort` est comprise entre `30000` et `32767`, cela laisse de la marge, mais n'est pas illimité. Ainsi, pour accéder à un `Service` `NodePort` depuis l'extérieur, il n'y aura plus qu'à requêter l'adresse `<IP Nœud>:<nodePort>`.
@@ -266,15 +368,25 @@ Le `Service` va rediriger les requêtes reçues vers les `Pods` identifiés par 
 
 * Appliquer cette configuration de `Service` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice3-service-clusterip-nodeport/mynodeportservice.yaml -n mynamespaceexercice3
 ```
-$ kubectl apply -f exercice3-service-clusterip-nodeport/mynodeportservice.yaml -n mynamespaceexercice3
+
+La sortie console attendue :
+
+```bash
 service/mynodeportservice created
 ```
 
 * Afficher la liste des `Services` du `Namespace` `mynamespaceexercice3`:
 
+```bash
+kubectl get service -n mynamespaceexercice3 -o wide
 ```
-$ kubectl get service -n mynamespaceexercice3 -o wide
+
+La sortie console attendue :
+
+```bash
 NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE   SELECTOR
 mynodeportservice   NodePort   10.43.145.109   <none>        8080:30001/TCP   35s   app=mypod
 ```
@@ -287,12 +399,33 @@ Nous constatons que ce `Service` `NodePort` est bien basé sur un `Service` `Clu
 
 **Via K3s**
 
+```bash
+curl $k8s_master_ip:30001
 ```
-$ curl $k8s_master_ip:30001
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-6bb797546-fh28g
-$ curl $k8s_workernode1_ip:30001
+```
+
+```bash
+curl $k8s_workernode1_ip:30001
+```
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-6bb797546-nld6h
-$ curl $k8s_workernode1_ip:30001
+```
+
+```bash
+curl $k8s_workernode1_ip:30001
+```
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-6bb797546-fh28g
 ```
 
@@ -302,8 +435,13 @@ Tous les nœuds du cluster peuvent être utilisés pour interroger les `Pods`.
 
 * Lister l'ensemble des conteneurs disponibles :
 
+```bash
+docker ps
 ```
-$ docker ps
+
+La sortie console attendue :
+
+```bash
 CONTAINER ID   IMAGE                            COMMAND                  CREATED       STATUS       PORTS                             NAMES
 218cfd215045   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    4 hours ago   Up 4 hours                                     k3d-mycluster-tools
 7e507d8c048f   ghcr.io/k3d-io/k3d-proxy:5.4.7   "/bin/sh -c nginx-pr…"   4 hours ago   Up 4 hours   80/tcp, 0.0.0.0:61868->6443/tcp   k3d-mycluster-serverlb
@@ -314,8 +452,13 @@ ccb827ca9afd   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hou
 
 * Actuellement aucun conteneur du cluster K8s ne peut répondre à une requête sur le port `30001`. Modifier le cluster [K3d](https://k3d.io/) afin d'ajouter l'écoute sur ce port :
 
+```bash
+k3d cluster edit mycluster --port-add 30001:30001@server:0
 ```
-$ k3d cluster edit mycluster --port-add 30001:30001@server:0
+
+La sortie console attendue :
+
+```bash
 INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-AtDbL...
 INFO[0000] Creating new node k3d-mycluster-serverlb...
 INFO[0000] Stopping existing node k3d-mycluster-serverlb-AtDbL...
@@ -323,8 +466,17 @@ INFO[0010] Starting new node k3d-mycluster-serverlb...
 INFO[0010] Starting Node 'k3d-mycluster-serverlb'
 INFO[0017] Deleting old node k3d-mycluster-serverlb-AtDbL...
 INFO[0017] Successfully updated mycluster
+```
 
-$ docker ps
+* Vérifier que la modification sur le port a été faite :
+
+```bash
+docker ps
+```
+
+La sortie console attendue :
+
+```bash
 CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS                                                       NAMES
 71daed0bd9cd   ef33158baf49                     "/bin/sh -c nginx-pr…"   About a minute ago   Up About a minute   80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:61868->6443/tcp   k3d-mycluster-serverlb
 218cfd215045   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    4 hours ago          Up 4 hours                                                                      k3d-mycluster-tools
@@ -337,8 +489,13 @@ Le port `30001` du cluster K8s est maintenant exposé sur le port `30001` du pos
 
 * Toutes requêtes sur le port `30001` du poste du développeur est transférée vers le `Service` `NodePort` :
 
+```bash
+curl localhost:30001
 ```
-$ curl localhost:30001
+
+La sortie console attendue :
+
+```bash
 mydeploymentforservice-6bb797546-fh28g
 ```
 
@@ -392,8 +549,13 @@ spec:
 
 * Appliquer ces deux configurations dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice3-service-clusterip-nodeport/mydeploymentwithservice.yaml -n mynamespaceexercice3
 ```
-$ kubectl apply -f exercice3-service-clusterip-nodeport/mydeploymentwithservice.yaml -n mynamespaceexercice3
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeploymentforservice unchanged
 service/mynodeportservice unchanged
 ```

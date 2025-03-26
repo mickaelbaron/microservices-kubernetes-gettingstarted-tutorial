@@ -22,22 +22,27 @@ Nous donnons ci-dessous les instructions d'installation pour Linux et macOS.
 
 **macOS** : pour installer [MultiPass](https://multipass.run/) via [Homebrew](https://brew.sh/) :
 
-```
-$ brew install --cask multipass
+```bash
+brew install --cask multipass
 ```
 
 **Linux** : pour installer [MultiPass](https://multipass.run/) via [snap](https://snapcraft.io/) :
 
-```
-$ sudo snap install multipass
+```bash
+sudo snap install multipass
 ```
 
 ---
 
 * Pour s'assurer que [MultiPass](https://multipass.run/) est correctement installé, exécuter les deux commandes suivantes :
 
+```bash
+multipass
 ```
-$ multipass
+
+La sortie console attendue :
+
+```bash
 Usage: multipass [options] <command>
 Create, control and connect to Ubuntu instances.
 
@@ -76,26 +81,40 @@ Available commands:
   umount    Unmount a directory from an instance
   unalias   Remove an alias
   version   Show version details
+```
 
-$ multipass version
+* Pour vérifier la version de [MultiPass](https://multipass.run/) installée :
+
+```bash
+multipass version
+```
+
+La sortie console attendue :
+
+```bash
 multipass   1.8.1+mac
 multipassd  1.8.1+mac
 ```
 
 * Nous créons maintenant trois machines virtuelles dont une sera dédiée au nœud maître (`k8s-master`) et les deux autres seront dédiées aux nœuds de travail (`k8s-workernode-1` et `k8s-workernode-2`) :
 
-```
-$ multipass launch -n k8s-master --cpus 1 --mem 2G
-$ multipass launch -n k8s-workernode-1 --cpus 1 --mem 1G
-$ multipass launch -n k8s-workernode-2 --cpus 1 --mem 1G
+```bash
+multipass launch -n k8s-master --cpus 1 --mem 2G
+multipass launch -n k8s-workernode-1 --cpus 1 --mem 1G
+multipass launch -n k8s-workernode-2 --cpus 1 --mem 1G
 ```
 
 Le temps de création peut-être un peu long puisque [MultiPass](https://multipass.run/) va commencer par télécharger l'image [Ubuntu](https://ubuntu.com) et réaliser les installations.
 
 * Assurons-nous que les trois machines virtuelles ont été créées et qu'elles sont démarrées :
 
+```bash
+multipass list
 ```
-$ multipass list
+
+La sortie console attendue :
+
+```bash
 Name                    State             IPv4             Image
 k8s-master              Running           192.168.64.9     Ubuntu 20.04 LTS
 k8s-workernode-1        Running           192.168.64.10    Ubuntu 20.04 LTS
@@ -104,8 +123,13 @@ k8s-workernode-2        Running           192.168.64.11    Ubuntu 20.04 LTS
 
 * Vérifions également que l'accès au réseau fonctionne (DNS) :
 
+```bash
+multipass exec k8s-master -- ping www.google.fr
 ```
-$ multipass exec k8s-master -- ping www.google.fr
+
+La sortie console attendue :
+
+```bash
 PING www.google.fr (142.251.37.35) 56(84) bytes of data.
 64 bytes from XYZ (142.251.37.35): icmp_seq=1 ttl=115 time=16.6 ms
 64 bytes from XYZ (142.251.37.35): icmp_seq=1 ttl=115 time=16.7 ms
@@ -114,18 +138,18 @@ PING www.google.fr (142.251.37.35) 56(84) bytes of data.
 
 > Dans le cas où la résolution de noms pose problème, vous pouvez modifier l'adresse IP du serveur DNS depuis le fichier _/etc/resolv.conf_. Les lignes de commande ci-dessous permettent de changer directement l'IP du DNS de chaque machine virtuelle.
 
-```
-$ multipass exec k8s-master -- sudo sed -ri 's/nameserver.*/nameserver 8.8.8.8/g' /etc/resolv.conf
-$ multipass exec k8s-workernode-1 -- sudo sed -ri 's/nameserver.*/nameserver 8.8.8.8/g' /etc/resolv.conf
-$ multipass exec k8s-workernode-2 -- sudo sed -ri 's/nameserver.*/nameserver 8.8.8.8/g' /etc/resolv.conf
+```bash
+multipass exec k8s-master -- sudo sed -ri 's/nameserver.*/nameserver 8.8.8.8/g' /etc/resolv.conf
+multipass exec k8s-workernode-1 -- sudo sed -ri 's/nameserver.*/nameserver 8.8.8.8/g' /etc/resolv.conf
+multipass exec k8s-workernode-2 -- sudo sed -ri 's/nameserver.*/nameserver 8.8.8.8/g' /etc/resolv.conf
 ```
 
 L'accès aux machines virtuelles se fait directement depuis l'outil **multipass**. Si vous souhaitez passer par un accès via SSH, vous devrez configurer chaque machine virtuelle en ajoutant votre clé SSH publique.
 
 * Pour installer [K3s](https://k3s.io/) sur le nœud maître :
 
-```
-$ multipass --verbose exec k8s-master -- sh -c "
+```bash
+multipass --verbose exec k8s-master -- sh -c "
   curl -sfL https://get.k3s.io | sh -
 "
 ```
@@ -134,23 +158,23 @@ Le nœud maître étant installé, nous allons pouvoir récupérer un jeton (`TO
 
 * Pour obtenir le `TOKEN` d'identification du cluster et son adresse IP :
 
-```
-$ TOKEN=$(multipass exec k8s-master sudo cat /var/lib/rancher/k3s/server/node-token)
-$ IP=$(multipass info k8s-master | grep IPv4 | awk '{print $2}')
+```bash
+TOKEN=$(multipass exec k8s-master sudo cat /var/lib/rancher/k3s/server/node-token)
+IP=$(multipass info k8s-master | grep IPv4 | awk '{print $2}')
 ```
 
 * Pour ajouter au cluster le premier nœud de travail :
 
-```
-$ multipass --verbose exec k8s-workernode-1 -- sh -c "
+```bash
+multipass --verbose exec k8s-workernode-1 -- sh -c "
   curl -sfL https://get.k3s.io | K3S_URL='https://$IP:6443' K3S_TOKEN='$TOKEN' sh -
 "
 ```
 
 * De même pour ajouter le second nœud de travail :
 
-```
-$ multipass --verbose exec k8s-workernode-2 -- sh -c "
+```bash
+multipass --verbose exec k8s-workernode-2 -- sh -c "
     curl -sfL https://get.k3s.io | K3S_URL='https://$IP:6443' K3S_TOKEN='$TOKEN' sh -
   "
 ```
@@ -159,8 +183,8 @@ Vous remarquerez que l'ajout d'un nouveau nœud de travail se fait assez facilem
 
 * Pour afficher l'état des machines virtuelles : 
 
-```
-$ multipass list
+```bash
+multipass list
 Name                    State             IPv4             Image
 k8s-master              Running           192.168.64.9     Ubuntu 20.04 LTS
                                           10.42.0.0
@@ -181,16 +205,16 @@ Afin que nous puissions accéder au Cluster, nous devons récupérer un fichier 
 
 **macOS** :
 
-```
-$ multipass exec k8s-master -- sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
-$ sed -i '' "s/127.0.0.1/$IP/" k3s.yaml
+```bash
+multipass exec k8s-master -- sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
+sed -i '' "s/127.0.0.1/$IP/" k3s.yaml
 ```
 
 **Linux** :
 
-```
-$ multipass exec k8s-master -- sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
-$ sed -i "s/127.0.0.1/$IP/" k3s.yaml
+```bash
+multipass exec k8s-master -- sudo cat /etc/rancher/k3s/k3s.yaml > k3s.yaml
+sed -i "s/127.0.0.1/$IP/" k3s.yaml
 ```
 
 ---
@@ -199,21 +223,51 @@ Le script _exercice0-k3s/extractnodeip.sh_ sert à initialiser trois variables d
 
 * Pour exécuter le script _exercice0-k3s/extractnodeip.sh_ :
 
+```bash
+source exercice0-k3s/extractnodeip.sh
 ```
-$ source exercice0-k3s/extractnodeip.sh
+
+La sortie console attendue :
+
+```bash
 k8s-master 🧑: k8s_master_ip=192.168.64.9
 k8s-workernode1-ip 👷: k8s_workernode1_ip=192.168.64.10
 k8s-workernode2-ip 👷: k8s_workernode2_ip=192.168.64.11
+```
 
-$ echo $k8s_master_ip
+* Vérifier les valeurs des variables d'environnement.
+
+```bash
+echo $k8s_master_ip
+```
+
+La sortie console attendue :
+
+```bash
 192.168.64.9
-$ echo $k8s_workernode1_ip
+```
+
+```bash
+echo $k8s_workernode1_ip
+```
+
+La sortie console attendue :
+
+```bash
 192.168.64.10
-$ echo $k8s_workernode2_ip
+```
+
+```bash
+echo $k8s_workernode2_ip
+```
+
+La sortie console attendue :
+
+```bash
 192.168.64.11
 ```
 
-Il est important d'utiliser la commande `$ source exercice0-k3s/extractnodeip.sh` car contrairement à `$ ./exercice0-k3s/extractnodeip.sh` l'exécution du script _extractnodeip.sh_ se fera dans la session shell courante et nous pourrons réutiliser les trois variables d'environnement.
+Il est important d'utiliser la commande `source exercice0-k3s/extractnodeip.sh` car contrairement à `./exercice0-k3s/extractnodeip.sh` l'exécution du script _extractnodeip.sh_ se fera dans la session shell courante et nous pourrons réutiliser les trois variables d'environnement.
 
 Toutes les instructions précédentes ont été regroupées dans un fichier script _exercice0-k3s/createk3scluster.sh_. Il permet de paramétrer le nombre de nœuds de travail, la seule limite étant les ressources de votre ordinateur.
 
@@ -221,6 +275,11 @@ Toutes les instructions précédentes ont été regroupées dans un fichier scri
 
 ```bash
 ./createk3scluster.sh 3
+```
+
+La sortie console attendue :
+
+```bash
 Launched: k8s-master
 [INFO]  Finding release for channel stable
 [INFO]  Using v1.22.5+k3s1 as release
@@ -266,17 +325,22 @@ Nous avons désormais un cluster Kubernetes, mais nous ne disposns pas encore de
 
 **macOS** : pour installer **kubectl** via [Homebrew](https://brew.sh/) :
 
-```
-$ brew install kubectl
+```bash
+brew install kubectl
 ```
 
 **Linux** : pour installer **kubectl** sur n'importe quelle distribution Linux :
 
+```bash
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+kubectl version --client
 ```
-$ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-$ chmod +x ./kubectl
-$ sudo mv ./kubectl /usr/local/bin/kubectl
-$ kubectl version --client
+
+La sortie console attendue :
+
+```bash
 Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.3", GitCommit:"816c97ab8cff8a1c72eccca1026f7820e93e0d25", GitTreeState:"clean", BuildDate:"2022-01-25T21:25:17Z", GoVersion:"go1.17.6", Compiler:"gc", Platform:"linux/amd64"}
 ```
 
@@ -284,9 +348,13 @@ Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.3", GitCom
 
 * Pour tester si **kubectl** est correctement installé :
 
+```bash
+kubectl top nodes
 ```
-$ export KUBECONFIG=$PWD/k3s.yaml
-$ kubectl top nodes
+
+La sortie console attendue :
+
+```bash
 NAME               CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
 k8s-master         77m          7%     927Mi           46%
 k8s-workernode-1   20m          2%     469Mi           47%
@@ -303,25 +371,24 @@ La première ligne de commande permet d'indiquer à **kubectl** où se trouve le
 
 **macOS** : pour installer **K9s** via [Homebrew](https://brew.sh/) :
 
-```
-$ brew install k9s
+```bash
+brew install k9s
 ```
 
 **Linux** : pour installer **K9s** :
 
-```
-$ wget https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_Linux_amd64.tar.gz
-$ tar xzf k9s_Linux_amd64.tar.gz
-$ sudo mv ./k9s /usr/local/bin/k9s
+```bash
+wget https://github.com/derailed/k9s/releases/download/v0.32.5/k9s_Linux_amd64.tar.gz
+tar xzf k9s_Linux_amd64.tar.gz
+sudo mv ./k9s /usr/local/bin/k9s
 ```
 
 ---
 
 * Pour tester si **K9s** est correctement installé, depuis un autre terminal :
 
-```
-$ export KUBECONFIG=./k3s.yaml
-$ k9s
+```bash
+k9s
 ```
 
 Vous devriez obtenir le même résultat que sur la figure ci-dessous.

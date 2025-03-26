@@ -27,7 +27,7 @@ Avant de démarrer cette série d'exercices, veuillez préparer votre poste de d
 Récupérer le contenu de ce dépôt :
 
 ```
-$ git clone https://github.com/mickaelbaron/microservices-kubernetes-gettingstarted-tutorial
+git clone https://github.com/mickaelbaron/microservices-kubernetes-gettingstarted-tutorial
 ```
 
 Choisir votre environnement d'orchestration Kubernetes :

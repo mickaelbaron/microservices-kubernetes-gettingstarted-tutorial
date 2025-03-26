@@ -16,14 +16,19 @@ Les données des `Pods` sont volatibles, c'est-à-dire qu'à chaque destruction 
 
 * Avant de commencer les étapes de cet exercice, assurez-vous que le `Namespace` créé dans l'exercice précédent `mynamespaceexercice4` soit supprimé. Si ce n'est pas le cas :
 
+```bash
+kubectl delete namespace mynamespaceexercice4
 ```
-$ kubectl delete namespace mynamespaceexercice4
+
+La sortie console attendue :
+
+```bash
 namespace "mynamespaceexercice4" deleted
 ```
 
 * Créer dans le répertoire _exercice5-volumes/_ un fichier appelé _mynamespaceexercice5.yaml_ en ajoutant le contenu suivant :
 
-```
+```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -32,8 +37,13 @@ metadata:
 
 * Créer ce `Namespace` dans notre cluster :
 
+```bash
+kubectl apply -f exercice5-volumes/mynamespaceexercice5.yaml
 ```
-$ kubectl apply -f exercice5-volumes/mynamespaceexercice5.yaml
+
+La sortie console attendue :
+
+```bash
 namespace/mynamespaceexercice5 created
 ```
 
@@ -91,16 +101,26 @@ Le `Volume` est déclaré dans la partie `volumes` où il est identifié par un 
 
 * Appliquer la configuration précédente pour créer le `Deployment` et le `Service` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice5-volumes/myhostpath.yaml -n mynamespaceexercice5
 ```
-$ kubectl apply -f exercice5-volumes/myhostpath.yaml -n mynamespaceexercice5
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeploymentwithhostpath created
 service/mypodforhostpathservice created
 ```
 
 * Examiner sur quel nœud les `Pods` sont déployés :
 
+```bash
+kubectl get Pods -n mynamespaceexercice5 -o wide
 ```
-$ kubectl get Pods -n mynamespaceexercice5 -o wide
+
+La sortie console attendue :
+
+```bash
 NAME                                        READY   STATUS    RESTARTS   AGE   IP           NODE                  
 mydeploymentwithhostpath-5744565654-tdq5x   1/1     Running   0          7s    10.42.1.11   k3d-mycluster-agent-0 
 mydeploymentwithhostpath-5744565654-kbp6r   1/1     Running   0          7s    10.42.0.12   k3d-mycluster-server-0
@@ -115,35 +135,40 @@ Kubernetes utilise les trois nœuds pour déployer les trois `Pods`. Un réperto
 
 **Via K3s**
 
+```bash
+multipass exec k8s-master -- ls /
+multipass exec k8s-workernode-1 -- ls /
+multipass exec k8s-workernode-2 -- ls /
+multipass exec k8s-workernode-2 -- ls /myhostpath
 ```
-$ multipass exec k8s-master -- ls /
-bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
 
-$ multipass exec k8s-workernode-1 -- ls /
-bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
+La sortie console attendue :
 
-$ multipass exec k8s-workernode-2 -- ls /
+```bash
 bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
-
-$ multipass exec k8s-workernode-2 -- ls /myhostpath
+bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
+bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myhostpath  opt  proc  root  run	sbin  snap  srv  sys  tmp  usr	var
 
 ```
 
 **Via K3d**
 
+```bash
+docker exec -it k3d-mycluster-server-0 ls /
+docker exec -it k3d-mycluster-agent-0 ls /
+docker exec -it k3d-mycluster-agent-1 ls /
+docker exec -it k3d-mycluster-agent-1 ls /myhostpath
 ```
-$ docker exec -it k3d-mycluster-server-0 ls /
+
+La sortie console attendue :
+
+```bash
 bin  dev  etc  k3d  lib  myhostpath  output  proc  run	sbin  sys  tmp	usr  var
-
-$ docker exec -it k3d-mycluster-agent-0 ls /
 bin  dev  etc  k3d  lib  myhostpath  proc  run	sbin  sys  tmp	usr  var
-
-$ docker exec -it k3d-mycluster-agent-1 ls /
 bin  dev  etc  k3d  lib  myhostpath  proc  run	sbin  sys  tmp	usr  var
-
-$ docker exec -it k3d-mycluster-agent-1 ls /myhostpath
 
 ```
+
 ---
 
 Un dossier _/myhostpath_  existe sur chacun des trois nœuds, mais son contenu est vide (vérifié sur le second nœud de travail).
@@ -154,8 +179,13 @@ Un dossier _/myhostpath_  existe sur chacun des trois nœuds, mais son contenu e
 
 **Via K3s**
 
+```bash
+curl $k8s_workernode1_ip:30001
 ```
-$ curl $k8s_workernode1_ip:30001
+
+La sortie console attendue :
+
+```bash
 <html>
 <head><title>403 Forbidden</title></head>
 <body>
@@ -167,8 +197,13 @@ $ curl $k8s_workernode1_ip:30001
 
 **Via K3d**
 
+```bash
+curl localhost:30001
 ```
-$ curl localhost:30001
+
+La sortie console attendue :
+
+```bash
 <html>
 <head><title>403 Forbidden</title></head>
 <body>
@@ -188,14 +223,14 @@ Ne pas oublier que le `Service` `NodePort` va distribuer aléatoirement la requ�
 
 **Via K3s**
 
-```
-$ multipass exec k8s-master -- sudo sh -c "echo 'Bonjour depuis le noeud Master' > /myhostpath/index.html"
+```bash
+multipass exec k8s-master -- sudo sh -c "echo 'Bonjour depuis le noeud Master' > /myhostpath/index.html"
 ```
 
 **Via K3d**
 
-```
-$ docker exec k3d-mycluster-server-0 sh -c "echo 'Bonjour depuis le noeud Master' > /myhostpath/index.html"
+```bash
+docker exec k3d-mycluster-server-0 sh -c "echo 'Bonjour depuis le noeud Master' > /myhostpath/index.html"
 ```
 
 ---
@@ -208,8 +243,13 @@ $ docker exec k3d-mycluster-server-0 sh -c "echo 'Bonjour depuis le noeud Master
 
 **Via K3s**
 
+```bash
+curl $k8s_workernode1_ip:30001
 ```
-$ curl $k8s_workernode1_ip:30001
+
+La sortie console attendue :
+
+```bash
 <html>
 <head><title>403 Forbidden</title></head>
 <body>
@@ -217,14 +257,29 @@ $ curl $k8s_workernode1_ip:30001
 <hr><center>nginx/1.23.3</center>
 </body>
 </html>
-$ curl $k8s_workernode1_ip:30001
+```
+
+* Nouvel essai jusqu'à obtenir une valeur :
+
+```bash
+curl $k8s_workernode1_ip:30001
+```
+
+La sortie console attendue :
+
+```bash
 Bonjour depuis le noeud Master
 ```
 
 **Via K3d**
 
 ```
-$ curl localhost:30001
+curl localhost:30001
+```
+
+La sortie console attendue :
+
+```bash
 <html>
 <head><title>403 Forbidden</title></head>
 <body>
@@ -232,7 +287,17 @@ $ curl localhost:30001
 <hr><center>nginx/1.23.3</center>
 </body>
 </html>
-$ curl localhost:30001
+```
+
+* Nouvel essai jusqu'à obtenir une valeur :
+
+```bash
+curl localhost:30001
+```
+
+La sortie console attendue :
+
+```bash
 Bonjour depuis le noeud Master
 ```
 
@@ -242,11 +307,9 @@ Le résultat attendu `Bonjour depuis le noeud Master` est obtenu ici en deux req
 
 * Pour continuer l'exercice, supprimer les précédents objets `Deployment` et `Service` :
 
-```
-$ kubectl delete service -n mynamespaceexercice5 mypodforhostpathservice
-service "mypodforhostpathservice" deleted
-$ kubectl delete deployments.apps -n mynamespaceexercice5 mydeploymentwithhostpath
-deployment.apps "mydeploymentwithhostpath" deleted
+```bash
+kubectl delete service -n mynamespaceexercice5 mypodforhostpathservice
+kubectl delete deployments.apps -n mynamespaceexercice5 mydeploymentwithhostpath
 ```
 
 Le deuxième type de `Volume` étudié est `emptyDir`. Ce `Volume` permet le partage des données entre les conteneurs d'un même `Pod`. À la différence de `hostPath`, le `Volume` `emptyDir` est non peristant. Son contenu est vide à sa création. Les données peuvent être stockées sur disque ou en mémoire, mais ne seront pas conservées à la destruction du `Volume`. Les cas d'usage courants sont le partage d'un espace de travail commun entre différents conteneurs d’un même `Pod` et la mise à disposition d'un point de reprise après un arrêt non souhaité (crash) d'un traitement long. C'est le premier cas d'usage relatif au partage d'un espace de travail que nous allons présenter dans la suite.
@@ -315,8 +378,13 @@ Ce fichier de configuration contient deux conteneurs appelés `mynginx` et `mygi
 
 * Appliquer la configuration précédente pour créer le `Deployment` et le `Service` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice5-volumes/myemptydir.yaml -n mynamespaceexercice5
 ```
-$ kubectl apply -f exercice5-volumes/myemptydir.yaml -n mynamespaceexercice5
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeploymentwithemptydir created
 service/mypodforemptydirservice created
 ```
@@ -329,8 +397,13 @@ Il ne reste plus qu'à tester ce `Deployment` en utilisant votre navigateur pré
 
 * Récupérer l'adresse IP d'un des trois nœuds :
 
+```bash
+echo $k8s_workernode1_ip
 ```
-$ echo $k8s_workernode1_ip
+
+La sortie console attendue :
+
+```bash
 192.168.64.10
 ```
 
@@ -346,11 +419,9 @@ Cette solution à base de `Volume` `emptyDir` nécessite de télécharger le dé
 
 * Pour continuer l'exercice, supprimer les précédents objets `Deployment` et `Service` :
 
-```
-$ kubectl delete service -n mynamespaceexercice5 mypodforemptydirservice
-service "mypodforemptydirservice" deleted
-$ kubectl delete deployments.apps -n mynamespaceexercice5 mydeploymentwithemptydir
-deployment.apps "mydeploymentwithemptydir" deleted
+```bash
+kubectl delete service -n mynamespaceexercice5 mypodforemptydirservice
+kubectl delete deployments.apps -n mynamespaceexercice5 mydeploymentwithemptydir
 ```
 
 Avant de montrer la configuration pour manipuler un `Volume` de type `NFS`, nous allons devoir configurer un serveur NFS pour les besoins de notre exercice.
@@ -365,15 +436,25 @@ Le serveur NFS sera hébergé dans une nouvelle machine virtuelle qui sera cré�
 
 * Créer une machine virtuelle nommée `nfs-server` :
 
+```bash
+multipass launch -n nfs-server --cpus 1 --mem 512M
 ```
-$ multipass launch -n nfs-server --cpus 1 --mem 512M
+
+La sortie console attendue :
+
+```bash
 Launched: nfs-server
 ```
 
 * Installer le composant pour créer un serveur NFS : 
 
+```bash
+multipass exec nfs-server -- sudo sh -c "apt update && apt install -y nfs-kernel-server"
 ```
-$ multipass exec nfs-server -- sudo sh -c "apt update && apt install -y nfs-kernel-server"
+
+La sortie console attendue :
+
+```bash
 ...
 Creating config file /etc/exports with new version
 
@@ -385,8 +466,13 @@ Processing triggers for libc-bin (2.31-0ubuntu9.2) ...
 
 * Créer le répertoire de partage et récupérer les données du précédent dépôt Git :
 
+```bash
+multipass exec nfs-server -- sudo sh -c "mkdir /nfs && git clone https://github.com/cloudacademy/static-website-example /nfs"
 ```
-$ multipass exec nfs-server -- sudo sh -c "mkdir /nfs && git clone https://github.com/cloudacademy/static-website-example /nfs"
+
+La sortie console attendue :
+
+```bash
 Cloning into '/nfs'...
 remote: Enumerating objects: 69, done.
 remote: Total 69 (delta 0), reused 0 (delta 0), pack-reused 69
@@ -395,20 +481,25 @@ Unpacking objects: 100% (69/69), 668.06 KiB | 3.82 MiB/s, done.
 
 * Configurer l'exportation NFS depuis le fichier _/etc/exports_ :
 
-```
-$ multipass exec nfs-server -- sudo sh -c "echo '/nfs  *(ro,async,no_subtree_check,insecure)' >> /etc/exports"
+```bash
+multipass exec nfs-server -- sudo sh -c "echo '/nfs  *(ro,async,no_subtree_check,insecure)' >> /etc/exports"
 ```
 
 * Redémarrer le serveur NFS pour prendre en compte l'exportation NFS : 
 
-```
-$ multipass exec nfs-server -- sudo sh -c "systemctl restart nfs-kernel-server"
+```bash
+multipass exec nfs-server -- sudo sh -c "systemctl restart nfs-kernel-server"
 ```
 
 * Récupérer l'adresse IP de cette nouvelle machine virtuelle :
 
+```bash
+multipass info nfs-server | grep IPv4 | awk '{print $2}'
 ```
-$ multipass info nfs-server | grep IPv4 | awk '{print $2}'
+
+La sortie console attendue :
+
+```bash
 192.168.64.13
 ```
 
@@ -470,10 +561,8 @@ spec:
 
 * Appliquer la configuration précédente pour créer le `Deployment` et le `Service` dans le cluster Kubernetes :
 
-```
-$ kubectl apply -f exercice5-volumes/mynfs.yaml -n mynamespaceexercice5
-deployment.apps/mydeploymentwithnfs created
-service/mypodfornfsservice created
+```bash
+kubectl apply -f exercice5-volumes/mynfs.yaml -n mynamespaceexercice5
 ```
 
 Il ne reste plus qu'à tester ce `Deployment` en utilisant votre navigateur préféré pour afficher le contenu.
@@ -484,8 +573,13 @@ Il ne reste plus qu'à tester ce `Deployment` en utilisant votre navigateur pré
 
 * Récupérer l'adresse IP d'un des trois nœuds :
 
+```bash
+echo $k8s_workernode1_ip
 ```
-$ echo $k8s_workernode1_ip
+
+La sortie console attendue :
+
+```bash
 192.168.64.10
 ```
 

@@ -16,14 +16,19 @@ Ce deuxième exercice s'intéresse aux objets de déploiement qui gérent les `P
 
 * Avant de commencer les étapes de cet exercice, assurez-vous que le `Namespace` créé dans l'exercice précédent `mynamespaceexercice1` soit supprimé. Si ce n'est pas le cas :
 
+```bash
+kubectl delete namespace mynamespaceexercice1
 ```
-$ kubectl delete namespace mynamespaceexercice1
+
+La sortie console attendue :
+
+```bash
 namespace "mynamespaceexercice1" deleted
 ```
 
 * Créer dans le répertoire _exercice2-deployment/_ un fichier appelé _mynamespaceexercice2.yaml_ en ajoutant le contenu suivant :
 
-```
+```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -32,8 +37,13 @@ metadata:
 
 * Créer ce `Namespace` dans notre cluster :
 
+```bash
+kubectl apply -f exercice2-deployment/mynamespaceexercice2.yaml
 ```
-$ kubectl apply -f exercice2-deployment/mynamespaceexercice2.yaml
+
+La sortie console attendue :
+
+```bash
 namespace/mynamespaceexercice2 created
 ```
 
@@ -66,15 +76,25 @@ Dans cette configuration, nous retrouvons la description du `Pod` dans l'option 
 
 * Appliquer cette configuration pour créer ce `Deployment` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice2-deployment/mydeployment.yaml -n mynamespaceexercice2
 ```
-$ kubectl apply -f exercice2-deployment/mydeployment.yaml -n mynamespaceexercice2
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeployment created
 ```
 
 * Vérifier que le `Pod` géré par ce `Deployment` est correctement créé :
 
+```bash
+kubectl get pods -n mynamespaceexercice2 -o wide
 ```
-$ kubectl get pods -n mynamespaceexercice2 -o wide
+
+La sortie console attendue :
+
+```bash
 NAME                            READY   STATUS    RESTARTS   AGE   IP          NODE                  
 mydeployment-59f769b799-hpfvs   1/1     Running   0          21s   10.42.2.8   k3d-mycluster-agent-1
 ```
@@ -83,16 +103,26 @@ Nous remarquons que le nom du `Pod` n'est pas celui que nous avons donné dans l
 
 * Afficher également les informations de ce `Deployment` :
 
+```bash
+kubectl get deployments.apps -n mynamespaceexercice2
 ```
-$ kubectl get deployments.apps -n mynamespaceexercice2
+
+La sortie console attendue :
+
+```bash
 NAME           READY   UP-TO-DATE   AVAILABLE   AGE
 mydeployment   1/1     1            1           2m14s
 ```
 
 * Nous pouvons également donner un détail complet de ce `Deployment` via l'option `describe` :
 
+```bash
+kubectl describe deployments.apps -n mynamespaceexercice2 mydeployment
 ```
-$ kubectl describe deployments.apps -n mynamespaceexercice2 mydeployment
+
+La sortie console attendue :
+
+```bash
 Name:                   mydeployment
 Namespace:              mynamespaceexercice2
 CreationTimestamp:      Tue, 07 Feb 2023 15:11:21 +0100
@@ -156,21 +186,40 @@ Cette configuration de `Deployment` déclare maintenant que trois `Pods` basés 
 
 * Appliquer la nouvelle configuration :
 
+```bash
+kubectl apply -f exercice2-deployment/mydeployment.yaml -n mynamespaceexercice2
 ```
-$ kubectl apply -f exercice2-deployment/mydeployment.yaml -n mynamespaceexercice2
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeployment configured
 ```
 
 * Vérifions que les nouveaux `Pods` ont été créés :
 
+```bash
+kubectl get pods -n mynamespaceexercice2 -o wide
 ```
-$ kubectl get pods -n mynamespaceexercice2 -o wide
+
+La sortie console attendue :
+
+```bash
 NAME                            READY   STATUS    RESTARTS   AGE    IP          NODE 
 mydeployment-59f769b799-hpfvs   1/1     Running   0          4m9s   10.42.2.8   k3d-mycluster-agent-1
 mydeployment-59f769b799-xkjhz   1/1     Running   0          18s    10.42.0.5   k3d-mycluster-server-0
 mydeployment-59f769b799-kbxwd   1/1     Running   0          18s    10.42.1.5   k3d-mycluster-agent-0
+```
 
-$ kubectl get deployments.apps -n mynamespaceexercice2
+* Vérifier l'état du déploiement :
+
+```bash
+kubectl get deployments.apps -n mynamespaceexercice2
+```
+
+* Vérifier l'état du déploiement :
+
+```bash
 NAME           READY   UP-TO-DATE   AVAILABLE   AGE
 mydeployment   3/3     3            3           4m35s
 ```
@@ -183,8 +232,13 @@ Nous considérons dans la suite que nous disposons d'un `Deployment` qui gère t
 
 * Pour afficher l'historique de l'enroulement (_rollup_) en cours pour le `Deployment` `mydeployment` :
 
+```bash
+kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
 ```
-$ kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
+
+* Vérifier l'état du déploiement :
+
+```bash
 deployment.apps/mydeployment
 REVISION  CHANGE-CAUSE
 1         <none>
@@ -192,15 +246,25 @@ REVISION  CHANGE-CAUSE
 
 * Comme constaté, il n'y a pas d'information sur la cause du changement. Pour renseigner la cause du changement :
 
+```bash
+kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernetes.io/change-cause="Image en 1.19"
 ```
-$ kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernetes.io/change-cause="Image en 1.19"
+
+* Vérifier l'état du déploiement :
+
+```
 deployment.apps/mydeployment annotated
 ```
 
 * Afficher de nouveau l'historique de l'enroulement (_rollup_) en cours pour le `Deployment` `mydeployment` pour vérifier que la description dans la colonne `CHANGE-CAUSE` a été modifiée :
 
+```bash
+kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
 ```
-$ kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
+
+* Vérifier l'état du déploiement :
+
+```bash
 deployment.apps/mydeployment
 REVISION  CHANGE-CAUSE
 1         Image en 1.19
@@ -210,17 +274,35 @@ Un seule révision est présente pour l'instant dans cet enroulement (_rollup_).
 
 * La version de l'image [Docker](https://www.docker.com/ "Docker") va être modifiée pour passer de la version `1.19` à la version `1.20`. Nous utiliserons l'option `set` de l'outil **kubectl** pour effecuter la modification : 
 
+```bash
+kubectl set image -n mynamespaceexercice2 deployment mydeployment mycontainer=nginx:1.20
 ```
-$ kubectl set image -n mynamespaceexercice2 deployment mydeployment mycontainer=nginx:1.20
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeployment image updated
-$ kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernetes.io/change-cause="Image en 1.20"
+```
+
+* Créer une annotation pour expliquer la raison :
+
+```bash
+kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernetes.io/change-cause="Image en 1.20"
+```
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeployment annotated
 ```
 
 * Afficher de nouveau l'historique de l'enroulement (_rollup_) pour le `Deployment` `mydeployment` :
 
+```bash
+kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
 ```
-$ kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
+
+```bash
 deployment.apps/mydeployment
 REVISION  CHANGE-CAUSE
 1         Image en 1.19
@@ -256,9 +338,24 @@ spec:
 * Appliquer cette nouvelle configuration `Deployment` :
 
 ```
-$ kubectl apply -f exercice2-deployment/mydeployment121.yaml -n mynamespaceexercice2
+kubectl apply -f exercice2-deployment/mydeployment121.yaml -n mynamespaceexercice2
+```
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeployment configured
-$ kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernetes.io/change-cause="Image en 1.21"
+```
+
+* Créer une annotation pour expliquer la raison :
+
+```bash
+kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernetes.io/change-cause="Image en 1.21"
+```
+
+* Créer une annotation pour expliquer la raison :
+
+```bash
 deployment.apps/mydeployment annotated
 ```
 
@@ -266,8 +363,13 @@ Même s'il s'agit d'un nouveau fichier de configuration, le nom du `Deployment` 
 
 * Afficher de nouveau l'historique de l'enroulement (_rollup_) pour le `Deployment` `mydeployment` :
 
+```bash
+kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
 ```
-$ kubectl rollout history deployment -n mynamespaceexercice2 mydeployment
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeployment
 REVISION  CHANGE-CAUSE
 1         Image en 1.19
@@ -279,8 +381,13 @@ Une troisième révision est ajoutée à l'enroulement du `Deployment` `mydeploy
 
 * Afficher la description détaillée du `Deployment` `mydeployment` :
 
+```bash
+kubectl describe deployments.apps -n mynamespaceexercice2 mydeployment
 ```
-$ kubectl describe deployments.apps -n mynamespaceexercice2 mydeployment
+
+La sortie console attendue :
+
+```bash
 Name:                   mydeployment
 Namespace:              mynamespaceexercice2
 CreationTimestamp:      Tue, 07 Feb 2023 15:11:21 +0100
@@ -330,8 +437,13 @@ La version de l'image [Docker](https://www.docker.com/ "Docker") est bien à `1.
 
 * Utilisons l'option `rollout` pour revenir à une révision antérieure :
 
+```bash
+kubectl rollout undo deployment mydeployment -n mynamespaceexercice2 --to-revision=1
 ```
-$ kubectl rollout undo deployment mydeployment -n mynamespaceexercice2 --to-revision=1
+
+La sortie console attendue :
+
+```bash
 deployment.apps/mydeployment rolled back
 ```
 

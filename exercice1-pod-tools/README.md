@@ -19,8 +19,8 @@ Ce premier exercice sera aussi l'occasion de manipuler les outils **kubectl** et
 
 * Depuis l'invite de commande *k9s* : 
 
-```
-$ k9s
+```bash
+k9s
 ```
 
 ![Outil K9s affichant les Pods déployés sur le cluster K8s](../images/k9s-k3d.png "K9s pour gérer votre cluster K8s")
@@ -43,8 +43,13 @@ Nous allons obtenir les mêmes informations depuis l'outil **kubectl**. Cependan
 
 * Depuis l'invite de commande *kubectl* :
 
+```bash
+kubectl get pods --all-namespaces
 ```
-$ kubectl get pods --all-namespaces
+
+La sortie console attendue :
+
+```bash
 NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
 kube-system   coredns-7b98449c4-ks2sf                   1/1     Running     0          2m11s
 kube-system   helm-install-traefik-crd-l98k2            0/1     Completed   0          2m11s
@@ -61,8 +66,13 @@ L'option `get` permet de récupérer les informations de l'objet passé en param
 
 * Affichons maintenant la liste des `Namespaces` de notre cluster Kubernetes, depuis l'invite de commande *kubectl* :
 
+```bash
+kubectl get namespace
 ```
-$ kubectl get namespace
+
+La sortie console attendue :
+
+```bash
 NAME              STATUS   AGE
 default           Active   2m57s
 kube-node-lease   Active   2m57s
@@ -74,15 +84,25 @@ Il est maintenant temps de créer notre premier `Pod` qui, pour rappel, est une 
 
 * Dans l'exemple qui va suivre, nous allons créer un `Pod` avec un conteneur basé sur l'image du serveur web [Nginx](https://www.nginx.com/). Depuis l'invite de commande *kubectl* :
 
+```bash
+kubectl run myfirstpod --image=nginx:latest
 ```
-$ kubectl run myfirstpod --image=nginx:latest
+
+La sortie console attendue :
+
+```bash
 pod/myfirstpod created
 ```
 
 * Pour s'assurer que le `Pod` a été créé :
 
+```bash
+kubectl get pods
 ```
-$ kubectl get pods
+
+La sortie console attendue :
+
+```bash
 NAME         READY   STATUS    RESTARTS   AGE
 myfirstpod   1/1     Running   0          34s
 ```
@@ -95,8 +115,13 @@ Puisque notre premier `Pod` a été créé et déployé sans problème, nous all
 
 * Depuis l'invite de commande *kubectl* :
 
+```bash
+kubectl port-forward myfirstpod 8080:80
 ```
-$ kubectl port-forward myfirstpod 8080:80
+
+La sortie console attendue :
+
+```bash
 Forwarding from 127.0.0.1:8080 -> 80
 Forwarding from [::1]:8080 -> 80
 Handling connection for 8080
@@ -116,9 +141,14 @@ Puisqu'un `Pod` est une représentation logique de un ou plusieurs conteneurs, n
 
 * Depuis l'invite de commande *kubectl* :
 
+```bash
+kubectl exec -it myfirstpod -- /bin/bash
+ls # Depuis root@myfirstpod:/#
 ```
-$ kubectl exec -it myfirstpod -- /bin/bash
-root@myfirstpod:/# ls
+
+La sortie console attendue :
+
+```bash
 bin  boot  dev	docker-entrypoint.d  docker-entrypoint.sh  etc	home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
 ```
 
@@ -128,23 +158,33 @@ Nous allons changer la page HTML par défaut, en modifiant le contenu du fichier
 
 * Toujours depuis l'invite de commande *kubectl*, vous devriez toujours être dans le prompt du conteneur [Nginx](https://www.nginx.com/) :
 
-```
-root@myfirstpod:/# echo "Modification de la page web par defaut" > /usr/share/nginx/html/index.html
-root@myfirstpod:/# exit
-$ kubectl port-forward myfirstpod 8080:80
+```bash
+echo "Modification de la page web par defaut" > /usr/share/nginx/html/index.html # Depuis root@myfirstpod:/# 
+exit # Depuis root@myfirstpod:/#
+kubectl port-forward myfirstpod 8080:80
 ```
 
 * Depuis une nouvelle invite de commande, nous allons récupérer le contenu de la page web via l'outil [cURL](https://curl.haxx.se "cURL") :
 
+```bash
+curl http://localhost:8080
 ```
-$ curl http://localhost:8080
+
+La sortie console attendue :
+
+```bash
 Modification de la page web par defaut
 ```
 
 * Arrêter le pont réseau entre la machine locale et le `Pod` via `CTRL+C` puis supprimer le `Pod` depuis l'invite de commande *kubectl* :
 
+```bash
+kubectl delete pods myfirstpod
 ```
-$ kubectl delete pods myfirstpod
+
+La sortie console attendue :
+
+```
 pod "myfirstpod" deleted
 ```
 
@@ -172,8 +212,13 @@ Ce fichier de configuration décrit un objet de type `Pod`. Deux conteneurs sont
 
 * Pour créer ce `Pod` dans notre cluster :
 
+```bash
+kubectl apply -f exercice1-pod-tools/mypod.yaml
 ```
-$ kubectl apply -f exercice1-pod-tools/mypod.yaml
+
+La sortie console attendue :
+
+```bash
 pod/mypod created
 ```
 
@@ -181,8 +226,13 @@ L'option `apply` permet d'appliquer un fichier de configuration au cluster K8s.
 
 * Vérifions que le `Pod` a été créé dans le cluster K8s :
 
+```bash
+kubectl get pods mypod -o wide
 ```
-$ kubectl get pods mypod -o wide
+
+La sortie console attendue :
+
+```bash
 NAME    READY   STATUS    RESTARTS   AGE   IP          NODE                 
 mypod   2/2     Running   0          15s   10.42.0.6   k3d-mycluster-agent-0
 ```
@@ -191,8 +241,13 @@ Nous introduisons le paramètre `-o` dans l'option `get` qui permet d'obtenir de
 
 * Une autre option intéressante proposée par **kubectl** est `describe` qui permet d'obtenir un détail complet des informations d'un `Pod` :
 
+```bash
+kubectl describe pods mypod
 ```
-$ kubectl describe pods mypod
+
+La sortie console attendue :
+
+```bash
 Name:             mypod
 Namespace:        default
 Priority:         0
@@ -271,16 +326,21 @@ Events:
 
 * Comme le `Pod` _mypod_ dispose de deux conteneurs (_mycontainer-1_ et _mycontainer-2_), nous montrons comment exécuter une commande en choisissant un conteneur. Depuis l'invite de commande *kubectl* :
 
-```
-$ kubectl exec -it mypod -c mycontainer-1 -- /bin/sh -c "echo 'Helloworld from K3s' > /usr/share/nginx/html/index.html"
+```bash
+kubectl exec -it mypod -c mycontainer-1 -- /bin/sh -c "echo 'Helloworld from K3s' > /usr/share/nginx/html/index.html"
 ```
 
 Le choix du conteneur se fait via l'option `-c` et dont le nom a été défini dans le fichier _mypod.yaml_. Contrairement à l'exécution précédente d'une commande dans un conteneur, nous modifierons directement le fichier _/usr/share/nginx/html/index.html_ sans passer par un prompt interactif.
 
 * Pour vérifier que la page web par défaut a été modifiée, nous utiliserons l'option `logs` de **kubectl** qui comme son nom l'indique permet d'afficher le contenu de la sortie console :
 
+```bash
+kubectl logs mypod --tail=10 -f -c mycontainer-2
 ```
-$ kubectl logs mypod --tail=10 -f -c mycontainer-2
+
+La sortie console attendue :
+
+```bash
 Every 2.0s: wget -qO- localhost                             2023-02-07 13:53:08
 
 Helloworld from K3s
@@ -294,8 +354,13 @@ L'association d'un `Pod` à un `Namespace` peut être faite soit dans le fichier
 
 * Commencer par supprimer le `Pod` précédemment créé :
 
+```bash
+kubectl delete pods mypod
 ```
-$ kubectl delete pods mypod
+
+La sortie console attendue :
+
+```bash
 pod "mypod" deleted
 ```
 
@@ -310,31 +375,64 @@ metadata:
 
 * Pour créer ce `Namespace` dans notre cluster :
 
+```bash
+kubectl apply -f exercice1-pod-tools/mynamespaceexercice1.yaml
 ```
-$ kubectl apply -f exercice1-pod-tools/mynamespaceexercice1.yaml
+
+```bash
 namespace/mynamespaceexercice1 created
 ```
 
 * Nous pouvons maintenant recréer notre `Pod` dans ce `Namespace` :
 
+```bash
+kubectl apply -f exercice1-pod-tools/mypod.yaml -n mynamespaceexercice1
 ```
-$ kubectl apply -f exercice1-pod-tools/mypod.yaml -n mynamespaceexercice1
+
+La sortie console attendue :
+
+```
 pod/mypod created
 ```
 
 L'option `-n` sert à préciser le `Namespace` qui contiendra notre `Pod`.
 
-* Pour lister les `Pods` d'un `Namespace` donné, il faudra soit spécifier le `Namespace` via l'option `n` soit utiliser l'option `-all-namespace` :
+Pour lister les `Pods` d'un `Namespace` donné, il faudra soit spécifier le `Namespace` via l'option `n` soit utiliser l'option `-all-namespace`.
 
+* Exécuter sans spécifier le `Namespace` :
+
+```bash
+kubectl get pods
 ```
-$ kubectl get pods
-No resources found in default namespace.
 
-$ kubectl get pods -n mynamespaceexercice1
+La sortie console attendue :
+
+```bash
+No resources found in default namespace.
+```
+
+* Exécuter en spécifiant explicitement le `Namespace` :
+
+```bash
+kubectl get pods -n mynamespaceexercice1
+```
+
+La sortie console attendue :
+
+```bash
 NAME    READY   STATUS    RESTARTS   AGE
 mypod   2/2     Running   0          24s
+```
 
-$ kubectl get pods --all-namespaces
+* Exécuter en prenant en compte tous les `Namespace' :
+
+```bash
+kubectl get pods --all-namespaces
+```
+
+La sortie console attendue :
+
+```bash
 NAMESPACE              NAME                                      READY   STATUS      RESTARTS   AGE
 kube-system            local-path-provisioner-79f67d76f8-flwh9   1/1     Running     0          135m
 kube-system            coredns-597584b69b-kwbdc                  1/1     Running     0          135m
@@ -352,15 +450,25 @@ Vous remarquerez dans la première commande que seuls les `Pods` dans le `Namesp
 
 * Si vous supprimez un `Namespace`, tous les objets qu'il contient seront supprimés.
 
+```bash
+kubectl delete namespace mynamespaceexercice1
 ```
-$ kubectl delete namespace mynamespaceexercice1
+
+La sortie console attendue :
+
+```bash
 namespace "mynamespaceexercice1" deleted
 ```
 
 * Vérifier si le `Pod` a été supprimé :
 
+```bash
+kubectl get pods --all-namespaces
 ```
-$ kubectl get pods --all-namespaces
+
+La sortie console attendue :
+
+```bash
 NAMESPACE     NAME                                     READY   STATUS      RESTARTS      AGE
 kube-system   local-path-provisioner-79f67d76f8-flwh9   1/1     Running     0          137m
 kube-system   coredns-597584b69b-kwbdc                  1/1     Running     0          137m

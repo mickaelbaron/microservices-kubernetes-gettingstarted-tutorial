@@ -16,14 +16,19 @@ Nous présentons dans cet exercice les `Ingress`, une solution qui s'appuie sur 
 
 * Avant de commencer les étapes de cet exercice, assurez-vous que le `Namespace` créé dans l'exercice précédent `mynamespaceexercice3` soit supprimé. Si ce n'est pas le cas :
 
+```bash
+kubectl delete namespace mynamespaceexercice3
 ```
-$ kubectl delete namespace mynamespaceexercice3
+
+La sortie console attendue :
+
+```bash
 namespace "mynamespaceexercice3" deleted
 ```
 
 * Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _mynamespaceexercice4.yaml_ en ajoutant le contenu suivant :
 
-```
+```yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -32,8 +37,13 @@ metadata:
 
 * Créer ce `Namespace` dans notre cluster :
 
+```bash
+kubectl apply -f exercice4-ingress/mynamespaceexercice4.yaml
 ```
-$ kubectl apply -f exercice4-ingress/mynamespaceexercice4.yaml
+
+La sortie console attendue :
+
+```bash
 namespace/mynamespaceexercice4 created
 ```
 
@@ -141,11 +151,16 @@ spec:
 
 * Appliquer les deux configurations précédentes pour créer les `Deployments` et les `Services` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice4-ingress/app1deployment.yaml -n mynamespaceexercice4
+kubectl apply -f exercice4-ingress/app2deployment.yaml -n mynamespaceexercice4
 ```
-$ kubectl apply -f exercice4-ingress/app1deployment.yaml -n mynamespaceexercice4
+
+La sortie console attendue :
+
+```bash
 deployment.apps/app1deployment created
 service/app1service created
-$ kubectl apply -f exercice4-ingress/app2deployment.yaml -n mynamespaceexercice4
 deployment.apps/app2deployment created
 service/app2service created
 ```
@@ -181,15 +196,25 @@ Deux règles sont définies. La première traite du chemin (`path`) `/app1` et s
 
 * Appliquer cette configuration pour créer cet `Ingress` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice4-ingress/myingressfanout.yaml -n mynamespaceexercice4
 ```
-$ kubectl apply -f exercice4-ingress/myingressfanout.yaml -n mynamespaceexercice4
+
+La sortie console attendue :
+
+```bash
 ingress.networking.k8s.io/myingressfanout created
 ```
 
 * Afficher le détail complet de cet `Ingress` via l'option `describe` pour s'assurer que tout est configuré correctement :
 
+```bash
+kubectl describe ingress -n mynamespaceexercice4 myingressfanout
 ```
-$ kubectl describe ingress -n mynamespaceexercice4 myingressfanout
+
+La sortie console attendue :
+
+```bash
 Name:             myingressfanout
 Labels:           <none>
 Namespace:        mynamespaceexercice4
@@ -214,10 +239,15 @@ Il ne reste plus qu'à tester les deux règles en effectuant des requêtes vers 
 
 * Exécuter les requêtes suivantes :
 
+```bash
+curl $k8s_master_ip/app1/
+curl $k8s_workernode1_ip/app2/
 ```
-$ curl $k8s_master_ip/app1/
+
+La sortie console attendue :
+
+```bash
 App 1 from app1deployment-95f49fb56-d5pj5
-$ curl $k8s_workernode1_ip/app2/
 App 2 from app2deployment-567484c687-tbvxv
 ```
 
@@ -225,8 +255,13 @@ App 2 from app2deployment-567484c687-tbvxv
 
 * Lister l'ensemble des conteneurs disponibles :
 
+```bash
+docker ps
 ```
-$ docker ps
+
+La sortie console attendue :
+
+```bash
 CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                                       NAMES
 e3156d411390   d0554070bc8c               "/bin/sh -c nginx-pr…"   5 minutes ago    Up 5 minutes    80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:62002->6443/tcp   k3d-mycluster-serverlb
 b7e9d52a3d89   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-agent-1
@@ -236,8 +271,13 @@ e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes 
 
 * Actuellement aucun conteneur du cluster K8s ne peut répondre à une requête sur le port `80`. Modifier le cluster [K3d](https://k3d.io/) afin d'ajouter l'écoute sur ce port :
 
+```bash
+k3d cluster edit mycluster --port-add 80:80@loadbalancer
 ```
-$ k3d cluster edit mycluster --port-add 80:80@loadbalancer
+
+La sortie console attendue :
+
+```bash
 INFO[0000] portmapping '80:80' targets the loadbalancer: defaulting to [servers:*:proxy agents:*:proxy]
 INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-gNOwY...
 INFO[0000] Creating new node k3d-mycluster-serverlb...
@@ -246,8 +286,17 @@ INFO[0010] Starting new node k3d-mycluster-serverlb...
 INFO[0010] Starting Node 'k3d-mycluster-serverlb'
 INFO[0017] Deleting old node k3d-mycluster-serverlb-gNOwY...
 INFO[0017] Successfully updated mycluster
+```
 
-$ docker ps
+* Vérifier que la modification a été prise en compte :
+
+```bash
+docker ps
+```
+
+La sortie console attendue :
+
+```bash
 CONTAINER ID   IMAGE                            COMMAND                  CREATED         STATUS              PORTS                                                                   NAMES
 017f86faa708   ef33158baf49                     "/bin/sh -c nginx-pr…"   2 minutes ago   Up About a minute   0.0.0.0:80->80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:61868->6443/tcp   k3d-mycluster-serverlb
 218cfd215045   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    5 hours ago     Up 5 hours                                                                                  k3d-mycluster-tools
@@ -260,10 +309,15 @@ Le port `80` du cluster K8s est maintenant exposé sur le port `80` du poste de 
 
 * Toutes requêtes sur le port `80` du poste du développeur sont transférées vers le contrôleur `Ingress` :
 
+```bash
+curl localhost:80/app1/
+curl localhost/app2/
 ```
-$ curl localhost:80/app1/
+
+La sortie console attendue :
+
+```bash
 App 1 from app1deployment-95f49fb56-d5pj5
-$ curl localhost/app2/
 App 2 from app2deployment-567484c687-tbvxv
 ```
 
@@ -277,14 +331,19 @@ Les `Ingress` permettent également de gérer les hôtes virtuels pour éviter d
 
 * Récupéer l'adresse IP du nœud maître (`k8s-master`) :
 
+```bash
+echo $k8s_master_ip
 ```
-$ echo $k8s_master_ip
+
+La sortie console attendue :
+
+```bash
 192.168.64.9
 ```
 
 * Éditer le fichier _/etc/hosts_ en ajoutant les deux lignes suivantes tout en remplaçant <IP_NODE> par l'adresse IP du nœud maître (dans le cas présenté `192.168.64.9`) :
 
-```
+```bash
 ...
 192.168.64.9 app1.mydomain.test
 192.168.64.9 app2.mydomain.test
@@ -294,7 +353,7 @@ $ echo $k8s_master_ip
 
 * Éditer le fichier _/etc/hosts_ en ajoutant les deux lignes suivantes  :
 
-```
+```bash
 ...
 127.0.0.1 app1.mydomain.test
 127.0.0.1 app2.mydomain.test
@@ -336,17 +395,27 @@ spec:
 
 * Appliquer cette configuration pour créer cet `Ingress` dans le cluster Kubernetes :
 
+```bash
+kubectl apply -f exercice4-ingress/myingressvhosts.yaml -n mynamespaceexercice4
 ```
-$ kubectl apply -f exercice4-ingress/myingressvhosts.yaml -n mynamespaceexercice4
+
+La sortie console attendue :
+
+```bash
 ingress.networking.k8s.io/myingressvhosts created
 ```
 
 * Tester les deux règles associées à des hôtes virtuels en effectuant des requêtes via l'outil **cURL** :
 
+```bash
+curl app1.mydomain.test
+curl app2.mydomain.test
 ```
-$ curl app1.mydomain.test
+
+La sortie console attendue :
+
+```bash
 App 1 vhosts from app1deployment-6887b85fc9-c2wg8
-$ curl app2.mydomain.test
 App 2 vhosts from app2deployment-6c8d974467-njw55
 ```
 
