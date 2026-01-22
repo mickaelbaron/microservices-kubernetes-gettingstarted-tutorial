@@ -121,10 +121,10 @@ kubectl get Pods -n mynamespaceexercice5 -o wide
 La sortie console attendue :
 
 ```bash
-NAME                                        READY   STATUS    RESTARTS   AGE   IP           NODE                  
-mydeploymentwithhostpath-5744565654-tdq5x   1/1     Running   0          7s    10.42.1.11   k3d-mycluster-agent-0 
-mydeploymentwithhostpath-5744565654-kbp6r   1/1     Running   0          7s    10.42.0.12   k3d-mycluster-server-0
-mydeploymentwithhostpath-5744565654-ptrdr   1/1     Running   0          7s    10.42.2.18   k3d-mycluster-agent-1 
+NAME                                        READY   STATUS    RESTARTS   AGE   IP           NODE
+mydeploymentwithhostpath-7bfddb74fd-6nvbq   1/1     Running   0          11s   10.42.2.17   k3d-mycluster-agent-0
+mydeploymentwithhostpath-7bfddb74fd-r6hj4   1/1     Running   0          11s   10.42.0.14   k3d-mycluster-server-0
+mydeploymentwithhostpath-7bfddb74fd-vvnls   1/1     Running   0          11s   10.42.1.10   k3d-mycluster-agent-1 
 ```
 
 Kubernetes utilise les trois nœuds pour déployer les trois `Pods`. Un répertoire _/myhostpath_ devrait exister sur les trois nœuds, puisque la stratégie de création du répertoire est `DirectoryOrCreate`.
@@ -166,7 +166,6 @@ La sortie console attendue :
 bin  dev  etc  k3d  lib  myhostpath  output  proc  run	sbin  sys  tmp	usr  var
 bin  dev  etc  k3d  lib  myhostpath  proc  run	sbin  sys  tmp	usr  var
 bin  dev  etc  k3d  lib  myhostpath  proc  run	sbin  sys  tmp	usr  var
-
 ```
 
 ---
@@ -284,7 +283,7 @@ La sortie console attendue :
 <head><title>403 Forbidden</title></head>
 <body>
 <center><h1>403 Forbidden</h1></center>
-<hr><center>nginx/1.23.3</center>
+<hr><center>nginx/1.29.4</center>
 </body>
 </html>
 ```

@@ -252,32 +252,32 @@ Name:             mypod
 Namespace:        default
 Priority:         0
 Service Account:  default
-Node:             k3d-mycluster-agent-0/172.18.0.4
-Start Time:       Thu, 09 Jan 2025 15:23:03 +0000
+Node:             k3d-mycluster-agent-0/172.19.0.4
+Start Time:       Tue, 20 Jan 2026 15:21:51 +0100
 Labels:           <none>
 Annotations:      <none>
 Status:           Running
-IP:               10.42.0.6
+IP:               10.42.2.4
 IPs:
-  IP:  10.42.0.6
+  IP:  10.42.2.4
 Containers:
   mycontainer-1:
-    Container ID:   containerd://5070b101ca8e4617207ee43db26973758372273a2ca34f73202688f2d3caf5fa
+    Container ID:   containerd://395c82eb156f9c1f532edcb67744508dfa83d4c5bb9e7a82af56afa4c04a8a04
     Image:          nginx:latest
-    Image ID:       docker.io/library/nginx@sha256:42e917aaa1b5bb40dd0f6f7f4f857490ac7747d7ef73b391c774a41a8b994f15
+    Image ID:       docker.io/library/nginx@sha256:c881927c4077710ac4b1da63b83aa163937fb47457950c267d92f7e4dedf4aec
     Port:           80/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Thu, 09 Jan 2025 15:23:04 +0000
+      Started:      Tue, 20 Jan 2026 15:21:52 +0100
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v9jks (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fpzkg (ro)
   mycontainer-2:
-    Container ID:  containerd://6aab02d6708a43e2c478922ba23a1393af5ab34e17d020a63cb8f504af167a66
+    Container ID:  containerd://a7ba21cbc21714599340b26a8927a71a49500bc45e4ea0bcdedad82105745b88
     Image:         alpine:latest
-    Image ID:      docker.io/library/alpine@sha256:56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
+    Image ID:      docker.io/library/alpine@sha256:865b95f46d98cf867a156fe4a135ad3fe50d2056aa3f25ed31662dff6da4eb62
     Port:          <none>
     Host Port:     <none>
     Command:
@@ -286,12 +286,12 @@ Containers:
       -qO-
       localhost
     State:          Running
-      Started:      Thu, 09 Jan 2025 15:23:05 +0000
+      Started:      Tue, 20 Jan 2026 15:21:55 +0100
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v9jks (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fpzkg (ro)
 Conditions:
   Type                        Status
   PodReadyToStartContainers   True
@@ -300,11 +300,11 @@ Conditions:
   ContainersReady             True
   PodScheduled                True
 Volumes:
-  kube-api-access-v9jks:
+  kube-api-access-fpzkg:
     Type:                    Projected (a volume that contains injected data from multiple sources)
     TokenExpirationSeconds:  3607
     ConfigMapName:           kube-root-ca.crt
-    ConfigMapOptional:       <nil>
+    Optional:                false
     DownwardAPI:             true
 QoS Class:                   BestEffort
 Node-Selectors:              <none>
@@ -313,15 +313,15 @@ Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists fo
 Events:
   Type    Reason     Age   From               Message
   ----    ------     ----  ----               -------
-  Normal  Scheduled  43s   default-scheduler  Successfully assigned default/mypod to k3d-mycluster-agent-0
-  Normal  Pulling    43s   kubelet            Pulling image "nginx:latest"
-  Normal  Pulled     42s   kubelet            Successfully pulled image "nginx:latest" in 668ms (668ms including waiting). Image size: 72099410 bytes.
-  Normal  Created    42s   kubelet            Created container mycontainer-1
-  Normal  Started    42s   kubelet            Started container mycontainer-1
-  Normal  Pulling    42s   kubelet            Pulling image "alpine:latest"
-  Normal  Pulled     42s   kubelet            Successfully pulled image "alpine:latest" in 709ms (709ms including waiting). Image size: 3652536 bytes.
-  Normal  Created    42s   kubelet            Created container mycontainer-2
-  Normal  Started    41s   kubelet            Started container mycontainer-2
+  Normal  Scheduled  25s   default-scheduler  Successfully assigned default/mypod to k3d-mycluster-agent-0
+  Normal  Pulling    25s   kubelet            spec.containers{mycontainer-1}: Pulling image "nginx:latest"
+  Normal  Pulled     24s   kubelet            spec.containers{mycontainer-1}: Successfully pulled image "nginx:latest" in 742ms (742ms including waiting). Image size: 61200811 bytes.
+  Normal  Created    24s   kubelet            spec.containers{mycontainer-1}: Created container: mycontainer-1
+  Normal  Started    24s   kubelet            spec.containers{mycontainer-1}: Started container mycontainer-1
+  Normal  Pulling    24s   kubelet            spec.containers{mycontainer-2}: Pulling image "alpine:latest"
+  Normal  Pulled     21s   kubelet            spec.containers{mycontainer-2}: Successfully pulled image "alpine:latest" in 2.626s (2.626s including waiting). Image size: 4206609 bytes.
+  Normal  Created    21s   kubelet            spec.containers{mycontainer-2}: Created container: mycontainer-2
+  Normal  Started    21s   kubelet            spec.containers{mycontainer-2}: Started container mycontainer-2
 ``` 
 
 * Comme le `Pod` _mypod_ dispose de deux conteneurs (_mycontainer-1_ et _mycontainer-2_), nous montrons comment exécuter une commande en choisissant un conteneur. Depuis l'invite de commande *kubectl* :
@@ -341,7 +341,7 @@ kubectl logs mypod --tail=10 -f -c mycontainer-2
 La sortie console attendue :
 
 ```bash
-Every 2.0s: wget -qO- localhost                             2023-02-07 13:53:08
+Every 2.0s: wget -qO- localhost                             2026-01-20 14:24:29
 
 Helloworld from K3s
 ```
@@ -434,16 +434,16 @@ La sortie console attendue :
 
 ```bash
 NAMESPACE              NAME                                      READY   STATUS      RESTARTS   AGE
-kube-system            local-path-provisioner-79f67d76f8-flwh9   1/1     Running     0          135m
-kube-system            coredns-597584b69b-kwbdc                  1/1     Running     0          135m
-kube-system            helm-install-traefik-crd-67bd4            0/1     Completed   0          135m
-kube-system            svclb-traefik-86c9da09-xdmwv              2/2     Running     0          135m
-kube-system            svclb-traefik-86c9da09-mhm2n              2/2     Running     0          135m
-kube-system            helm-install-traefik-k6j29                0/1     Completed   1          135m
-kube-system            svclb-traefik-86c9da09-zs7tn              2/2     Running     0          135m
-kube-system            traefik-66c46d954f-pzwrl                  1/1     Running     0          135m
-kube-system            metrics-server-5f9f776df5-2rgdh           1/1     Running     0          135m
-mynamespaceexercice1   mypod                                     2/2     Running     0          65s
+kube-system            coredns-6d668d687-v2tmn                   1/1     Running     0          79m
+kube-system            helm-install-traefik-crd-m8qjh            0/1     Completed   0          79m
+kube-system            helm-install-traefik-lkfr5                0/1     Completed   1          79m
+kube-system            local-path-provisioner-869c44bfbd-fhjd6   1/1     Running     0          79m
+kube-system            metrics-server-7bfffcd44-xmvnh            1/1     Running     0          79m
+kube-system            svclb-traefik-45b5f930-d7wk6              2/2     Running     0          79m
+kube-system            svclb-traefik-45b5f930-gmdqf              2/2     Running     0          79m
+kube-system            svclb-traefik-45b5f930-pfl5c              2/2     Running     0          79m
+kube-system            traefik-865bd56545-tcspm                  1/1     Running     0          79m
+mynamespaceexercice1   mypod                                     2/2     Running     0          21s
 ```
 
 Vous remarquerez dans la première commande que seuls les `Pods` dans le `Namespace` par défaut sont listés, sauf qu'il n'y en a pas. La deuxième commmande liste les `Pods` pour le `Namespace` `mynamespaceexercice1`. Enfin la troisième commande liste tous les `Pods` quelque soit son `Namespace`.
@@ -469,16 +469,16 @@ kubectl get pods --all-namespaces
 La sortie console attendue :
 
 ```bash
-NAMESPACE     NAME                                     READY   STATUS      RESTARTS      AGE
-kube-system   local-path-provisioner-79f67d76f8-flwh9   1/1     Running     0          137m
-kube-system   coredns-597584b69b-kwbdc                  1/1     Running     0          137m
-kube-system   helm-install-traefik-crd-67bd4            0/1     Completed   0          137m
-kube-system   svclb-traefik-86c9da09-xdmwv              2/2     Running     0          136m
-kube-system   svclb-traefik-86c9da09-mhm2n              2/2     Running     0          136m
-kube-system   helm-install-traefik-k6j29                0/1     Completed   1          137m
-kube-system   svclb-traefik-86c9da09-zs7tn              2/2     Running     0          136m
-kube-system   traefik-66c46d954f-pzwrl                  1/1     Running     0          136m
-kube-system   metrics-server-5f9f776df5-2rgdh           1/1     Running     0          137m
+NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
+kube-system   coredns-6d668d687-v2tmn                   1/1     Running     0          80m
+kube-system   helm-install-traefik-crd-m8qjh            0/1     Completed   0          80m
+kube-system   helm-install-traefik-lkfr5                0/1     Completed   1          80m
+kube-system   local-path-provisioner-869c44bfbd-fhjd6   1/1     Running     0          80m
+kube-system   metrics-server-7bfffcd44-xmvnh            1/1     Running     0          80m
+kube-system   svclb-traefik-45b5f930-d7wk6              2/2     Running     0          80m
+kube-system   svclb-traefik-45b5f930-gmdqf              2/2     Running     0          80m
+kube-system   svclb-traefik-45b5f930-pfl5c              2/2     Running     0          80m
+kube-system   traefik-865bd56545-tcspm                  1/1     Running     0          80m
 ```
 
 ## Bilan de l'exercice

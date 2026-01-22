@@ -42,8 +42,8 @@ k3d version
 La sortie console attendue :
 
 ```bash
-k3d version v5.7.5
-k3s version v1.30.6-k3s1 (default)
+k3d version v5.8.3
+k3s version v1.33.6-k3s1 (default)
 ```
 
 Nous allons créer un cluster Kubernetes composé de trois nœuds dont un sera dédié au nœud maître et les deux autres seront dédiés aux nœuds de travail. Sous [K3d](https://k3d.io/), un nœud de travail est intitulé `agent` et un nœud maître est intitulé `server`.
@@ -65,18 +65,19 @@ docker ps
 La sortie console attendue :
 
 ```bash
-CONTAINER ID   IMAGE                            COMMAND                  CREATED          STATUS          PORTS                             NAMES
-d704cbb9c45c   ghcr.io/k3d-io/k3d-proxy:5.7.5   "/bin/sh -c nginx-pr…"   33 seconds ago   Up 23 seconds   80/tcp, 0.0.0.0:44741->6443/tcp   k3d-mycluster-serverlb
-c0198c7d914d   rancher/k3s:v1.30.6-k3s1         "/bin/k3d-entrypoint…"   40 seconds ago   Up 28 seconds                                     k3d-mycluster-agent-1
-a27803a3028f   rancher/k3s:v1.30.6-k3s1         "/bin/k3d-entrypoint…"   40 seconds ago   Up 28 seconds                                     k3d-mycluster-agent-0
-7fba4be33563   rancher/k3s:v1.30.6-k3s1         "/bin/k3d-entrypoint…"   40 seconds ago   Up 32 seconds                                     k3d-mycluster-server-0
+CONTAINER ID   IMAGE                            COMMAND                  CREATED         STATUS         PORTS                     NAMES
+8504c29d0260   ghcr.io/k3d-io/k3d-tools:5.8.3   "/app/k3d-tools noop"    2 minutes ago   Up 2 minutes                             k3d-mycluster-tools
+4ab7b3c56402   ghcr.io/k3d-io/k3d-proxy:5.8.3   "/bin/sh -c nginx-pr…"   2 minutes ago   Up 2 minutes   0.0.0.0:62698->6443/tcp   k3d-mycluster-serverlb
+cad2414637b0   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   2 minutes ago   Up 2 minutes                             k3d-mycluster-agent-1
+bfd2967526ca   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   2 minutes ago   Up 2 minutes                             k3d-mycluster-agent-0
+2b5d21b26731   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   2 minutes ago   Up 2 minutes                             k3d-mycluster-server-0
 ```
 
-Les deux nœuds de travail sont encapsulés par les deux conteneurs nommés `k3d-mycluster-agent-0` et `k3d-mycluster-agent-1`, le nœud maître est encapsulé par un (1) conteneur nommé `k3d-mycluster-server-0` et un conteneur `k3d-mycluster-serverlb` qui sert d'équilibreur de charge (_LoadBalancer_) pour le cluster K8s.
+Les deux nœuds de travail sont encapsulés par les deux conteneurs nommés `k3d-mycluster-agent-0` et `k3d-mycluster-agent-1`, le nœud maître est encapsulé par un (1) conteneur nommé `k3d-mycluster-server-0`, un conteneur `k3d-mycluster-serverlb` qui sert d'équilibreur de charge (_LoadBalancer_) pour le cluster K8s et un conteneur utilitaire `k3d-mycluster-tools`.
 
 Pour permettre l'accès au cluster Kubernetes, [K3d](https://k3d.io/) génère un fichier dans _~/.kube/config_. Ce fichier contient des informations, telles que les autorisations nécessaires pour les outils clients, et sert à établir la communication avec le composant API Server du cluster.
 
-Si vous souhaitez récupérer ce fichier, vous pouvez exécuter la commande suivante pour l'obtenir :
+Si vous souhaitez récupérer ce fichier depuis le cluster créé, vous pouvez exécuter la commande suivante pour l'obtenir :
 
 ```bash
 k3d kubeconfig get mycluster > k3s.yaml
@@ -118,10 +119,10 @@ kubectl top nodes
 La sortie console attendue :
 
 ```bash
-NAME                     CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
-k3d-mycluster-agent-0    55m          2%     176Mi           2%
-k3d-mycluster-agent-1    78m          3%     235Mi           2%
-k3d-mycluster-server-0   101m         5%     426Mi           5%
+NAME                     CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)
+k3d-mycluster-agent-0    35m          0%       114Mi           1%
+k3d-mycluster-agent-1    40m          0%       171Mi           2%
+k3d-mycluster-server-0   65m          0%       632Mi           8%
 ```
 
 La commande permet d'obtenir des informations sur les ressources utilisées par des objets gérés par Kubernetes (ici l'objet est un nœud).
@@ -160,7 +161,7 @@ Vous devriez obtenir le même résultat que sur la figure ci-dessous.
 
 ## Configurer un registre d'images Docker miroir
 
-L'utilisation de Kubernetes amène à télécharger de nombreuses images [Docker](https://www.docker.com/ "Docker") depuis le dépôt [Docker HUB](https://hub.docker.com/ "Docker HUB"). Le problème est que ce dernier impose une limite à 100 téléchargements d'image [Docker](https://www.docker.com/ "Docker") chaque 6 heures par adresse IP (ou 200 téléchargements pour les utilisateurs authentifiés). Des informations supplémentaires sont disponibles ici : https://docs.docker.com/docker-hub/download-rate-limit/.
+L'utilisation de Kubernetes amène à télécharger de nombreuses images [Docker](https://www.docker.com/ "Docker") depuis le dépôt [Docker HUB](https://hub.docker.com/ "Docker HUB"). Le problème est que ce dernier impose une limite à 100 téléchargements d'image [Docker](https://www.docker.com/ "Docker") chaque six heures par adresse IP (ou 200 téléchargements pour les utilisateurs authentifiés). Des informations supplémentaires sont disponibles ici : https://docs.docker.com/docker-hub/download-rate-limit/.
 
 Si vous souhaitez connaître l'état de votre consommation, veuillez procéder aux manipulations suivantes.
 
@@ -185,13 +186,13 @@ curl --head -H "Authorization: Bearer $TOKEN" https://registry-1.docker.io/v2/ra
 La sortie console attendue :
 
 ```bash
-HTTP/1.1 200 OK
-content-length: 2782
-content-type: application/vnd.docker.distribution.manifest.v1+prettyjws
-docker-content-digest: sha256:767a3815c34823b355bed31760d5fa3daca0aec2ce15b217c9cd83229e0e2020
+HTTP/2 200
+date: Tue, 20 Jan 2026 14:08:49 GMT
+content-type: application/vnd.docker.distribution.manifest.v2+json
+content-length: 527
+docker-content-digest: sha256:c2d41d2ba6d8b7b4a3ffec621578eb4d9a0909df29dfa2f6fd8a2e5fd0836aed
 docker-distribution-api-version: registry/2.0
-etag: "sha256:767a3815c34823b355bed31760d5fa3daca0aec2ce15b217c9cd83229e0e2020"
-date: Tue, 07 Feb 2023 11:33:38 GMT
+etag: "sha256:c2d41d2ba6d8b7b4a3ffec621578eb4d9a0909df29dfa2f6fd8a2e5fd0836aed"
 strict-transport-security: max-age=31536000
 ratelimit-limit: 100;w=21600
 ratelimit-remaining: 100;w=21600

@@ -125,7 +125,7 @@ La sortie console attendue :
 ```bash
 Name:                   mydeployment
 Namespace:              mynamespaceexercice2
-CreationTimestamp:      Tue, 07 Feb 2023 15:11:21 +0100
+CreationTimestamp:      Tue, 20 Jan 2026 15:48:52 +0100
 Labels:                 <none>
 Annotations:            deployment.kubernetes.io/revision: 1
 Selector:               app=mypod
@@ -137,23 +137,25 @@ Pod Template:
   Labels:  app=mypod
   Containers:
    mycontainer:
-    Image:        nginx:1.19
-    Port:         80/TCP
-    Host Port:    0/TCP
-    Environment:  <none>
-    Mounts:       <none>
-  Volumes:        <none>
+    Image:         nginx:1.19
+    Port:          80/TCP
+    Host Port:     0/TCP
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
 Conditions:
   Type           Status  Reason
   ----           ------  ------
   Available      True    MinimumReplicasAvailable
   Progressing    True    NewReplicaSetAvailable
 OldReplicaSets:  <none>
-NewReplicaSet:   mydeployment-59f769b799 (1/1 replicas created)
+NewReplicaSet:   mydeployment-9696c8987 (1/1 replicas created)
 Events:
-  Type    Reason             Age    From                   Message
-  ----    ------             ----   ----                   -------
-  Normal  ScalingReplicaSet  2m29s  deployment-controller  Scaled up replica set mydeployment-59f769b799 to 1
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  2m3s  deployment-controller  Scaled up replica set mydeployment-9696c8987 from 0 to 1
 ```
 
 La configuration d'un objet de type `Deployment` peut inclure le nombre de `Pods` à créér qui est de `un` (1) actuellement. Cette information permet donc de gérer la montée en charge horizontale en utilisant un objet de type `ReplicatSet`. Il est possible d'écrire une configuration de type `ReplicatSet` au même titre que ceux que nous avons déjà fait pour `Pod` ou `Deployment`. Toutefois, `Deployment` peut inclure cette information directement dans sa configuration. C'est de cette manière que nous présenterons `ReplicatSet`.
@@ -390,7 +392,7 @@ La sortie console attendue :
 ```bash
 Name:                   mydeployment
 Namespace:              mynamespaceexercice2
-CreationTimestamp:      Tue, 07 Feb 2023 15:11:21 +0100
+CreationTimestamp:      Tue, 20 Jan 2026 15:48:52 +0100
 Labels:                 <none>
 Annotations:            deployment.kubernetes.io/revision: 3
                         kubernetes.io/change-cause: Image en 1.21
@@ -403,34 +405,34 @@ Pod Template:
   Labels:  app=mypod
   Containers:
    mycontainer:
-    Image:        nginx:1.21
-    Port:         80/TCP
-    Host Port:    0/TCP
-    Environment:  <none>
-    Mounts:       <none>
-  Volumes:        <none>
+    Image:         nginx:1.21
+    Port:          80/TCP
+    Host Port:     0/TCP
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
 Conditions:
   Type           Status  Reason
   ----           ------  ------
   Available      True    MinimumReplicasAvailable
   Progressing    True    NewReplicaSetAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   mydeployment-84fd77684b (3/3 replicas created)
+OldReplicaSets:  mydeployment-9696c8987 (0/0 replicas created), mydeployment-74fbc488f9 (0/0 replicas created)
+NewReplicaSet:   mydeployment-5c9fbc86c4 (3/3 replicas created)
 Events:
-  Type    Reason             Age                 From                   Message
-  ----    ------             ----                ----                   -------
-  Normal  ScalingReplicaSet  45m                 deployment-controller  Scaled up replica set mydeployment-59f769b799 to 1
-  Normal  ScalingReplicaSet  41m                 deployment-controller  Scaled up replica set mydeployment-59f769b799 to 3 from 1
-  Normal  ScalingReplicaSet  4m3s                deployment-controller  Scaled up replica set mydeployment-7c5dfd9d6c to 1
-  Normal  ScalingReplicaSet  3m53s               deployment-controller  Scaled down replica set mydeployment-59f769b799 to 2 from 3
-  Normal  ScalingReplicaSet  3m53s               deployment-controller  Scaled up replica set mydeployment-7c5dfd9d6c to 2 from 1
-  Normal  ScalingReplicaSet  3m47s               deployment-controller  Scaled down replica set mydeployment-59f769b799 to 1 from 2
-  Normal  ScalingReplicaSet  3m47s               deployment-controller  Scaled up replica set mydeployment-7c5dfd9d6c to 3 from 2
-  Normal  ScalingReplicaSet  3m41s               deployment-controller  Scaled down replica set mydeployment-59f769b799 to 0 from 1
-  Normal  ScalingReplicaSet  115s                deployment-controller  Scaled up replica set mydeployment-84fd77684b to 1
-  Normal  ScalingReplicaSet  108s                deployment-controller  Scaled down replica set mydeployment-7c5dfd9d6c to 2 from 3
-  Normal  ScalingReplicaSet  108s                deployment-controller  Scaled up replica set mydeployment-84fd77684b to 2 from 1
-  Normal  ScalingReplicaSet  96s (x3 over 102s)  deployment-controller  (combined from similar events): Scaled down replica set mydeployment-7c5dfd9d6c to 0 from 1
+  Type    Reason             Age               From                   Message
+  ----    ------             ----              ----                   -------
+  Normal  ScalingReplicaSet  5m58s             deployment-controller  Scaled up replica set mydeployment-9696c8987 from 0 to 1
+  Normal  ScalingReplicaSet  2m51s             deployment-controller  Scaled up replica set mydeployment-9696c8987 from 1 to 3
+  Normal  ScalingReplicaSet  76s               deployment-controller  Scaled up replica set mydeployment-74fbc488f9 from 0 to 1
+  Normal  ScalingReplicaSet  72s               deployment-controller  Scaled down replica set mydeployment-9696c8987 from 3 to 2
+  Normal  ScalingReplicaSet  72s               deployment-controller  Scaled up replica set mydeployment-74fbc488f9 from 1 to 2
+  Normal  ScalingReplicaSet  67s               deployment-controller  Scaled down replica set mydeployment-9696c8987 from 2 to 1
+  Normal  ScalingReplicaSet  67s               deployment-controller  Scaled up replica set mydeployment-74fbc488f9 from 2 to 3
+  Normal  ScalingReplicaSet  62s               deployment-controller  Scaled down replica set mydeployment-9696c8987 from 1 to 0
+  Normal  ScalingReplicaSet  23s               deployment-controller  Scaled up replica set mydeployment-5c9fbc86c4 from 0 to 1
+  Normal  ScalingReplicaSet  9s (x5 over 19s)  deployment-controller  (combined from similar events): Scaled down replica set mydeployment-74fbc488f9 from 1 to 0
 ```
 
 La version de l'image [Docker](https://www.docker.com/ "Docker") est bien à `1.21`. Dans la partie `Events` nous constatons les différentes opérations réalisées pour passer de la version `1.19` jusqu'à la version `1.21`.

@@ -100,21 +100,21 @@ La sortie console attendue :
 
 ```bash
 NAME                                      READY   STATUS    RESTARTS   AGE
-mydeploymentforservice-7f4dfcd55c-xrqz9   1/1     Running   0          3m27s
-mydeploymentforservice-7f4dfcd55c-bsc58   1/1     Running   0          3m27s
-mydeploymentforservice-7f4dfcd55c-8rctf   1/1     Running   0          3m27s
+mydeploymentforservice-7fc579b7f7-4jwh7   1/1     Running   0          12s
+mydeploymentforservice-7fc579b7f7-cm569   1/1     Running   0          12s
+mydeploymentforservice-7fc579b7f7-zv8zl   1/1     Running   0          12s
 ```
 
 * Afficher le contenu statique du site web :
 
 ```bash
-kubectl exec -it -n mynamespaceexercice3 mydeploymentforservice-7f4dfcd55c-xrqz9 -- more /usr/share/nginx/html/index.html
+kubectl exec -it -n mynamespaceexercice3 mydeploymentforservice-7fc579b7f7-4jwh7 -- more /usr/share/nginx/html/index.html
 ```
 
 La sortie console attendue :
 
 ```bash
-mydeploymentforservice-7f4dfcd55c-xrqz9
+mydeploymentforservice-7fc579b7f7-4jwh7
 ```
 
 La première commande affiche la liste des `Pods` depuis notre `Namespace`. En considérant le premier `Pod` de la liste, nous exécutons une commande sur le conteneur pour afficher le contenu du fichier _/usr/share/nginx/html/index.html_. Si le résultat est similaire à `mydeploymentforservice-XXXXXXXXX-YYYYY`, c'est que la commande au démarrage du conteneur a été correctement exécutée.
@@ -161,16 +161,16 @@ kubectl get service -n mynamespaceexercice3 -o wide
 La sortie console attendue :
 
 ```bash
-NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE   SELECTOR
-myclusteripservice   ClusterIP   10.43.173.137   <none>        8080/TCP   7s    app=mypod
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+myclusteripservice   ClusterIP   10.43.11.229   <none>        8080/TCP   7s    app=mypod
 ```
 
-Le `Service` `myclusteripservice` est disponible. L'accès à ce `Service` se fera via l'IP `10.43.173.137` ou via le CNAME `myclusteripservice`. 
+Le `Service` `myclusteripservice` est disponible. L'accès à ce `Service` se fera via l'IP `10.43.11.229` ou via le CNAME `myclusteripservice`. 
 
 Pour tester notre `Service` qui va distribuer des requêtes aux `Pods` de notre `Deployment`, nous allons créer un `Pod` de test basé sur l'image [Docker](https://www.docker.com/ "Docker") Alpine (penser à adapter l'adresse IP du `ClusterIP`) :
 
 ```bash
-kubectl run podtest --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- 10.43.173.137:8080; sleep 1; done"
+kubectl run podtest --image=alpine:latest -- /bin/sh -c "while true; do wget -qO- 10.43.11.229:8080; sleep 1; done"
 ```
 
 La sortie console attendue :
@@ -188,12 +188,14 @@ kubectl logs podtest -f
 La sortie console attendue :
 
 ```bash
-mydeploymentforservice-6bb797546-fh28g
-mydeploymentforservice-6bb797546-lx28c
-mydeploymentforservice-6bb797546-fh28g
-mydeploymentforservice-6bb797546-nld6h
-mydeploymentforservice-6bb797546-lx28c 
-mydeploymentforservice-6bb797546-lx28c
+mydeploymentforservice-7fc579b7f7-cm569
+mydeploymentforservice-7fc579b7f7-4jwh7
+mydeploymentforservice-7fc579b7f7-4jwh7
+mydeploymentforservice-7fc579b7f7-4jwh7
+mydeploymentforservice-7fc579b7f7-4jwh7
+mydeploymentforservice-7fc579b7f7-zv8zl
+mydeploymentforservice-7fc579b7f7-zv8zl
+mydeploymentforservice-7fc579b7f7-zv8zl
 ...
 CTRL+C
 ```
@@ -250,11 +252,11 @@ kubectl logs podtest -n mynamespaceexercice3 -f
 La sortie console attendue :
 
 ```bash
-mydeploymentforservice-6bb797546-lx28c
-mydeploymentforservice-6bb797546-lx28c
-mydeploymentforservice-6bb797546-lx28c
-mydeploymentforservice-6bb797546-nld6h
-mydeploymentforservice-6bb797546-lx28c
+mydeploymentforservice-7fc579b7f7-4jwh7
+mydeploymentforservice-7fc579b7f7-4jwh7
+mydeploymentforservice-7fc579b7f7-zv8zl
+mydeploymentforservice-7fc579b7f7-4jwh7
+mydeploymentforservice-7fc579b7f7-cm569
 ...
 CTRL+C
 ```
@@ -268,7 +270,7 @@ Un `Service` de type `ClusterIP` est accessible uniquement à l'intérieur d'un 
 ---
 
 ```bash
-multipass exec k8s-master -- wget -qO- 10.43.173.137:8080
+multipass exec k8s-master -- wget -qO- 10.43.11.229:8080
 ```
 
 La sortie console attendue :
@@ -280,13 +282,13 @@ mydeploymentforservice-6bb797546-lx28c
 **Via K3d**
 
 ```bash
-docker exec -it k3d-mycluster-server-0 wget -qO- 10.43.173.137:8080
+docker exec -it k3d-mycluster-server-0 wget -qO- 10.43.11.229:8080
 ```
 
 La sortie console attendue :
 
 ```bash
-mydeploymentforservice-6bb797546-lx28c
+mydeploymentforservice-7fc579b7f7-4jwh7
 ```
 
 ---
@@ -332,7 +334,7 @@ curl http://localhost:8080/api/v1/namespaces/mynamespaceexercice3/services/myclu
 La sortie console attendue :
 
 ```bash
-mydeploymentforservice-6bb797546-nld6h
+mydeploymentforservice-7fc579b7f7-4jwh7
 ```
 
 Avec cette commande, nous envoyons une requête au `Service` qui distribuera aléatoirement à tous les `Pods` de notre `Deployment`. À noter que l'identifiant du `Service` ne peut pas être son IP, il faut obligatoirement que le nom du `Service` soit utilisé (`myclusteripservice`). Cette solution est pratique si vous souhaitez interagir avec vos `Pods` sans vouloir les exposer.
@@ -388,10 +390,10 @@ La sortie console attendue :
 
 ```bash
 NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE   SELECTOR
-mynodeportservice   NodePort   10.43.145.109   <none>        8080:30001/TCP   35s   app=mypod
+mynodeportservice   NodePort   10.43.67.238   <none>        8080:30001/TCP   7s    app=mypod
 ```
 
-Nous constatons que ce `Service` `NodePort` est bien basé sur un `Service` `ClusterIP` puisqu'une IP interne a été définie `10.43.192.164`. La valeur du `nodePort` se retrouve dans la colonne `PORT(s)`. Le `Service` `NodePort` va donc recevoir une requête sur le port `30001` qu'il va retourner au `Service` `ClusterIP` sur le port `8080` qui à son tour va distribuer aléatoirement sur tous les `Pods`.
+Nous constatons que ce `Service` `NodePort` est bien basé sur un `Service` `ClusterIP` puisqu'une IP interne a été définie `10.43.67.238`. La valeur du `nodePort` se retrouve dans la colonne `PORT(s)`. Le `Service` `NodePort` va donc recevoir une requête sur le port `30001` qu'il va retourner au `Service` `ClusterIP` sur le port `8080` qui à son tour va distribuer aléatoirement sur tous les `Pods`.
 
 * Depuis l'invite de commande *kubectl* :
 
@@ -459,13 +461,13 @@ k3d cluster edit mycluster --port-add 30001:30001@server:0
 La sortie console attendue :
 
 ```bash
-INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-AtDbL...
+INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-ITnvv...
 INFO[0000] Creating new node k3d-mycluster-serverlb...
-INFO[0000] Stopping existing node k3d-mycluster-serverlb-AtDbL...
+INFO[0000] Stopping existing node k3d-mycluster-serverlb-ITnvv...
 INFO[0010] Starting new node k3d-mycluster-serverlb...
-INFO[0010] Starting Node 'k3d-mycluster-serverlb'
-INFO[0017] Deleting old node k3d-mycluster-serverlb-AtDbL...
-INFO[0017] Successfully updated mycluster
+INFO[0010] Starting node 'k3d-mycluster-serverlb'
+INFO[0016] Deleting old node k3d-mycluster-serverlb-ITnvv...
+INFO[0016] Successfully updated mycluster
 ```
 
 * Vérifier que la modification sur le port a été faite :
@@ -477,12 +479,12 @@ docker ps
 La sortie console attendue :
 
 ```bash
-CONTAINER ID   IMAGE                            COMMAND                  CREATED              STATUS              PORTS                                                       NAMES
-71daed0bd9cd   ef33158baf49                     "/bin/sh -c nginx-pr…"   About a minute ago   Up About a minute   80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:61868->6443/tcp   k3d-mycluster-serverlb
-218cfd215045   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    4 hours ago          Up 4 hours                                                                      k3d-mycluster-tools
-fc1b05755fa1   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago          Up 4 hours                                                                      k3d-mycluster-agent-1
-881b02b75046   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago          Up 4 hours                                                                      k3d-mycluster-agent-0
-ccb827ca9afd   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago          Up 4 hours                                                                      k3d-mycluster-server-0
+CONTAINER ID   IMAGE                            COMMAND                  CREATED          STATUS          PORTS                                                                      NAMES
+fdc55e7462e5   d43e6ffd27c2                     "/bin/sh -c nginx-pr…"   30 seconds ago   Up 19 seconds   0.0.0.0:30001->30001/tcp, [::]:30001->30001/tcp, 0.0.0.0:62698->6443/tcp   k3d-mycluster-serverlb
+8504c29d0260   ghcr.io/k3d-io/k3d-tools:5.8.3   "/app/k3d-tools noop"    4 hours ago      Up 4 hours                                                                                 k3d-mycluster-tools
+cad2414637b0   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago      Up 4 hours                                                                                 k3d-mycluster-agent-1
+bfd2967526ca   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago      Up 4 hours                                                                                 k3d-mycluster-agent-0
+2b5d21b26731   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   4 hours ago      Up 4 hours                                                                                 k3d-mycluster-server-0
 ```
 
 Le port `30001` du cluster K8s est maintenant exposé sur le port `30001` du poste de développeur.
@@ -496,7 +498,7 @@ curl localhost:30001
 La sortie console attendue :
 
 ```bash
-mydeploymentforservice-6bb797546-fh28g
+mydeploymentforservice-7fc579b7f7-4jwh7
 ```
 
 ---

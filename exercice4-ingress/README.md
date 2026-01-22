@@ -218,15 +218,15 @@ La sortie console attendue :
 Name:             myingressfanout
 Labels:           <none>
 Namespace:        mynamespaceexercice4
-Address:          172.29.0.3,172.29.0.4,172.29.0.5
+Address:          172.19.0.3,172.19.0.4,172.19.0.5
 Ingress Class:    traefik
 Default backend:  <default>
 Rules:
   Host        Path  Backends
   ----        ----  --------
   *
-              /app1   app1service:8080 (10.42.0.11:80,10.42.2.16:80)
-              /app2   app2service:8080 (10.42.1.10:80,10.42.2.17:80)
+              /app1   app1service:8080 (10.42.2.15:80,10.42.1.9:80)
+              /app2   app2service:8080 (10.42.0.13:80,10.42.2.16:80)
 Annotations:  <none>
 Events:       <none>
 ```
@@ -262,11 +262,12 @@ docker ps
 La sortie console attendue :
 
 ```bash
-CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                                       NAMES
-e3156d411390   d0554070bc8c               "/bin/sh -c nginx-pr…"   5 minutes ago    Up 5 minutes    80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:62002->6443/tcp   k3d-mycluster-serverlb
-b7e9d52a3d89   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-agent-1
-e4848c17c6cd   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-agent-0
-6ae3be322c8c   rancher/k3s:v1.21.7-k3s1   "/bin/k3d-entrypoint…"   16 minutes ago   Up 16 minutes                                                               k3d-mycluster-server-0
+CONTAINER ID   IMAGE                            COMMAND                  CREATED        STATUS        PORTS                                                  NAMES
+fdc55e7462e5   d43e6ffd27c2                     "/bin/sh -c nginx-pr…"   21 hours ago   Up 21 hours   0.0.0.0:30001->30001/tcp,..., 0.0.0.0:62698->6443/tcp  k3d-mycluster-serverlb
+8504c29d0260   ghcr.io/k3d-io/k3d-tools:5.8.3   "/app/k3d-tools noop"    24 hours ago   Up 24 hours                                                          k3d-mycluster-tools
+cad2414637b0   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   24 hours ago   Up 24 hours                                                          k3d-mycluster-agent-1
+bfd2967526ca   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   24 hours ago   Up 24 hours                                                          k3d-mycluster-agent-0
+2b5d21b26731   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   24 hours ago   Up 24 hours                                                          k3d-mycluster-server-0
 ```
 
 * Actuellement aucun conteneur du cluster K8s ne peut répondre à une requête sur le port `80`. Modifier le cluster [K3d](https://k3d.io/) afin d'ajouter l'écoute sur ce port :
@@ -279,13 +280,13 @@ La sortie console attendue :
 
 ```bash
 INFO[0000] portmapping '80:80' targets the loadbalancer: defaulting to [servers:*:proxy agents:*:proxy]
-INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-gNOwY...
+INFO[0000] Renaming existing node k3d-mycluster-serverlb to k3d-mycluster-serverlb-ttZuG...
 INFO[0000] Creating new node k3d-mycluster-serverlb...
-INFO[0000] Stopping existing node k3d-mycluster-serverlb-gNOwY...
+INFO[0000] Stopping existing node k3d-mycluster-serverlb-ttZuG...
 INFO[0010] Starting new node k3d-mycluster-serverlb...
-INFO[0010] Starting Node 'k3d-mycluster-serverlb'
-INFO[0017] Deleting old node k3d-mycluster-serverlb-gNOwY...
-INFO[0017] Successfully updated mycluster
+INFO[0010] Starting node 'k3d-mycluster-serverlb'
+INFO[0016] Deleting old node k3d-mycluster-serverlb-ttZuG...
+INFO[0016] Successfully updated mycluster
 ```
 
 * Vérifier que la modification a été prise en compte :
@@ -297,12 +298,12 @@ docker ps
 La sortie console attendue :
 
 ```bash
-CONTAINER ID   IMAGE                            COMMAND                  CREATED         STATUS              PORTS                                                                   NAMES
-017f86faa708   ef33158baf49                     "/bin/sh -c nginx-pr…"   2 minutes ago   Up About a minute   0.0.0.0:80->80/tcp, 0.0.0.0:30001->30001/tcp, 0.0.0.0:61868->6443/tcp   k3d-mycluster-serverlb
-218cfd215045   ghcr.io/k3d-io/k3d-tools:5.4.7   "/app/k3d-tools noop"    5 hours ago     Up 5 hours                                                                                  k3d-mycluster-tools
-fc1b05755fa1   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   5 hours ago     Up 5 hours                                                                                  k3d-mycluster-agent-1
-881b02b75046   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   5 hours ago     Up 5 hours                                                                                  k3d-mycluster-agent-0
-ccb827ca9afd   rancher/k3s:v1.25.6-k3s1         "/bin/k3d-entrypoint…"   5 hours ago     Up 5 hours                                                                                  k3d-mycluster-server-0
+CONTAINER ID   IMAGE                            COMMAND                  CREATED          STATUS          PORTS                                             NAMES
+ef8d42c0a126   d43e6ffd27c2                     "/bin/sh -c nginx-pr…"   32 seconds ago   Up 21 seconds   0.0.0.0:80->80/tcp,..., 0.0.0.0:62698->6443/tcp   k3d-mycluster-serverlb
+8504c29d0260   ghcr.io/k3d-io/k3d-tools:5.8.3   "/app/k3d-tools noop"    24 hours ago     Up 24 hours                                                       k3d-mycluster-tools
+cad2414637b0   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   24 hours ago     Up 24 hours                                                       k3d-mycluster-agent-1
+bfd2967526ca   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   24 hours ago     Up 24 hours                                                       k3d-mycluster-agent-0
+2b5d21b26731   rancher/k3s:v1.33.6-k3s1         "/bin/k3d-entrypoint…"   24 hours ago     Up 24 hours                                                       k3d-mycluster-server-0
 ```
 
 Le port `80` du cluster K8s est maintenant exposé sur le port `80` du poste de développeur.
@@ -317,8 +318,8 @@ curl localhost/app2/
 La sortie console attendue :
 
 ```bash
-App 1 from app1deployment-95f49fb56-d5pj5
-App 2 from app2deployment-567484c687-tbvxv
+App 1 fanout from app1deployment-9bcbffb86-f8v9w
+App 2 fanout from app2deployment-7d67dff6d8-tm7dl
 ```
 
 ---
