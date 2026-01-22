@@ -13,6 +13,8 @@ Ci-dessous sont détaillés les exercices de ce tutoriel :
 
 **Buts pédagogiques** : mettre en place un cluster K8s, créer un `Pod`, communiquer avec un `Pod`, partager des données entre des `Pods`, utiliser des outils d'administration (**kubectl** et [K9s](https://k9scli.io/)).
 
+**Notes** : cette série d'exercices a été entièrement rédigée par un humain. Les captures d’écran proviennent d’une application réelle ; aucune intelligence artificielle n’a été utilisée.
+
 ## Préparer son environnement de test : prérequis matériels et logiciels
 
 ![Kubernetes = K3s + K3d](./images/k8s_k3s_k3d.png "Kubernetes déployée avec la distribution K3s et une solution DinD avec K3d")
