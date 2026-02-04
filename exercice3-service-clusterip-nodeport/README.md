@@ -348,7 +348,7 @@ kubectl delete service -n mynamespaceexercice3 myclusteripservice
 
 Nous allons maintenant nous intéresser aux `Services` de type `NodePort` qui contrairement à `ClusterIP` sont accessibles depuis l'extérieur du cluster K8s. Le principe de fonctionnement du `Service` `NodePort` est en deux temps. Dans un premier temps, ce `Service` est exposé sur une IP et un CNAME (Canonical Name) puis distribue les requêtes vers l'adresse IP d'un `Pod` (identique à `ClusterIP`). Un `Service` `NodePort` s'appuie donc sur un `Service` `ClusterIP`. Dans un second temps, ce `Service` est exposé sur l'IP de chaque nœud à un port statique (appelé `nodePort`). La plage du `nodePort` est comprise entre `30000` et `32767`, cela laisse de la marge, mais n'est pas illimité. Ainsi, pour accéder à un `Service` `NodePort` depuis l'extérieur, il n'y aura plus qu'à requêter l'adresse `<IP Nœud>:<nodePort>`.
 
-* Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé _mynodeportservice.yaml_ qui décrit un `Service` de type `ClusterIP` :
+* Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé _mynodeportservice.yaml_ qui décrit un `Service` de type `NodePort` :
 
 ```yaml
 apiVersion: v1
