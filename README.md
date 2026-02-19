@@ -62,5 +62,5 @@ Pour aller plus loin, vous pouvez consulter les ressources suivantes :
 
 L'apprentissage de Kubernetes m'a pris un certain temps et j'ai pu compter sur de nombreuses ressources sur Internet. J'ai pu également compter sur de nombreuses personnes pour m'aiguiller à qui j'ai posé de nombreuses questions. Je voulais en profiter pour les remercier :
 
-* Guilhem Lettron ([@guilhemlettron](https://twitter.com/guilhemlettron))
-* Idriss Neumann ([@idriss_neumann](https://twitter.com/idriss_neumann))
+* Guilhem Lettron 
+* Idriss Neumann
