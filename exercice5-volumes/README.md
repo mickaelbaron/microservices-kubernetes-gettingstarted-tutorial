@@ -1,6 +1,8 @@
 # Exercice 5 : conserver les données
 
-Les données des `Pods` sont volatibles, c'est-à-dire qu'à chaque destruction d'un `Pod` toutes les données qui ont pu être générées seront perdues. Les types données qui sont gérés par un `Pod` peuvent être des données applicatives (issues d'une base de données), des logs, des fichiers de configuration, des fichiers de partage, etc. Nous adressons la problématique suivante dans cet exercice : comment s'assurer que si un `Pod` est recréé, les données précédentes soient restaurées. Pour y répondre, nous introduisons le concept de `Volume`. Un `Volume` représente un espace de stockage contenant des données et accessible à travers plusieurs conteneurs d'un même `Pod`ou de `Pods` différents. Différents types de `Volume` existent selon le besoin de stockage à gérer. Nous étudierons les `Volumes` de type `hostPath` et `emptyDir` pour l'accès à un stockage local (accessible uniquement dans un même nœud) puis `NFS` pour des `Volumes` basés sur des dossiers distants (accessible à travers plusieurs nœuds) gérés par un serveur NFS (Network File System). 
+Les données des `Pods` sont volatibles, c'est-à-dire qu'à chaque destruction d'un `Pod` toutes les données qui ont pu être générées seront perdues. Les types données qui sont gérés par un `Pod` peuvent être des données applicatives (issues d'une base de données), des logs, des fichiers de configuration, des fichiers de partage, etc. Nous adressons la problématique suivante dans cet exercice : comment s'assurer que si un `Pod` est recréé, les données précédentes soient restaurées. 
+
+Pour y répondre, nous introduisons le concept de `Volume`. Un `Volume` représente un espace de stockage contenant des données et accessible à travers plusieurs conteneurs d'un même `Pod`ou de `Pods` différents. Différents types de `Volume` existent selon le besoin de stockage à gérer. Nous étudierons les `Volumes` de type `hostPath` et `emptyDir` pour l'accès à un stockage local (accessible uniquement dans un même nœud) puis `NFS` pour des `Volumes` basés sur des dossiers distants (accessible à travers plusieurs nœuds) gérés par un serveur NFS (Network File System). 
 
 > À noter que cet exercice ne se veut pas être exhaustif pour présenter les différents types de `Volumes` basés sur des dossiers distants (CIFS, `PersistentVolumeClaim`, etc.). Une liste exhaustive est disponible sur la documentation de Kubernetes : https://kubernetes.io/docs/concepts/storage/volumes.
 
@@ -139,7 +141,6 @@ Kubernetes utilise les trois nœuds pour déployer les trois `Pods`. Un réperto
 multipass exec k8s-master -- ls /
 multipass exec k8s-workernode-1 -- ls /
 multipass exec k8s-workernode-2 -- ls /
-multipass exec k8s-workernode-2 -- ls /myhostpath
 ```
 
 La sortie console attendue :
@@ -157,7 +158,6 @@ bin  boot  dev	etc  home  lib	lib32  lib64  libx32  lost+found  media  mnt  myho
 docker exec -it k3d-mycluster-server-0 ls /
 docker exec -it k3d-mycluster-agent-0 ls /
 docker exec -it k3d-mycluster-agent-1 ls /
-docker exec -it k3d-mycluster-agent-1 ls /myhostpath
 ```
 
 La sortie console attendue :
@@ -184,7 +184,7 @@ curl $k8s_workernode1_ip:30001
 
 La sortie console attendue :
 
-```bash
+```html
 <html>
 <head><title>403 Forbidden</title></head>
 <body>
@@ -202,7 +202,7 @@ curl localhost:30001
 
 La sortie console attendue :
 
-```bash
+```html
 <html>
 <head><title>403 Forbidden</title></head>
 <body>
@@ -248,7 +248,7 @@ curl $k8s_workernode1_ip:30001
 
 La sortie console attendue :
 
-```bash
+```html
 <html>
 <head><title>403 Forbidden</title></head>
 <body>
@@ -272,13 +272,13 @@ Bonjour depuis le noeud Master
 
 **Via K3d**
 
-```
+```bash
 curl localhost:30001
 ```
 
 La sortie console attendue :
 
-```bash
+```html
 <html>
 <head><title>403 Forbidden</title></head>
 <body>
@@ -311,9 +311,9 @@ kubectl delete service -n mynamespaceexercice5 mypodforhostpathservice
 kubectl delete deployments.apps -n mynamespaceexercice5 mydeploymentwithhostpath
 ```
 
-Le deuxième type de `Volume` étudié est `emptyDir`. Ce `Volume` permet le partage des données entre les conteneurs d'un même `Pod`. À la différence de `hostPath`, le `Volume` `emptyDir` est non peristant. Son contenu est vide à sa création. Les données peuvent être stockées sur disque ou en mémoire, mais ne seront pas conservées à la destruction du `Volume`. Les cas d'usage courants sont le partage d'un espace de travail commun entre différents conteneurs d’un même `Pod` et la mise à disposition d'un point de reprise après un arrêt non souhaité (crash) d'un traitement long. C'est le premier cas d'usage relatif au partage d'un espace de travail que nous allons présenter dans la suite.
+Le deuxième type de `Volume` étudié est `emptyDir`. Ce `Volume` permet le partage des données entre les conteneurs d'un même `Pod`. À la différence de `hostPath`, le `Volume` de type `emptyDir` est non peristant. Son contenu est vide à sa création. Les données peuvent être stockées sur disque ou en mémoire, mais ne seront pas conservées à la destruction du `Volume`. Les cas d'usage courants sont le partage d'un espace de travail commun entre différents conteneurs d’un même `Pod` et la mise à disposition d'un point de reprise après un arrêt non souhaité (crash) d'un traitement long. C'est le premier cas d'usage relatif au partage d'un espace de travail que nous allons présenter dans la suite.
 
-La suite de l'exercice va consister à utiliser un `Volume` `emptyDir` pour y placer le contenu d'un dépôt Git. Un premier conteneur récupérera le contenu d'un dépôt Git contenant un site web statique et le second conteneur fournira un serveur web [Nginx](https://www.nginx.com/) pour mettre en ligne le site web.
+La suite de l'exercice va consister à utiliser un `Volume` de type `emptyDir` pour y placer le contenu d'un dépôt Git. Un premier conteneur récupérera le contenu d'un dépôt Git contenant un site web statique et le second conteneur fournira un serveur web [Nginx](https://www.nginx.com/) pour mettre en ligne le site web.
 
 * Créer dans le répertoire _exercice5-volumes/_ un fichier appelé _myemptydir.yaml_ qui décrit un `Deployment`, un `Service` `NodePort` et un `Volume` de type `emptyDir` :
 

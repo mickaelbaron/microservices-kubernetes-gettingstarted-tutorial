@@ -1,6 +1,6 @@
 # Exercice 4 : communiquer avec les Pods via des règles de routage
 
-Dans l'exercice précédent, nous avons étudié les `Services` via les objets `ClusterIP` et `NodePort`. Nous avons montré que le `Service` `ClusterIP` ne permettait pas d'accéder aux `Pods` depuis l'extérieur du cluster et que le `Service` `NodePort` nécessitait de réserver un port réseau sur tout le cluster même si aucun `Pod` ne tournait. Il existe également un autre type de `Service` appelait `LoadBalancer` qui est difficilement configurable pour un cluster qui n'est pas dans le Cloud (notre cas actuellement).
+Dans l'exercice précédent, nous avons étudié les `Services` via les objets `ClusterIP` et `NodePort`. Nous avons montré que le `Service` `ClusterIP` ne permettait pas d'accéder aux `Pods` depuis l'extérieur du cluster et que le `Service` `NodePort` nécessitait de réserver un port réseau sur tout le cluster même si aucun `Pod` ne tournait. Il existe également un autre type de `Service` appelé `LoadBalancer` qui est difficilement configurable pour un cluster comme celui que nous utilisons.
 
 Nous présentons dans cet exercice les `Ingress`, une solution qui s'appuie sur les `Services`. Un `Ingress` est une règle qui relie une URL à un objet `Service`. Par ailleurs, un `Ingress` utilise un contrôleur `Ingress` pour piloter un `Reverse Proxy` pour implémenter les règles. **Toutefois, un `Ingress` n'est pas un objet de type `Service`**. L'objectif visé par un `Ingress` est d'éviter d'utiliser un `Service` de type `NodePort` ou `LoadBalancer` pour communiquer depuis l'extérieur d'un cluster Kubernetes, seul un `Service` de type `ClusterIP` sera suffisant.
 
@@ -47,7 +47,7 @@ La sortie console attendue :
 namespace/mynamespaceexercice4 created
 ```
 
-Dans les étapes suivantes, nous allons créer deux `Deployments` afin de simuler l'existence de deux applications différentes (microservices). Les deux `Deployment` seront basés sur la même image [Docker](https://www.docker.com/ "Docker") [Nginx](https://www.nginx.com/) pour déployer des `Pods`. Pour différencier les deux applications, nous modifierons la page _index.html_ de chaque conteneur afin d'identifier clairement l'application visée par nos requêtes. Pour accéder à ces applications (microservices) depuis l'extérieur du cluster, nous utiliserons un `Ingress` avec deux règles pour les relier aux URL suivantes : http://<IP_NODE>/app1 pour la première application et http://<IP_NODE>/app2 pour la seconde application. Cette forme de configuration est appelée `fanout` et permet de définir une règle à base de sous-chemins.
+Dans les étapes suivantes, nous allons créer deux `Deployments` afin de simuler l'existence de deux applications différentes (microservices). Les deux `Deployment` seront basés sur la même image [Nginx](https://www.nginx.com/) pour déployer des `Pods`. Pour différencier les deux applications, nous modifierons la page _index.html_ de chaque conteneur afin d'identifier clairement l'application visée par nos requêtes. Pour accéder à ces applications (microservices) depuis l'extérieur du cluster, nous utiliserons un `Ingress` avec deux règles pour les relier aux URL suivantes : http://<IP_NODE>/app1 pour la première application et http://<IP_NODE>/app2 pour la seconde application. Cette forme de configuration est appelée `fanout` (un seul point d'entrée *ventile* le trafic vers plusieurs services) et permet de définir une règle à base de sous-chemins.
 
 * Créer dans le répertoire _exercice4-ingress/_ un fichier appelé _app1deployment.yaml_ qui décrit un `Deployment` et un `Service` `ClusterIP` pour la première application :
 
@@ -432,9 +432,9 @@ App 2 vhosts from app2deployment-6c8d974467-njw55
 
 Pour continuer sur les concepts présentés dans cet exercice, nous proposons les expérimentations suivantes :
 
-* créer un `Deployment` basé sur une image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
+* créer un `Deployment` basé sur une image [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
 * créer un `Service` de type `ClusterIP` pour ce `Deployment`;
-* créer un `Ingress` pour s'appliquer à ce `Service` `ClusterIP` et pour gérer l'hôte virtuel http://apache.mydomain.test.
+* créer un `Ingress` pour s'appliquer à ce `Service` de type `ClusterIP` et pour gérer l'hôte virtuel http://apache.mydomain.test.
 
 ## Ressources
 

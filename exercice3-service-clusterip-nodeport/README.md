@@ -2,7 +2,7 @@
 
 À cette étape, la seule solution étudiée pour communiquer avec un `Pod` depuis l'extérieur de notre cluser K8s est d'utiliser la redirection de port avec l'outil **kubectl** et l'option `port-forward` (vue dans l'[exercice 1](../exercice1-pod-tools/README.md)). Toutefois, cette solution n'est pas envisageable pour une mise en production puisqu'elle nécessite l'accès au composant *API Server* (réservé à l'administrateur et au développeur) et surtout elle ne permet d'accéder qu'à un seul `Pod` à la fois. Ce dernier point est gênant puisque depuis l'exercice [exercice 2](/exercice2-deployment/README.md) nous avons appris à créer plusieurs `Pods` basés sur un même template.
 
-Ce troisième exercice adresse deux problèmes d'accès aux `Pods`. Le premier s'intéresse aux besoins de communication entre des `Pods` depuis l'intérieur du cluster K8s et le second s'intéresse aux besoins de communication depuis l'extérieur du cluster K8s vers des `Pods`. La solution technique proposée par Kubernetes est d'utiliser des objets de type `Service`. Il en existe plusieurs sortes et les principaux sont `ClusterIP`, `NodePort` et `LoadBalancer`. Nous allons étudier les deux premiers car le dernier `LoadBalancer` nécessite que le cluster K8s soit déployé dans un Cloud public.
+Ce troisième exercice adresse deux problèmes d'accès aux `Pods`. Le premier s'intéresse aux besoins de communication entre des `Pods` depuis l'intérieur du cluster K8s et le second s'intéresse aux besoins de communication depuis l'extérieur du cluster K8s vers des `Pods`. La solution technique proposée par Kubernetes est d'utiliser des objets de type `Service`. Il en existe plusieurs sortes et les principaux sont `ClusterIP`, `NodePort` et `LoadBalancer`. Nous allons étudier les deux premier. Bien que les services `LoadBalancer` soient couramment utilisés dans les environnements cloud publics, ils peuvent également être déployés sur une infrastructure privée à l'aide de composants supplémentaires (exemple : [MetalLB](https://metallb.io/)).
 
 > Quelque soit le type d'installation choisi pour la mise en place de votre cluster Kubernetes, toutes les commandes ci-dessous devraient normalement fonctionner. Nous considérons qu'il existe un fichier `k3s.yaml` à la racine du dossier `microservices-kubernetes-gettingstarted-tutorial/`, si ce n'est pas le cas, merci de reprendre la mise en place d'un cluster Kubernetes. Il est important ensuite de s'assurer que la variable `KUBECONFIG` soit initialisée avec le chemin du fichier d'accès au cluster Kubernetes (`export KUBECONFIG=$PWD/k3s.yaml`).
 
@@ -48,7 +48,7 @@ La sortie console attendue :
 namespace/mynamespaceexercice3 created
 ```
 
-* Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé _mydeploymentforservice.yaml_ qui décrit un `Deployment`. Ce dernier contiendra trois `Pods` basés sur l'image [Docker](https://www.docker.com/ "Docker") [Nginx](https://www.nginx.com/) :
+* Créer dans le répertoire _exercice3-service-clusterip-nodeport/_ un fichier appelé _mydeploymentforservice.yaml_ qui décrit un `Deployment`. Ce dernier contiendra trois `Pods` basés sur l'image [Nginx](https://www.nginx.com/) :
 
 ```yaml
 apiVersion: apps/v1
@@ -86,7 +86,7 @@ kubectl apply -f exercice3-service-clusterip-nodeport/mydeploymentforservice.yam
 
 La sortie console attendue :
 
-```
+```bash
 deployment.apps/mydeploymentforservice created
 ```
 
@@ -309,7 +309,7 @@ Starting to serve on 127.0.0.1:8080
 
 L'option `proxy` permet de créer un proxy entre la machine locale (depuis le port 8080) et le cluster. À l'éxécution de cette commande, le processus **kubectl** devient bloquant. Toutes les opérations suivantes se feront par l'intermédiaire de l'outil [cURL](https://curl.haxx.se "cURL") pour interroger l'API Rest fournie par le cluster Kubernetes. Nous pourrons obtenir des informations sur les `Pods`, `Namespaces`, `Deployment` et les `Services`. Avec ces derniers, on pourra envoyer des requêtes.
 
-* Ouvrir un nouvel invite de commande :
+* Ouvrir un nouvel invite de commande pour obtenir tous `Namespaces` du cluster Kubernetes :
 
 ```bash
 curl -s http://localhost:8080/api/v1/namespaces | jq -r '.items[].metadata.name'
@@ -325,7 +325,7 @@ kube-node-lease
 mynamespaceexercice3
 ```
 
-Par exemple, avec cette requête, nous obtenons tous les `Namespaces` du cluster Kubernetes.
+* Pour accéder au `Service` de type `ClusterIP` :
 
 ```bash
 curl http://localhost:8080/api/v1/namespaces/mynamespaceexercice3/services/myclusteripservice:8080/proxy/
@@ -393,7 +393,7 @@ NAME                TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AG
 mynodeportservice   NodePort   10.43.67.238   <none>        8080:30001/TCP   7s    app=mypod
 ```
 
-Nous constatons que ce `Service` `NodePort` est bien basé sur un `Service` `ClusterIP` puisqu'une IP interne a été définie `10.43.67.238`. La valeur du `nodePort` se retrouve dans la colonne `PORT(s)`. Le `Service` `NodePort` va donc recevoir une requête sur le port `30001` qu'il va retourner au `Service` `ClusterIP` sur le port `8080` qui à son tour va distribuer aléatoirement sur tous les `Pods`.
+Nous constatons que ce `Service` de type `NodePort` est bien basé sur un `Service` de type `ClusterIP` puisqu'une adresse IP interne a été définie `10.43.67.238`. La valeur du `nodePort` se retrouve dans la colonne `PORT(s)`. Le `Service` `NodePort` va donc recevoir une requête sur le port `30001` qu'il va retourner au `Service` `ClusterIP` sur le port `8080` qui à son tour va distribuer aléatoirement sur tous les `Pods`.
 
 * Depuis l'invite de commande *kubectl* :
 

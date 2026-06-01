@@ -1,8 +1,10 @@
 # Exercice 2 : créer et déployer une représentation logique de Pods avec les Deployments
 
-Dans l'exercice précédent, nous avons montré comment créer des `Pods` manuellement. Toutefois, cette gestion manuelle peut devenir fastidieuse. Par exemple, lorsqu'un `Pod` est créé dans un cluster et qu'une panne intervient sur le nœud où est localisé le `Pod`, Kubernetes ne va pas essayer de trouver un état sain en recréant manuellement le `Pod` disparu. Dans un même ordre d'idée, si vous souhaitez démarrer des `Pods` à un intervalle régulier ou réaliser une mise à jour progressive des versions des `Pods` déjà en exécution. 
+Dans l'exercice précédent, nous avons montré comment créer des `Pods` manuellement. Toutefois, cette gestion manuelle peut devenir fastidieuse. En effet, un `Pod` créé directement sans contrôleur Kubernetes n’est pas surveillé ni remplacé automatiquement en cas de panne ou de suppression. Dans un même ordre d'idée, si vous souhaitez démarrer des `Pods` à un intervalle régulier ou réaliser une mise à jour progressive des versions des `Pods` déjà en exécution. 
 
-Ce deuxième exercice s'intéresse aux objets de déploiement qui gérent les `Pods` à votre place. Ces objets de déploiement permettent de donner une représentation logique de un ou plusieurs `Pods`. Ils sont appelés également `Charge de Travail` (`Workload` en anglais) dans la documentation officielle de [Kubernetes](https://kubernetes.io/docs/concepts/workloads/controllers/). Différents types d'objets de déploiement existent : `Deployment`, `StatefulSets`, `DaemonSets`, `Jobs` et `Cronjob`. Nous allons nous intéresser dans cet exercice aux objets de type `Deployment` qui aident à gérer des `Pods` de type _Stateless_. Ces objets sont capables de gérer la montée en charge horizontale via l'utilisation d'un objet de type `ReplicaSet`. 
+Ce deuxième exercice s'intéresse aux objets de déploiement qui gérent les `Pods` à votre place. Ces objets de déploiement permettent de donner une représentation logique de un ou plusieurs `Pods`. Ils sont appelés également `Charge de Travail` (`Workload` en anglais) dans la documentation officielle de [Kubernetes](https://kubernetes.io/docs/concepts/workloads/controllers/). 
+
+Différents types d'objets de déploiement existent : `Deployment`, `StatefulSets`, `DaemonSets`, `Jobs` et `Cronjob`. Nous allons nous intéresser dans cet exercice aux objets de type `Deployment` qui aident à gérer des `Pods` de type _Stateless_. Ces objets sont capables de gérer la montée en charge horizontale via l'utilisation d'un objet de type `ReplicaSet`. 
 
 > Quelque soit le type d'installation choisi pour la mise en place de votre cluster Kubernetes, toutes les commandes ci-dessous devraient normalement fonctionner. Nous considérons qu'il existe un fichier `k3s.yaml` à la racine du dossier `microservices-kubernetes-gettingstarted-tutorial/`, si ce n'est pas le cas, merci de reprendre la mise en place d'un cluster Kubernetes. Il est important ensuite de s'assurer que la variable `KUBECONFIG` soit initialisée avec le chemin du fichier d'accès au cluster Kubernetes (`export KUBECONFIG=$PWD/k3s.yaml`).
 
@@ -228,9 +230,9 @@ mydeployment   3/3     3            3           4m35s
 
 Nous remarquons d'une part que deux nouveaux `Pods` ont été ajoutés (information liée à l'âge) et d'autre part que Kubernetes a choisi d'équilibrer le déploiement sur l'ensemble des nœuds. Cela est cohérent car les ressources matérielles affectées aux nœuds à notre cluster sont assez réduites (1 Go de mémoire) et que K8s essaye de maximiser la disponibilité des `Pods` au cas où un nœud deviendrait indisponible. Notons également que les trois `Pods` ont des noms assez proches.
 
-Nous allons nous intéresser à la problématique de la montée en version des images [Docker](https://www.docker.com/ "Docker"). Dans le fichier de configuration _mydeployment.yaml_ la version de l'image [Docker](https://www.docker.com/ "Docker") [Nginx](https://www.nginx.com/) est actuellement de `1.19`. Il existe de nouvelles versions plus récentes, nous allons migrer progressivement vers celles-ci tout en s'assurant que notre dépoiement est disponible et qu'il est possible de revenir sur un déploiement précédent. Quand une montée en version est réalisée, un enroulement (_rollup_) est provoqué et référencé dans une revision (un numéro unique). Pour chaque révision la cause du changement peut être renseignée dans un texte libre. Cet enroulement pourra être consulté et utilisé pour revenir sur une révision donnée. À noter que cela ne concerne pas uniquement le changement des versions d'image, les changements sur les variables d'environnement et les ressources sont également considérées. Par contre, le changement sur la valeur de `replicas` ne sera pas enroulé.
+Nous allons nous intéresser à la problématique de la montée en version des images [Docker](https://www.docker.com/ "Docker"). Dans le fichier de configuration _mydeployment.yaml_ la version de l'image [Nginx](https://www.nginx.com/) est actuellement de `1.19`. Il existe de nouvelles versions plus récentes, nous allons migrer progressivement vers celles-ci tout en s'assurant que notre dépoiement est disponible et qu'il est possible de revenir sur un déploiement précédent. Quand une montée en version est réalisée, un enroulement (_rollup_) est provoqué et référencé dans une revision (un numéro unique). Pour chaque révision la cause du changement peut être renseignée dans un texte libre. Cet enroulement pourra être consulté et utilisé pour revenir sur une révision donnée. À noter que cela ne concerne pas uniquement le changement des versions d'image, les changements sur les variables d'environnement et les ressources sont également considérées. Par contre, le changement sur la valeur de `replicas` ne sera pas enroulé.
 
-Nous considérons dans la suite que nous disposons d'un `Deployment` qui gère trois `Pods` basés sur l'image [Docker](https://www.docker.com/ "Docker") `1.19`. 
+Nous considérons dans la suite que nous disposons d'un `Deployment` qui gère trois `Pods` basés sur l'image [Nginx](https://www.nginx.com/) `1.19`. 
 
 * Pour afficher l'historique de l'enroulement (_rollup_) en cours pour le `Deployment` `mydeployment` :
 
@@ -254,7 +256,7 @@ kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernete
 
 * Vérifier l'état du déploiement :
 
-```
+```bash
 deployment.apps/mydeployment annotated
 ```
 
@@ -274,19 +276,45 @@ REVISION  CHANGE-CAUSE
 
 Un seule révision est présente pour l'instant dans cet enroulement (_rollup_).
 
-* La version de l'image [Docker](https://www.docker.com/ "Docker") va être modifiée pour passer de la version `1.19` à la version `1.20`. Nous utiliserons l'option `set` de l'outil **kubectl** pour effecuter la modification : 
+* La version de l'image [Nginx](https://www.nginx.com/) va être modifiée pour passer de `1.19` à `1.20`. Créer un nouveau fichier de configuration `Deployment` nommé _exercice2-deployment/mydeployment120.yaml_ : 
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mydeployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mypod
+  template:
+    metadata:
+      labels:
+        app: mypod
+    spec:
+      containers:
+      - name: mycontainer
+        image: nginx:1.20
+        ports:
+        - containerPort: 80
+```
+
+* Appliquer cette nouvelle configuration `Deployment` :
 
 ```bash
-kubectl set image -n mynamespaceexercice2 deployment mydeployment mycontainer=nginx:1.20
+kubectl apply -f exercice2-deployment/mydeployment120.yaml -n mynamespaceexercice2
 ```
 
 La sortie console attendue :
 
 ```bash
-deployment.apps/mydeployment image updated
+deployment.apps/mydeployment configured
 ```
 
-* Créer une annotation pour expliquer la raison :
+Même s'il s'agit d'un nouveau fichier de configuration, le nom du `Deployment` est le même que celui du fichier de configuration _exercice2-deployment/mydeployment.yaml_. Kubernetes va identifier qu'il s'agit du même `Deployment` et appliquer cette configuration. La seule modification apportée concerne la version de l'image [Nginx](https://www.nginx.com/) qui passe de `1.19` à `1.20`.
+
+* Créer une annotation pour expliquer la raison de la dernière révision :
 
 ```bash
 kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernetes.io/change-cause="Image en 1.20"
@@ -339,7 +367,7 @@ spec:
 
 * Appliquer cette nouvelle configuration `Deployment` :
 
-```
+```bash
 kubectl apply -f exercice2-deployment/mydeployment121.yaml -n mynamespaceexercice2
 ```
 
@@ -360,8 +388,6 @@ kubectl annotate deployments.apps -n mynamespaceexercice2 mydeployment kubernete
 ```bash
 deployment.apps/mydeployment annotated
 ```
-
-Même s'il s'agit d'un nouveau fichier de configuration, le nom du `Deployment` est le même que celui du fichier de configuration _exercice2-deployment/mydeployment.yaml_. Kubernetes va identifier qu'il s'agit du même `Deployment` et appliquer cette configuration. La seule modification apportée concerne la version de l'image [Docker](https://www.docker.com/ "Docker") qui passe de `1.20` à `1.21`.
 
 * Afficher de nouveau l'historique de l'enroulement (_rollup_) pour le `Deployment` `mydeployment` :
 
@@ -435,9 +461,9 @@ Events:
   Normal  ScalingReplicaSet  9s (x5 over 19s)  deployment-controller  (combined from similar events): Scaled down replica set mydeployment-74fbc488f9 from 1 to 0
 ```
 
-La version de l'image [Docker](https://www.docker.com/ "Docker") est bien à `1.21`. Dans la partie `Events` nous constatons les différentes opérations réalisées pour passer de la version `1.19` jusqu'à la version `1.21`.
+La version de l'image [Nginx](https://www.nginx.com/) est bien à `1.21`. 
 
-* Utilisons l'option `rollout` pour revenir à une révision antérieure :
+* Utilisons l'option `rollout` pour revenir à une révision antérieure (par exemple la révision 1 qui correspond à la version 1.19 de [Nginx](https://www.nginx.com/)) :
 
 ```bash
 kubectl rollout undo deployment mydeployment -n mynamespaceexercice2 --to-revision=1
@@ -448,6 +474,8 @@ La sortie console attendue :
 ```bash
 deployment.apps/mydeployment rolled back
 ```
+
+> Si l'option `--to-revision=1` est omise, l'enroulement se fera sur la version antérieure. 
 
 Ces opérations sont importantes si vous constatez qu'une mise à jour d'une image [Docker](https://www.docker.com/ "Docker") ne s'est pas bien déroulée. Vous pouvez à tout moment revenir sur des versions antérieures. 
 
@@ -466,8 +494,8 @@ Par ailleurs, nous ne l'avons pas détaillé, mais une stratégie de déploiemen
 
 Pour continuer sur les concepts présentés dans cet exercice, nous proposons les expérimentations suivantes :
 
-* créer un `Deployment` basé sur une image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
+* créer un `Deployment` basé sur une image [Apache HTTP](https://httpd.apache.org/) et définir trois `ReplicaSets` ;
 * changer la stratégie de montée en charge en `Recreate` ;
-* changer la version de l'image [Docker](https://www.docker.com/ "Docker") [Apache HTTP](https://httpd.apache.org/) pour des versions antérieures tout en détaillant la cause du changement `CHANGE-CAUSE`.
+* changer la version de l'image [Apache HTTP](https://httpd.apache.org/) pour des versions antérieures tout en détaillant la cause du changement `CHANGE-CAUSE`.
 
-À noter que si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur [Github](https://github.com/mickaelbaron/mickaelbaron.github.io/issues), je répondrai avec plaisir.
+> Si vous bloquez sur un des points précédents, n'hésitez pas à me solliciter sur [Github](https://github.com/mickaelbaron/mickaelbaron.github.io/issues), je répondrai avec plaisir.
