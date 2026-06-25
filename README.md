@@ -1,6 +1,6 @@
 # Tutoriel Microservices avec Kubernetes - Les bases de K8s
 
-L'objectif de cette série d'exercices est d'apprendre à démystifier Kubernetes (K8s) en s'intéressant aux concepts fondamentaux de cet orchestrateur. Nous commencerons par expliquer comment créer un cluster K8s sur son poste de développeur afin de pouvoir manipuler les concepts tels que les `Pods`, les `Deployments`, les `Services` et les `Volumes`. 
+L'objectif de cette série d'exercices est d'apprendre à démystifier Kubernetes (K8s) en s'intéressant aux concepts fondamentaux de cet orchestrateur. Nous commencerons par expliquer comment créer un cluster K8s sur son poste de développeur afin de pouvoir manipuler les concepts tels que les `Pods`, les `Deployments`, les `Services` et les `Volumes`, ainsi que d'aborder le déploiement et la gestion d'applications à l'aide de **Helm**, le gestionnaire de paquets de l'écosystème Kubernetes.
 
 Ci-dessous sont détaillés les exercices de ce tutoriel :
 
@@ -9,9 +9,10 @@ Ci-dessous sont détaillés les exercices de ce tutoriel :
 * créer et déployer une représentation logique de `Pods` : créer un `Deployment` et gérer la montée en charge des `Pods` (`ReplicaSets`) ;
 * communiquer avec les Pods : créer et déployer des services de type `ClusterIP` et `NodePort` ;
 * communiquer avec les Pods via des règles de routage : créer et déployer un objet de type `Ingress` ;
-* conserver les données : créer des volumes et des volumes persistants (`PersistentVolume` et `PersistentVolumeClaim`). 
+* conserver les données : créer des volumes et des volumes persistants (`PersistentVolume` et `PersistentVolumeClaim`) ;
+* déployer une application avec [Helm](https://helm.sh/).
 
-**Buts pédagogiques** : mettre en place un cluster K8s, créer un `Pod`, communiquer avec un `Pod`, partager des données entre des `Pods`, utiliser des outils d'administration (**kubectl** et [K9s](https://k9scli.io/)).
+**Buts pédagogiques** : mettre en place un cluster K8s, créer un `Pod`, communiquer avec un `Pod`, partager des données entre des `Pods`, utiliser des outils d'administration (**kubectl**, [K9s](https://k9scli.io/) et [Helm](https://helm.sh/)).
 
 **Notes** : cette série d'exercices a été entièrement rédigée par un humain. Les captures d’écran proviennent d’une application réelle ; aucune intelligence artificielle n’a été utilisée.
 
@@ -41,7 +42,7 @@ Seul un environnement est nécessaire pour réaliser les expérimentations de ce
 
 Ce tutoriel a été testé avec les systèmes suivants :
 
-* macOS Sonoma ;
+* macOS Sonoma et Tahoe;
 * Linux Ubuntu 20, Debian 11.
 
 > **Attention** si vous réalisez cette série d'exercices dans le cadre d'une formation avec plusieurs participants. Il est fortement recommandé d'utiliser un registre d'images [Docker](https://www.docker.com/ "Docker") privé pour éviter les [limites](https://www.docker.com/increase-rate-limits) imposer par l'utilisation de [Docker Hub](https://hub.docker.com/). En effet, chaque nœud de votre cluster K8s devra télécharger plusieurs images [Docker](https://www.docker.com/ "Docker") et la limite imposée par [Docker](https://www.docker.com/ "Docker") pour récupérer des images (100 en anonyme et 200 pour un compte gratuite toutes les six heures) peut être rapidement atteinte.

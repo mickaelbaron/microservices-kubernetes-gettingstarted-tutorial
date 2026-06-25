@@ -4,7 +4,7 @@ Les données des `Pods` sont volatibles, c'est-à-dire qu'à chaque destruction 
 
 Pour y répondre, nous introduisons le concept de `Volume`. Un `Volume` représente un espace de stockage contenant des données et accessible à travers plusieurs conteneurs d'un même `Pod`ou de `Pods` différents. Différents types de `Volume` existent selon le besoin de stockage à gérer. Nous étudierons les `Volumes` de type `hostPath` et `emptyDir` pour l'accès à un stockage local (accessible uniquement dans un même nœud) puis `NFS` pour des `Volumes` basés sur des dossiers distants (accessible à travers plusieurs nœuds) gérés par un serveur NFS (Network File System). 
 
-> À noter que cet exercice ne se veut pas être exhaustif pour présenter les différents types de `Volumes` basés sur des dossiers distants (CIFS, `PersistentVolumeClaim`, etc.). Une liste exhaustive est disponible sur la documentation de Kubernetes : https://kubernetes.io/docs/concepts/storage/volumes.
+> À noter que cet exercice ne se veut pas être exhaustif pour présenter les différents types de `Volumes` (CIFS, `PersistentVolumeClaim`, etc.). Une liste exhaustive est disponible sur la documentation de Kubernetes : https://kubernetes.io/docs/concepts/storage/volumes.
 
 > Quelque soit le type d'installation choisi pour la mise en place de votre cluster Kubernetes, toutes les commandes ci-dessous devraient normalement fonctionner. Nous considérons qu'il existe un fichier `k3s.yaml` à la racine du dossier `microservices-kubernetes-gettingstarted-tutorial/`, si ce n'est pas le cas, merci de reprendre la mise en place d'un cluster Kubernetes. Il est important ensuite de s'assurer que la variable `KUBECONFIG` soit initialisée avec le chemin du fichier d'accès au cluster Kubernetes (`export KUBECONFIG=$PWD/k3s.yaml`).
 
@@ -302,7 +302,7 @@ Bonjour depuis le noeud Master
 
 ---
 
-Le résultat attendu `Bonjour depuis le noeud Master` est obtenu ici en deux requêtes. Une manière détournée de `hostPath` pour partager une ressoource commune (dossier ou fichier) consisterait à monter sur chaque nœud un dossier distant comme par exemple NFS ou CIFS. Toutefois, nous vous recommandons de consulter la liste des volumes existants avant d'entreprendre des manipulations compliquées qui pourraient être réalisées simplement. 
+Le résultat attendu `Bonjour depuis le noeud Master` est obtenu ici en deux requêtes. Une manière détournée de `hostPath` pour partager une ressource commune (dossier ou fichier) consisterait à monter sur chaque nœud un dossier distant comme par exemple NFS ou CIFS. Toutefois, nous vous recommandons de consulter la liste des volumes existants avant d'entreprendre des manipulations compliquées qui pourraient être réalisées simplement. 
 
 * Pour continuer l'exercice, supprimer les précédents objets `Deployment` et `Service` :
 

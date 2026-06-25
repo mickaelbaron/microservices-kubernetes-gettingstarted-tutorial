@@ -176,7 +176,34 @@ La sortie console attendue :
 Modification de la page web par defaut
 ```
 
-* Arrêter le pont réseau entre la machine locale et le `Pod` via `CTRL+C` puis supprimer le `Pod` depuis l'invite de commande *kubectl* :
+* Arrêter le pont réseau entre la machine locale et le `Pod` via `CTRL+C`.
+
+Que se passerait-il si le conteneur exécuté dans le `Pod` s'arrêtait ? Par défaut, un `Pod` créé de cette manière utilise une politique de redémarrage automatique (`restartPolicy: Always`). Kubernetes tente alors de redémarrer systématiquement le conteneur lorsqu'il s'arrête avec une attente exponentielle. Cette politique de redémarrage peut être configurée avec l'une des trois valeurs suivantes : `Always` (valeur par défaut), `OnFailure` ou `Never`. 
+
+* Afin de tester la politique de redémarrage automatique, nous allons arrêter (comme s'il s'agit d'un plantage) à plusieurs reprises le conteneur précédemment créé en mettant fin à son processus principal (PID 1).
+
+```bash
+kubectl exec myfirstpod -- sh -c 'kill 1' 
+...
+kubectl exec myfirstpod -- sh -c 'kill 1' 
+```
+
+* Après six arrêts volontaires de notre part, vérifier l'état du `Pod` :
+
+```bash
+kubectl get pods
+```
+
+La sortie console attendue :
+
+```bash
+NAME         READY   STATUS             RESTARTS      AGE
+myfirstpod   0/1     CrashLoopBackOff   5 (17s ago)   160m
+```
+
+Le `Pod` ne redémarre pas de suite pour la dernière tentative, mais il a quand même pu redémarrer cinq fois (`RESTARTS = 5`). Il prendre beaucou de temps pour son dernire redémarrage.
+
+* Supprimer le `Pod` depuis l'invite de commande *kubectl* :
 
 ```bash
 kubectl delete pods myfirstpod
@@ -184,7 +211,47 @@ kubectl delete pods myfirstpod
 
 La sortie console attendue :
 
+```bash
+pod "myfirstpod" deleted
 ```
+
+* Créer un `Pod` sans la possibilité de redémarrer :
+
+```bash
+kubectl run myfirstpod --image=nginx:latest --restart=Never
+```
+
+La sortie console attendue :
+
+```bash
+pod/myfirstpod created
+```
+
+* Arrêter le `Pod` en mode plantage et vérifier qu'il ne redémarre pas.
+
+```bash
+kubectl exec myfirstpod -- sh -c 'kill 1'
+kubectl get pods
+```
+
+La sortie console attendue :
+
+```bash
+NAME         READY   STATUS      RESTARTS   AGE
+myfirstpod   0/1     Completed   0          7m37s
+```
+
+Avec la stratégie `restartPolicy: Never`, le `Pod` se termine, mais reste visible avec le statut `Completed`. Il faudra alors le supprimer pour qu'il ne soit plus visible, sinon vous ne pourrez pas créer un `Pod` avec le même nom.
+
+Supprimer le `Pod` depuis l'invite de commande *kubectl* :
+
+```bash
+kubectl delete pods myfirstpod
+```
+
+La sortie console attendue :
+
+```bash
 pod "myfirstpod" deleted
 ```
 
